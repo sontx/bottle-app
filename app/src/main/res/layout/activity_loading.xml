@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#ffffff"
+    android:background="@color/backgroundPrimary"
     tools:context=".view.activity.LoadingActivity">
 
     <LinearLayout
@@ -16,6 +16,15 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:src="@drawable/personal_logo"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="@string/dummy_content"
+            android:visibility="gone"
+            android:id="@+id/welcome_text"
+            android:layout_gravity="center_horizontal" />
 
         <ProgressBar
             style="?android:attr/progressBarStyleLarge"

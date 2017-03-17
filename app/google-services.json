@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "776952631430",
+    "firebase_url": "https://bottle-e6f6e.firebaseio.com",
+    "project_id": "bottle-e6f6e",
+    "storage_bucket": "bottle-e6f6e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:776952631430:android:cb51514940d78d8c",
+        "android_client_info": {
+          "package_name": "com.blogspot.sontx.bottle"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "776952631430-t4snfjv0g9rbbkp2tjrov0cm5tbjteoq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCzeS-LkOb10A6q7TnzJBZTXjRMxZF4j_4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
