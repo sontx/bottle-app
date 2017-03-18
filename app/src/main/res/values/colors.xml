@@ -6,5 +6,9 @@
 
     <color name="black_overlay">#66000000</color>
 
-    <color name="backgroundPrimary">#ffffff</color>
+    <color name="background_primary">#ffffff</color>
+
+    <color name="divider">#CCC</color>
+    <color name="icons">#FFF</color>
+    <color name="item_background">#FFF</color>
 </resources>
