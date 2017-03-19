@@ -1,5 +1,7 @@
 package com.blogspot.sontx.bottle.view.interfaces;
 
+import android.content.Context;
+
 public interface ViewBase {
     void showProcess();
 
@@ -8,4 +10,6 @@ public interface ViewBase {
     void showErrorMessage(String message);
 
     void showSuccessMessage(String message);
+
+    Context getContext();
 }

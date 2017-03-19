@@ -1,5 +1,7 @@
 package com.blogspot.sontx.bottle.view.fragment;
 
+import android.content.Context;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.widget.Toast;
@@ -72,5 +74,11 @@ abstract class FragmentBase extends Fragment implements ViewBase {
                 }
             });
         }
+    }
+
+    @Nullable
+    @Override
+    public Context getContext() {
+        return getActivity();
     }
 }

@@ -1,11 +1,6 @@
 package com.blogspot.sontx.bottle.presenter.interfaces;
 
-import android.content.Context;
 import android.net.Uri;
-import android.os.Bundle;
-
-import com.blogspot.sontx.bottle.model.bean.ChatMessage;
-import com.blogspot.sontx.bottle.view.activity.ChatActivity;
 
 import java.util.List;
 
@@ -28,5 +23,5 @@ public interface ChatPresenter {
 
     boolean isMoreMessagesExist();
 
-    void setup(Context context);
+    void setup();
 }

@@ -14,7 +14,9 @@ public class ChatChannelPresenterImpl extends PresenterBase implements ChatChann
 
     public ChatChannelPresenterImpl(final ChatChannelView chatChannelView) {
         this.chatChannelView = chatChannelView;
-        chatChannelService = new FirebaseChatChannelService();
+
+        chatChannelService = new FirebaseChatChannelService(chatChannelView.getContext());
+
         chatChannelService.setOnNewChatChannel(new Callback<ChatChannelInfo>(){
             @Override
             public void onSuccess(ChatChannelInfo result) {

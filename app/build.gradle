@@ -63,9 +63,12 @@ dependencies {
     compile 'com.facebook.fresco:fresco:1.1.0'
     compile 'devlight.io:navigationtabbar:1.2.5'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile 'com.github.Slyce-Inc:SlyceMessaging:1.1.2'
     testCompile 'junit:junit:4.12'
     provided 'org.projectlombok:lombok:1.12.6'
-    compile 'com.github.Slyce-Inc:SlyceMessaging:1.1.2'
+
+    compile 'com.jakewharton:butterknife:8.5.1'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
 }
 
 apply plugin: 'com.google.gms.google-services'

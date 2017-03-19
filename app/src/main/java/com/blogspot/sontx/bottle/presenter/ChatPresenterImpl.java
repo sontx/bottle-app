@@ -1,6 +1,5 @@
 package com.blogspot.sontx.bottle.presenter;
 
-import android.content.Context;
 import android.net.Uri;
 
 import com.blogspot.sontx.bottle.model.Constants;
@@ -15,7 +14,6 @@ import com.blogspot.sontx.bottle.model.service.interfaces.ChatService;
 import com.blogspot.sontx.bottle.model.service.interfaces.SimpleCallback;
 import com.blogspot.sontx.bottle.presenter.interfaces.ChatPresenter;
 import com.blogspot.sontx.bottle.view.interfaces.ChatView;
-import com.firebase.client.Firebase;
 
 import java.util.List;
 
@@ -36,8 +34,8 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
 
     public ChatPresenterImpl(ChatView chatView) {
         this.chatView = chatView;
-        this.chatService = new FirebaseChatService();
-        this.accountManagerService = new FirebaseAccountManagerService();
+        chatService = new FirebaseChatService(chatView.getContext());
+        accountManagerService = new FirebaseAccountManagerService(chatView.getContext());
 
         recipientAccountBasicInfo = new AccountBasicInfo();
         recipientAccountBasicInfo.setDisplayName(getDefaultDisplayName());
@@ -116,8 +114,7 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
     }
 
     @Override
-    public void setup(Context context) {
-        Firebase.setAndroidContext(context);
+    public void setup() {
         chatService.setup(channelKey, currentAccountBasicInfo.getId(), recipientAccountBasicInfo.getId());
 
         accountManagerService.resolveAsync(currentAccountBasicInfo.getId(), new Callback<AccountBasicInfo>() {

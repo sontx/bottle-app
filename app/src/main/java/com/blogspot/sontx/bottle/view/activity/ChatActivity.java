@@ -9,7 +9,6 @@ import com.blogspot.sontx.bottle.presenter.ChatPresenterImpl;
 import com.blogspot.sontx.bottle.presenter.interfaces.ChatPresenter;
 import com.blogspot.sontx.bottle.view.interfaces.ChatView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import it.slyce.messaging.SlyceMessagingFragment;
@@ -38,7 +37,7 @@ public class ChatActivity extends ActivityBase implements ChatView, UserSendsMes
             chatPresenter = new ChatPresenterImpl(this);
             chatPresenter.setRecipientUserId(recipientUserId);
             chatPresenter.setCurrentUserId(currentUserId);
-            chatPresenter.setup(this);
+            chatPresenter.setup();
 
             initUI();
         } else {

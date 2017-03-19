@@ -27,7 +27,7 @@ public class LoginPresenterImpl
     public LoginPresenterImpl(@lombok.NonNull LoginView loginView) {
         this.loginView = loginView;
         this.firebaseAuth = FirebaseAuth.getInstance();
-        accountManagerService = new FirebaseAccountManagerService();
+        accountManagerService = new FirebaseAccountManagerService(loginView.getContext());
     }
 
     @Override

@@ -1,5 +1,7 @@
 package com.blogspot.sontx.bottle.model.service;
 
+import android.content.Context;
+
 import com.blogspot.sontx.bottle.model.Constants;
 import com.blogspot.sontx.bottle.model.bean.AccountBasicInfo;
 import com.blogspot.sontx.bottle.model.bean.ChatChannelInfo;
@@ -16,15 +18,16 @@ import com.google.firebase.database.ValueEventListener;
 import lombok.Data;
 import lombok.Setter;
 
-public class FirebaseChatChannelService implements ChatChannelService, ChildEventListener {
+public class FirebaseChatChannelService extends FirebaseServiceBase implements ChatChannelService, ChildEventListener {
     private DatabaseReference userChatChannelRef;
     private String currentUserId;
     @Setter
     private Callback<ChatChannelInfo> onNewChatChannel;
     private final AccountManagerService accountManagerService;
 
-    public FirebaseChatChannelService() {
-        accountManagerService = new FirebaseAccountManagerService();
+    public FirebaseChatChannelService(Context context) {
+        super(context);
+        accountManagerService = new FirebaseAccountManagerService(context);
     }
 
     @Override
@@ -64,29 +67,29 @@ public class FirebaseChatChannelService implements ChatChannelService, ChildEven
 
         FirebaseDatabase.getInstance().getReference(channelsKey).child(channelKey).child(channelInfoKey)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                String createKey = System.getProperty(Constants.FIREBASE_CHAT_CHANNEL_INFO_CREATE_KEY);
-                String lastActiveKey = System.getProperty(Constants.FIREBASE_CHAT_CHANNEL_INFO_LAST_ACTIVE_KEY);
-                String user1IdKey = System.getProperty(Constants.FIREBASE_CHAT_CHANNEL_INFO_USER1_ID_KEY);
-                String user2IdKey = System.getProperty(Constants.FIREBASE_CHAT_CHANNEL_INFO_USER2_ID_KEY);
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        String createKey = System.getProperty(Constants.FIREBASE_CHAT_CHANNEL_INFO_CREATE_KEY);
+                        String lastActiveKey = System.getProperty(Constants.FIREBASE_CHAT_CHANNEL_INFO_LAST_ACTIVE_KEY);
+                        String user1IdKey = System.getProperty(Constants.FIREBASE_CHAT_CHANNEL_INFO_USER1_ID_KEY);
+                        String user2IdKey = System.getProperty(Constants.FIREBASE_CHAT_CHANNEL_INFO_USER2_ID_KEY);
 
-                TempChatChannelInfo tempChatChannelInfo = new TempChatChannelInfo();
+                        TempChatChannelInfo tempChatChannelInfo = new TempChatChannelInfo();
 
-                tempChatChannelInfo.setCreateTime(dataSnapshot.child(createKey).getValue(Long.class));
-                tempChatChannelInfo.setLastActiveTime(dataSnapshot.child(lastActiveKey).getValue(Long.class));
-                tempChatChannelInfo.setUser1Id(dataSnapshot.child(user1IdKey).getValue(String.class));
-                tempChatChannelInfo.setUser2Id(dataSnapshot.child(user2IdKey).getValue(String.class));
+                        tempChatChannelInfo.setCreateTime(dataSnapshot.child(createKey).getValue(Long.class));
+                        tempChatChannelInfo.setLastActiveTime(dataSnapshot.child(lastActiveKey).getValue(Long.class));
+                        tempChatChannelInfo.setUser1Id(dataSnapshot.child(user1IdKey).getValue(String.class));
+                        tempChatChannelInfo.setUser2Id(dataSnapshot.child(user2IdKey).getValue(String.class));
 
-                getDisplayChatChannelInfo(tempChatChannelInfo);
-            }
+                        getDisplayChatChannelInfo(tempChatChannelInfo);
+                    }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                if (onNewChatChannel != null)
-                    onNewChatChannel.onError(databaseError.toException());
-            }
-        });
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        if (onNewChatChannel != null)
+                            onNewChatChannel.onError(databaseError.toException());
+                    }
+                });
     }
 
     private void getDisplayChatChannelInfo(final TempChatChannelInfo tempChatChannelInfo) {

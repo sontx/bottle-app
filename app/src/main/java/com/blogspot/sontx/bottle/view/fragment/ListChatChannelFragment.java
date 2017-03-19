@@ -66,6 +66,9 @@ public class ListChatChannelFragment extends FragmentBase implements ChatChannel
 
             new SwipeToAction(recyclerView, listener);
         }
+
+        chatChannelPresenter.fetchAvailableChatChannelsAsync();
+
         return view;
     }
 
@@ -79,7 +82,6 @@ public class ListChatChannelFragment extends FragmentBase implements ChatChannel
             throw new RuntimeException(context.toString()
                     + " must implement SwipeToAction.SwipeListener<ChatChannelDummy>");
         }
-        chatChannelPresenter.fetchAvailableChatChannelsAsync();
     }
 
     @Override

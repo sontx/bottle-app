@@ -1,5 +1,6 @@
 package com.blogspot.sontx.bottle.model.service;
 
+import android.content.Context;
 import android.net.Uri;
 
 import com.blogspot.sontx.bottle.model.Constants;
@@ -21,13 +22,17 @@ import java.util.List;
 import it.slyce.messaging.message.Message;
 import lombok.Setter;
 
-public class FirebaseChatService implements ChatService, ChildEventListener {
+public class FirebaseChatService extends FirebaseServiceBase implements ChatService, ChildEventListener {
     private DatabaseReference messagesRef;
     private DatabaseReference infoRef;
     @Setter
     private String currentUserId;
     @Setter
     private SimpleCallback<ChatMessage> onNewChatMessage;
+
+    public FirebaseChatService(Context context) {
+        super(context);
+    }
 
     @Override
     public void sendAsync(String text, Callback<ChatMessage> callback) {

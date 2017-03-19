@@ -8,7 +8,7 @@ import java.util.List;
 
 import it.slyce.messaging.message.Message;
 
-public interface ChatService {
+public interface ChatService extends ServiceBase {
     void sendAsync(String text, Callback<ChatMessage> callback);
 
     void sendAsync(Uri imageUri, Callback<ChatMessage> callback);

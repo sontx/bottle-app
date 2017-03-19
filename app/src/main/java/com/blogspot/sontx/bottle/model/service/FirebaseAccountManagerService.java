@@ -1,5 +1,7 @@
 package com.blogspot.sontx.bottle.model.service;
 
+import android.content.Context;
+
 import com.blogspot.sontx.bottle.model.Constants;
 import com.blogspot.sontx.bottle.model.bean.AccountBasicInfo;
 import com.blogspot.sontx.bottle.model.service.interfaces.AccountManagerService;
@@ -12,10 +14,11 @@ import com.google.firebase.database.ValueEventListener;
 
 import lombok.NonNull;
 
-public class FirebaseAccountManagerService implements AccountManagerService {
+public class FirebaseAccountManagerService extends FirebaseServiceBase implements AccountManagerService {
     private final DatabaseReference basicUserRef;
 
-    public FirebaseAccountManagerService() {
+    public FirebaseAccountManagerService(Context context) {
+        super(context);
         String usersPublicInfoKey = System.getProperty(Constants.FIREBASE_USER_PUBLIC_INFO_KEY);
         basicUserRef = FirebaseDatabase.getInstance().getReference(usersPublicInfoKey);
     }

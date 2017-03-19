@@ -1,5 +1,6 @@
 package com.blogspot.sontx.bottle.view.activity;
 
+import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Window;
 import android.view.WindowManager;
@@ -67,5 +68,10 @@ abstract class ActivityBase extends AppCompatActivity implements ViewBase {
                 Toast.makeText(ActivityBase.this, message, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @Override
+    public Context getContext() {
+        return this;
     }
 }
