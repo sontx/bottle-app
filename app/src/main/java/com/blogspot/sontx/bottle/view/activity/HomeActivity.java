@@ -9,8 +9,10 @@ import android.view.ViewGroup;
 
 import com.blogspot.sontx.bottle.R;
 import com.blogspot.sontx.bottle.model.bean.ChatChannelInfo;
+import com.blogspot.sontx.bottle.presenter.AccountManagerPresenterImpl;
 import com.blogspot.sontx.bottle.presenter.interfaces.AccountManagerPresenter;
 import com.blogspot.sontx.bottle.view.adapter.HomeFragmentPagerAdapter;
+import com.blogspot.sontx.bottle.view.fragment.SettingFragment;
 import com.blogspot.sontx.bottle.view.interfaces.AccountManagerView;
 import com.firebase.client.Firebase;
 import com.google.firebase.auth.FirebaseUser;
@@ -22,7 +24,8 @@ import java.util.Random;
 import co.dift.ui.SwipeToAction;
 import devlight.io.library.ntb.NavigationTabBar;
 
-public class HomeActivity extends ActivityBase implements AccountManagerView, SwipeToAction.SwipeListener<ChatChannelInfo> {
+public class HomeActivity extends ActivityBase
+        implements AccountManagerView, SwipeToAction.SwipeListener<ChatChannelInfo>, SettingFragment.OnSettingFragmentInteractionListener {
 
     private AccountManagerPresenter accountManagerPresenter;
 
@@ -31,8 +34,8 @@ public class HomeActivity extends ActivityBase implements AccountManagerView, Sw
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         Firebase.setAndroidContext(this);
+        accountManagerPresenter = new AccountManagerPresenterImpl(this);
         initUI();
-        //accountManagerPresenter = new AccountManagerPresenterImpl(this);
     }
 
     @Override
@@ -161,5 +164,11 @@ public class HomeActivity extends ActivityBase implements AccountManagerView, Sw
     @Override
     public void onLongClick(ChatChannelInfo itemData) {
 
+    }
+
+    @Override
+    public void logoutClick() {
+        accountManagerPresenter.logout();
+        startActivity(new Intent(this, FbLoginActivity.class));
     }
 }
