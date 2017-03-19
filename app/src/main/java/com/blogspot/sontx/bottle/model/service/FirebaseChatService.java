@@ -5,7 +5,7 @@ import android.net.Uri;
 
 import com.blogspot.sontx.bottle.model.Constants;
 import com.blogspot.sontx.bottle.model.bean.ChatMessage;
-import com.blogspot.sontx.bottle.model.bean.MessageType;
+import com.blogspot.sontx.bottle.model.bean.ChatMessageType;
 import com.blogspot.sontx.bottle.model.service.interfaces.Callback;
 import com.blogspot.sontx.bottle.model.service.interfaces.ChatService;
 import com.blogspot.sontx.bottle.model.service.interfaces.SimpleCallback;
@@ -36,12 +36,12 @@ public class FirebaseChatService extends FirebaseServiceBase implements ChatServ
 
     @Override
     public void sendAsync(String text, Callback<ChatMessage> callback) {
-        sendAsync(text, MessageType.TEXT.getType(), callback);
+        sendAsync(text, ChatMessageType.TEXT.getType(), callback);
     }
 
     @Override
     public void sendAsync(Uri imageUri, Callback<ChatMessage> callback) {
-        sendAsync(imageUri.toString(), MessageType.MEDIA.getType(), callback);
+        sendAsync(imageUri.toString(), ChatMessageType.MEDIA.getType(), callback);
     }
 
     @Override

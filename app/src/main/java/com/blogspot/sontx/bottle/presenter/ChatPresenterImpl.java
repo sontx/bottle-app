@@ -5,7 +5,7 @@ import android.net.Uri;
 import com.blogspot.sontx.bottle.model.Constants;
 import com.blogspot.sontx.bottle.model.bean.AccountBasicInfo;
 import com.blogspot.sontx.bottle.model.bean.ChatMessage;
-import com.blogspot.sontx.bottle.model.bean.MessageType;
+import com.blogspot.sontx.bottle.model.bean.ChatMessageType;
 import com.blogspot.sontx.bottle.model.service.FirebaseAccountManagerService;
 import com.blogspot.sontx.bottle.model.service.FirebaseChatService;
 import com.blogspot.sontx.bottle.model.service.interfaces.AccountManagerService;
@@ -146,11 +146,11 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
             return;
 
         Message message = null;
-        if (value.getType().equalsIgnoreCase(MessageType.TEXT.getType())) {
+        if (value.getType().equalsIgnoreCase(ChatMessageType.TEXT.getType())) {
             TextMessage textMessage = new TextMessage();
             textMessage.setText(value.getContent());
             message = textMessage;
-        } else if (value.getType().equalsIgnoreCase(MessageType.MEDIA.getType())) {
+        } else if (value.getType().equalsIgnoreCase(ChatMessageType.MEDIA.getType())) {
             MediaMessage mediaMessage = new MediaMessage();
             mediaMessage.setUrl(value.getContent());
             message = mediaMessage;
@@ -158,7 +158,7 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
 
         if (message != null) {
             message.setDate(value.getCreatedTime());
-            message.setSource(MessageSource.EXTERNAL_USER);
+            message.setSource(value.getSenderId().equalsIgnoreCase(currentAccountBasicInfo.getId()) ? MessageSource.LOCAL_USER : MessageSource.EXTERNAL_USER);
             message.setUserId(value.getSenderId());
 
             AccountBasicInfo senderAccountBasicInfo = getAccountBasicInfoById(value.getSenderId());
