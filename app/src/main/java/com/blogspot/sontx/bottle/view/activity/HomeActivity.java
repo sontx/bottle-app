@@ -3,19 +3,16 @@ package com.blogspot.sontx.bottle.view.activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.blogspot.sontx.bottle.R;
-import com.blogspot.sontx.bottle.model.bean.ChatChannel;
-import com.blogspot.sontx.bottle.presenter.AccountManagerPresenterImpl;
+import com.blogspot.sontx.bottle.model.bean.ChatChannelInfo;
 import com.blogspot.sontx.bottle.presenter.interfaces.AccountManagerPresenter;
 import com.blogspot.sontx.bottle.view.adapter.HomeFragmentPagerAdapter;
 import com.blogspot.sontx.bottle.view.interfaces.AccountManagerView;
+import com.firebase.client.Firebase;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
@@ -25,7 +22,7 @@ import java.util.Random;
 import co.dift.ui.SwipeToAction;
 import devlight.io.library.ntb.NavigationTabBar;
 
-public class HomeActivity extends ActivityBase implements AccountManagerView, SwipeToAction.SwipeListener<ChatChannel> {
+public class HomeActivity extends ActivityBase implements AccountManagerView, SwipeToAction.SwipeListener<ChatChannelInfo> {
 
     private AccountManagerPresenter accountManagerPresenter;
 
@@ -33,6 +30,7 @@ public class HomeActivity extends ActivityBase implements AccountManagerView, Sw
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+        Firebase.setAndroidContext(this);
         initUI();
         //accountManagerPresenter = new AccountManagerPresenterImpl(this);
     }
@@ -40,7 +38,7 @@ public class HomeActivity extends ActivityBase implements AccountManagerView, Sw
     @Override
     protected void onStart() {
         super.onStart();
-       // accountManagerPresenter.register();
+        // accountManagerPresenter.register();
     }
 
     @Override
@@ -146,22 +144,22 @@ public class HomeActivity extends ActivityBase implements AccountManagerView, Sw
     }
 
     @Override
-    public boolean swipeLeft(ChatChannel itemData) {
+    public boolean swipeLeft(ChatChannelInfo itemData) {
         return false;
     }
 
     @Override
-    public boolean swipeRight(ChatChannel itemData) {
+    public boolean swipeRight(ChatChannelInfo itemData) {
         return false;
     }
 
     @Override
-    public void onClick(ChatChannel itemData) {
+    public void onClick(ChatChannelInfo itemData) {
 
     }
 
     @Override
-    public void onLongClick(ChatChannel itemData) {
+    public void onLongClick(ChatChannelInfo itemData) {
 
     }
 }

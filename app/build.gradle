@@ -28,10 +28,16 @@ android {
     }
 }
 
+repositories {
+    jcenter()
+    maven { url "https://s3.amazonaws.com/repo.commonsware.com" }
+    maven { url "https://jitpack.io" }
+}
+
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:multidex:1.0.1'
 
+    compile 'com.android.support:multidex:1.0.1'
     compile 'com.android.support:appcompat-v7:25.3.0'
     compile 'com.android.support:support-v4:25.3.0'
     compile 'com.android.support:support-annotations:25.3.0'
@@ -51,13 +57,15 @@ dependencies {
     compile 'com.google.firebase:firebase-core:10.2.0'
     compile 'com.google.firebase:firebase-auth:10.2.0'
     compile 'com.google.firebase:firebase-database:10.2.0'
+    compile 'com.google.firebase:firebase-messaging:10.2.0'
     compile 'com.firebase:firebase-client-android:2.3.1'
-    testCompile 'junit:junit:4.12'
-    provided 'org.projectlombok:lombok:1.12.6'
-
     compile 'co.dift.ui.swipetoaction:library:1.1'
     compile 'com.facebook.fresco:fresco:1.1.0'
     compile 'devlight.io:navigationtabbar:1.2.5'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    testCompile 'junit:junit:4.12'
+    provided 'org.projectlombok:lombok:1.12.6'
+    compile 'com.github.Slyce-Inc:SlyceMessaging:1.1.2'
 }
 
 apply plugin: 'com.google.gms.google-services'

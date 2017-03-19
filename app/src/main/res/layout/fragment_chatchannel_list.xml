@@ -9,5 +9,5 @@
     android:layout_marginLeft="16dp"
     android:layout_marginRight="16dp"
     app:layoutManager="LinearLayoutManager"
-    tools:context="com.blogspot.sontx.bottle.view.fragment.ChatItemFragment"
-    tools:listitem="@layout/fragment_chatitem" />
+    tools:context="com.blogspot.sontx.bottle.view.fragment.ListChatChannelFragment"
+    tools:listitem="@layout/fragment_chatchannel_item" />

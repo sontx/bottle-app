@@ -53,7 +53,8 @@
             android:theme="@style/FullscreenTheme" />
         <activity
             android:name=".view.activity.HomeActivity"
-            android:label="@string/title_activity_home"></activity>
+            android:label="@string/title_activity_home" />
+        <activity android:name=".view.activity.ChatActivity"></activity>
     </application>
 
 </manifest>

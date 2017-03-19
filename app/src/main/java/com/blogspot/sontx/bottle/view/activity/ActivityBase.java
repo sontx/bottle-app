@@ -8,7 +8,7 @@ import android.widget.Toast;
 import com.blogspot.sontx.bottle.view.dialog.ProcessDialog;
 import com.blogspot.sontx.bottle.view.interfaces.ViewBase;
 
-public abstract class ActivityBase extends AppCompatActivity implements ViewBase {
+abstract class ActivityBase extends AppCompatActivity implements ViewBase {
     protected static final String TAG = "ACTIVITY";
     private ProcessDialog processDialog;
 

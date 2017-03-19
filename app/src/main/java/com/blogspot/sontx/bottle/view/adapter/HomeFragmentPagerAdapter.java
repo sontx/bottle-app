@@ -4,7 +4,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import com.blogspot.sontx.bottle.view.fragment.ChatItemFragment;
+import com.blogspot.sontx.bottle.view.fragment.ListChatChannelFragment;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class HomeFragmentPagerAdapter extends FragmentPagerAdapter {
     public HomeFragmentPagerAdapter(FragmentManager fm) {
@@ -18,10 +19,11 @@ public class HomeFragmentPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        return ChatItemFragment.newInstance();
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        return ListChatChannelFragment.newInstance(uid);
 //        switch (position) {
 //            case 0:
-//                return ChatItemFragment.newInstance();
+//                return ListChatChannelFragment.newInstance();
 //            case 1:
 //                return null;
 //            case 2:

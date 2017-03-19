@@ -7,35 +7,41 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.blogspot.sontx.bottle.R;
-import com.blogspot.sontx.bottle.model.bean.ChatChannel;
+import com.blogspot.sontx.bottle.model.bean.ChatChannelInfo;
+import com.blogspot.sontx.bottle.utils.DateTimeUtils;
 import com.facebook.drawee.view.SimpleDraweeView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import co.dift.ui.SwipeToAction;
 
-public class ChatItemRecyclerViewAdapter extends RecyclerView.Adapter<ChatItemRecyclerViewAdapter.ChatChannelViewHolder> {
+public class ListChatChannelRecyclerViewAdapter extends RecyclerView.Adapter<ListChatChannelRecyclerViewAdapter.ChatChannelViewHolder> {
 
-    private final List<ChatChannel> values;
+    private final List<ChatChannelInfo> values;
 
-    public ChatItemRecyclerViewAdapter(List<ChatChannel> items) {
-        this.values = items;
+    public void add(ChatChannelInfo chatChannelInfo) {
+        values.add(chatChannelInfo);
+    }
+
+    public ListChatChannelRecyclerViewAdapter() {
+        this.values = new ArrayList<>();
     }
 
     @Override
     public ChatChannelViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_chatitem, parent, false);
+                .inflate(R.layout.fragment_chatchannel_item, parent, false);
         return new ChatChannelViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(final ChatChannelViewHolder holder, int position) {
-        ChatChannel item = values.get(position);
+        ChatChannelInfo item = values.get(position);
 
         holder.data = item;
-        holder.titleView.setText(item.getRecipient());
-        holder.detailView.setText(item.getLastInteractTime());
+        holder.titleView.setText(item.getRecipientDisplayName());
+        holder.detailView.setText(DateTimeUtils.getTimestamp(item.getLastActiveTime()));
         holder.imageView.setImageURI(item.getRecipientAvatarUrl());
     }
 
@@ -44,7 +50,7 @@ public class ChatItemRecyclerViewAdapter extends RecyclerView.Adapter<ChatItemRe
         return values.size();
     }
 
-    class ChatChannelViewHolder extends SwipeToAction.ViewHolder<ChatChannel> {
+    class ChatChannelViewHolder extends SwipeToAction.ViewHolder<ChatChannelInfo> {
         TextView titleView;
         TextView detailView;
         SimpleDraweeView imageView;

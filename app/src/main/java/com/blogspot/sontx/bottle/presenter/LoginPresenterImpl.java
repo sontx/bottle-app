@@ -3,6 +3,10 @@ package com.blogspot.sontx.bottle.presenter;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.blogspot.sontx.bottle.model.Constants;
+import com.blogspot.sontx.bottle.model.bean.AccountBasicInfo;
+import com.blogspot.sontx.bottle.model.service.FirebaseAccountManagerService;
+import com.blogspot.sontx.bottle.model.service.interfaces.AccountManagerService;
 import com.blogspot.sontx.bottle.presenter.interfaces.LoginPresenter;
 import com.blogspot.sontx.bottle.view.interfaces.LoginView;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -18,10 +22,12 @@ public class LoginPresenterImpl
         implements LoginPresenter, FirebaseAuth.AuthStateListener, OnCompleteListener<AuthResult> {
     private final LoginView loginView;
     private final FirebaseAuth firebaseAuth;
+    private final AccountManagerService accountManagerService;
 
     public LoginPresenterImpl(@lombok.NonNull LoginView loginView) {
         this.loginView = loginView;
         this.firebaseAuth = FirebaseAuth.getInstance();
+        accountManagerService = new FirebaseAccountManagerService();
     }
 
     @Override
@@ -44,6 +50,8 @@ public class LoginPresenterImpl
     @Override
     public void checkLoginState() {
         FirebaseUser user = firebaseAuth.getCurrentUser();
+        if (user != null)
+            updateUserPublicInfo(user);
         loginView.updateUI(user);
     }
 
@@ -59,8 +67,20 @@ public class LoginPresenterImpl
         if (!task.isSuccessful()) {
             Log.w(TAG, "signInWithCredential", task.getException());
             loginView.showErrorMessage("Authentication failed.");
+        } else {
+            updateUserPublicInfo(task.getResult().getUser());
         }
-
         loginView.hideProcess();
+    }
+
+    private void updateUserPublicInfo(FirebaseUser user) {
+        AccountBasicInfo basicInfo = new AccountBasicInfo();
+        basicInfo.setId(user.getUid());
+        basicInfo.setDisplayName(user.getDisplayName());
+        if (user.getPhotoUrl() != null)
+            basicInfo.setAvatarUrl(user.getPhotoUrl().toString());
+        else
+            basicInfo.setAvatarUrl(System.getProperty(Constants.UI_DEFAULT_AVATAR_URL_KEY));
+        accountManagerService.updateUserPublicInfo(basicInfo);
     }
 }
