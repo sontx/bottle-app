@@ -54,6 +54,7 @@ public class WriteMessageActivity extends ActivityBase implements OnBackPressedL
     private EmojiPopup emojiPopup;
     private MaterialSheetFab materialSheetFab;
     private WriteMessagePresenter writeMessagePresenter;
+    private boolean firstTime = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -245,11 +246,20 @@ public class WriteMessageActivity extends ActivityBase implements OnBackPressedL
         rootExtraView.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
-    private void displayImagePreview(Bitmap bitmap) {
+    private void displayImagePreview(final Bitmap bitmap) {
         showExtraLayout(true);
         PhotoPreviewFragment photoPreviewFragment = PhotoPreviewFragment.newInstance();
         replaceFragment(R.id.extra_layout, photoPreviewFragment);
         photoPreviewFragment.setBitmap(bitmap);
+        if (firstTime) {
+            firstTime = false;
+            DelayJobUtils.delay(new Runnable() {
+                @Override
+                public void run() {
+                    displayImagePreview(bitmap);
+                }
+            }, 600);
+        }
     }
 
     private void showSoftKeyboard() {
