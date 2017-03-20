@@ -11,4 +11,9 @@
     <color name="divider">#CCC</color>
     <color name="icons">#FFF</color>
     <color name="item_background">#FFF</color>
+
+    <color name="background_card">#fff</color>
+
+    <color name="fab_text_black">#de000000</color>
+
 </resources>

@@ -19,6 +19,10 @@ abstract class ActivityBase extends AppCompatActivity implements ViewBase {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
     }
 
+    protected void adjustSoftKeyboard() {
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE | WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+    }
+
     @Override
     public void showProcess() {
         runOnUiThread(new Runnable() {

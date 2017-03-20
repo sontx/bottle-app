@@ -64,11 +64,13 @@ dependencies {
     compile 'devlight.io:navigationtabbar:1.2.5'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.github.Slyce-Inc:SlyceMessaging:1.1.2'
-    testCompile 'junit:junit:4.12'
-    provided 'org.projectlombok:lombok:1.12.6'
-
     compile 'com.jakewharton:butterknife:8.5.1'
+    compile 'com.vanniktech:emoji-one:0.4.0'
+    compile 'com.vanniktech:emoji:0.4.0'
+    compile 'com.gordonwong:material-sheet-fab:1.2.1'
+    testCompile 'junit:junit:4.12'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
+    provided 'org.projectlombok:lombok:1.12.6'
 }
 
 apply plugin: 'com.google.gms.google-services'
