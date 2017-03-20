@@ -2,9 +2,9 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root_view"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:id="@+id/root_view"
     tools:context="com.blogspot.sontx.bottle.view.activity.WriteMessageActivity">
 
     <android.support.design.widget.AppBarLayout
@@ -23,14 +23,14 @@
     </android.support.design.widget.AppBarLayout>
 
     <RelativeLayout
-        android:layout_below="@+id/root_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/root_toolbar">
 
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@+id/input_type_layout"
+            android:layout_above="@+id/extra_layout"
             android:layout_alignParentTop="true"
             android:fillViewport="true">
 
@@ -44,8 +44,8 @@
                     android:id="@+id/message_text"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:gravity="top"
                     android:background="@android:color/transparent"
+                    android:gravity="top"
                     android:inputType="textCapSentences|textMultiLine">
 
                     <requestFocus />
@@ -53,6 +53,16 @@
 
             </LinearLayout>
         </ScrollView>
+
+        <com.blogspot.sontx.bottle.view.custom.FrameLayout169
+            android:id="@+id/extra_layout"
+            android:layout_margin="@dimen/preview_margin"
+            android:padding="@dimen/preview_padding"
+            android:background="@drawable/around_background"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_above="@+id/input_type_layout"
+            android:visibility="gone" />
 
         <RelativeLayout
             android:id="@+id/input_type_layout"
@@ -77,20 +87,21 @@
                 android:id="@+id/facebook_check"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/facebook"
                 android:layout_centerVertical="true"
+                android:layout_toEndOf="@+id/input_type_button"
                 android:layout_toRightOf="@+id/input_type_button"
-                android:layout_toEndOf="@+id/input_type_button" />
+                android:text="@string/facebook" />
         </RelativeLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentBottom="true">
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true">
+
             <com.blogspot.sontx.bottle.view.custom.RichFloatingActionButton
                 android:id="@+id/fab"
-                style="@style/Widget.MaterialSheetFab.Fab"/>
+                style="@style/Widget.MaterialSheetFab.Fab" />
         </LinearLayout>
 
         <!-- Overlay that dims the screen -->
@@ -103,8 +114,8 @@
         <io.codetail.widget.RevealLinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="end|bottom"
             android:layout_alignParentBottom="true"
+            android:gravity="end|bottom"
             android:orientation="vertical">
 
             <!-- Sheet that contains your items -->

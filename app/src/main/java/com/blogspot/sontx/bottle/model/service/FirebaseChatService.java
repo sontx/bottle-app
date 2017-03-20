@@ -3,7 +3,7 @@ package com.blogspot.sontx.bottle.model.service;
 import android.content.Context;
 import android.net.Uri;
 
-import com.blogspot.sontx.bottle.model.Constants;
+import com.blogspot.sontx.bottle.Constants;
 import com.blogspot.sontx.bottle.model.bean.ChatMessage;
 import com.blogspot.sontx.bottle.model.bean.ChatMessageType;
 import com.blogspot.sontx.bottle.model.service.interfaces.Callback;

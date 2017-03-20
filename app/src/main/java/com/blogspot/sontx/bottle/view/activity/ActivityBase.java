@@ -1,6 +1,9 @@
 package com.blogspot.sontx.bottle.view.activity;
 
 import android.content.Context;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Window;
 import android.view.WindowManager;
@@ -21,6 +24,13 @@ abstract class ActivityBase extends AppCompatActivity implements ViewBase {
 
     protected void adjustSoftKeyboard() {
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE | WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+    }
+
+    protected void replaceFragment(int placeId, Fragment fragment) {
+        FragmentManager fm = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fm.beginTransaction();
+        fragmentTransaction.replace(placeId, fragment);
+        fragmentTransaction.commitAllowingStateLoss();
     }
 
     @Override

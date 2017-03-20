@@ -2,7 +2,7 @@ package com.blogspot.sontx.bottle.model.service;
 
 import android.content.Context;
 
-import com.blogspot.sontx.bottle.model.Constants;
+import com.blogspot.sontx.bottle.Constants;
 import com.blogspot.sontx.bottle.model.bean.AccountBasicInfo;
 import com.blogspot.sontx.bottle.model.service.interfaces.AccountManagerService;
 import com.blogspot.sontx.bottle.model.service.interfaces.Callback;

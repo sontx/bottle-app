@@ -7,7 +7,7 @@
     <!-- this view reveals when swipe right -->
     <RelativeLayout
         android:tag="reveal-right"
-        android:background="@color/colorAccent"
+        android:background="@color/accent"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -25,7 +25,7 @@
     <!-- this view reveals when swipe left -->
     <RelativeLayout
         android:tag="reveal-left"
-        android:background="@color/colorPrimary"
+        android:background="@color/primary"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 

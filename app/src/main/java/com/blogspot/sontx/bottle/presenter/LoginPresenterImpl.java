@@ -3,7 +3,7 @@ package com.blogspot.sontx.bottle.presenter;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.blogspot.sontx.bottle.model.Constants;
+import com.blogspot.sontx.bottle.Constants;
 import com.blogspot.sontx.bottle.model.bean.AccountBasicInfo;
 import com.blogspot.sontx.bottle.model.service.FirebaseAccountManagerService;
 import com.blogspot.sontx.bottle.model.service.interfaces.AccountManagerService;

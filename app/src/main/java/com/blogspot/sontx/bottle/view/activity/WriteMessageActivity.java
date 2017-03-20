@@ -1,19 +1,31 @@
 package com.blogspot.sontx.bottle.view.activity;
 
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
 
+import com.blogspot.sontx.bottle.Constants;
 import com.blogspot.sontx.bottle.R;
+import com.blogspot.sontx.bottle.presenter.WriteMessagePresenterImpl;
+import com.blogspot.sontx.bottle.presenter.interfaces.WriteMessagePresenter;
+import com.blogspot.sontx.bottle.utils.DelayJobUtils;
 import com.blogspot.sontx.bottle.view.custom.OnBackPressedListener;
 import com.blogspot.sontx.bottle.view.custom.RichEmojiEditText;
 import com.blogspot.sontx.bottle.view.custom.RichFloatingActionButton;
+import com.blogspot.sontx.bottle.view.fragment.PhotoPreviewFragment;
+import com.blogspot.sontx.bottle.view.fragment.PreviewFragmentBase;
+import com.blogspot.sontx.bottle.view.interfaces.WriteMessageView;
 import com.gordonwong.materialsheetfab.MaterialSheetFab;
+import com.mvc.imagepicker.ImagePicker;
 import com.vanniktech.emoji.EmojiManager;
 import com.vanniktech.emoji.EmojiPopup;
 import com.vanniktech.emoji.one.EmojiOneProvider;
@@ -24,21 +36,24 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnTouch;
 
-public class WriteMessageActivity extends ActivityBase implements OnBackPressedListener {
+public class WriteMessageActivity extends ActivityBase implements OnBackPressedListener, WriteMessageView, PreviewFragmentBase.OnRemoveExtraListener {
     @BindView(R.id.input_type_button)
     ImageButton inputTypeButton;
     @BindView(R.id.message_text)
     RichEmojiEditText messageText;
     @BindView(R.id.root_view)
     ViewGroup rootView;
+    @BindView(R.id.extra_layout)
+    ViewGroup rootExtraView;
     @BindColor(R.color.background_card)
     int cardColor;
-    @BindColor(R.color.colorAccent)
+    @BindColor(R.color.accent)
     int accentColor;
 
     private InputType inputType;
     private EmojiPopup emojiPopup;
     private MaterialSheetFab materialSheetFab;
+    private WriteMessagePresenter writeMessagePresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +73,17 @@ public class WriteMessageActivity extends ActivityBase implements OnBackPressedL
         adjustSoftKeyboard();
         setInputType(InputType.WORD);
 
-        messageText.setOnBackPressedListener(this);
+        ImagePicker.setMinQuality(Integer.parseInt(System.getProperty(Constants.OPTIMIZE_IMAGE_MIN_WIDTH_KEY)),
+                Integer.parseInt(System.getProperty(Constants.OPTIMIZE_IMAGE_MIN_HEIGH_KEY)));
+
+        registerEvents();
+
+        writeMessagePresenter = new WriteMessagePresenterImpl(this);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        //No call for super(). Bug on API Level > 11.
     }
 
     private void setupToolbar() {
@@ -107,9 +132,21 @@ public class WriteMessageActivity extends ActivityBase implements OnBackPressedL
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Bitmap bitmap = ImagePicker.getImageFromResult(this, requestCode, resultCode, data);
+        if (bitmap != null) {
+            writeMessagePresenter.setExtraAsPhoto(bitmap);
+            displayImagePreview(bitmap);
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
     @OnClick(R.id.fab_sheet_item_photo)
     void onPhotoClick() {
-
+        materialSheetFab.hideSheet();
+        ImagePicker.pickImage(this, getResources().getString(R.string.photo_picker_title));
     }
 
     @OnClick(R.id.fab_sheet_item_video)
@@ -146,8 +183,42 @@ public class WriteMessageActivity extends ActivityBase implements OnBackPressedL
         return false;
     }
 
+    @Override
+    public void onRemoveExtra() {
+        writeMessagePresenter.removeExtra();
+        showExtraLayout(false);
+    }
+
     private void setupEmoji() {
         emojiPopup = EmojiPopup.Builder.fromRootView(rootView).build(messageText);
+    }
+
+    private void registerEvents() {
+        messageText.setOnBackPressedListener(this);
+
+        messageText.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                Rect rect = new Rect();
+                messageText.getWindowVisibleDisplayFrame(rect);
+                int screenHeight = messageText.getRootView().getHeight();
+
+                int keypadHeight = screenHeight - rect.bottom;
+
+                if (keypadHeight > screenHeight * 0.15) { // 0.15 ratio is perhaps enough to determine keypad height.
+                    showExtraLayout(false);
+                } else {
+                    if (writeMessagePresenter.isContainsExtra()) {
+                        DelayJobUtils.delay(new Runnable() {
+                            @Override
+                            public void run() {
+                                showExtraLayout(true);
+                            }
+                        }, 600);
+                    }
+                }
+            }
+        });
     }
 
     private void setupFloatingActionButton() {
@@ -168,6 +239,17 @@ public class WriteMessageActivity extends ActivityBase implements OnBackPressedL
             showSoftKeyboard();
             emojiPopup.toggle();
         }
+    }
+
+    private void showExtraLayout(boolean show) {
+        rootExtraView.setVisibility(show ? View.VISIBLE : View.GONE);
+    }
+
+    private void displayImagePreview(Bitmap bitmap) {
+        showExtraLayout(true);
+        PhotoPreviewFragment photoPreviewFragment = PhotoPreviewFragment.newInstance();
+        replaceFragment(R.id.extra_layout, photoPreviewFragment);
+        photoPreviewFragment.setBitmap(bitmap);
     }
 
     private void showSoftKeyboard() {

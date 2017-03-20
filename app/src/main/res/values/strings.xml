@@ -20,4 +20,6 @@
     <string name="drawing">Drawing</string>
     <string name="link">Link</string>
     <string name="title_activity_main">MainActivity</string>
+
+    <string name="photo_picker_title">Pick your photo</string>
 </resources>

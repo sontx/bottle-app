@@ -2,7 +2,7 @@ package com.blogspot.sontx.bottle.presenter;
 
 import android.net.Uri;
 
-import com.blogspot.sontx.bottle.model.Constants;
+import com.blogspot.sontx.bottle.Constants;
 import com.blogspot.sontx.bottle.model.bean.AccountBasicInfo;
 import com.blogspot.sontx.bottle.model.bean.ChatMessage;
 import com.blogspot.sontx.bottle.model.bean.ChatMessageType;
