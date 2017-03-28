@@ -3,12 +3,12 @@ package com.blogspot.sontx.bottle.presenter;
 import android.net.Uri;
 
 import com.blogspot.sontx.bottle.Constants;
-import com.blogspot.sontx.bottle.model.bean.AccountBasicInfo;
+import com.blogspot.sontx.bottle.model.bean.PublicProfile;
 import com.blogspot.sontx.bottle.model.bean.ChatMessage;
 import com.blogspot.sontx.bottle.model.bean.ChatMessageType;
-import com.blogspot.sontx.bottle.model.service.FirebaseAccountManagerService;
+import com.blogspot.sontx.bottle.model.service.FirebasePrivateProfileService;
 import com.blogspot.sontx.bottle.model.service.FirebaseChatService;
-import com.blogspot.sontx.bottle.model.service.interfaces.AccountManagerService;
+import com.blogspot.sontx.bottle.model.service.interfaces.PrivateProfileService;
 import com.blogspot.sontx.bottle.model.service.interfaces.Callback;
 import com.blogspot.sontx.bottle.model.service.interfaces.ChatService;
 import com.blogspot.sontx.bottle.model.service.interfaces.SimpleCallback;
@@ -26,24 +26,24 @@ import lombok.Setter;
 public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
     private final ChatView chatView;
     private final ChatService chatService;
-    private final AccountManagerService accountManagerService;
-    private AccountBasicInfo recipientAccountBasicInfo;
-    private AccountBasicInfo currentAccountBasicInfo;
+    private final PrivateProfileService privateProfileService;
+    private PublicProfile recipientPublicProfile;
+    private PublicProfile currentPublicProfile;
     @Setter
     private String channelKey;
 
     public ChatPresenterImpl(ChatView chatView) {
         this.chatView = chatView;
         chatService = new FirebaseChatService(chatView.getContext());
-        accountManagerService = new FirebaseAccountManagerService(chatView.getContext());
+        privateProfileService = new FirebasePrivateProfileService(chatView.getContext());
 
-        recipientAccountBasicInfo = new AccountBasicInfo();
-        recipientAccountBasicInfo.setDisplayName(getDefaultDisplayName());
-        recipientAccountBasicInfo.setAvatarUrl(getDefaultAvatarUrl());
+        recipientPublicProfile = new PublicProfile();
+        recipientPublicProfile.setDisplayName(getDefaultDisplayName());
+        recipientPublicProfile.setAvatarUrl(getDefaultAvatarUrl());
 
-        currentAccountBasicInfo = new AccountBasicInfo();
-        currentAccountBasicInfo.setDisplayName(getDefaultDisplayName());
-        currentAccountBasicInfo.setAvatarUrl(getDefaultAvatarUrl());
+        currentPublicProfile = new PublicProfile();
+        currentPublicProfile.setDisplayName(getDefaultDisplayName());
+        currentPublicProfile.setAvatarUrl(getDefaultAvatarUrl());
 
         chatService.setOnNewChatMessage(new SimpleCallback<ChatMessage>() {
             @Override
@@ -95,12 +95,12 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
 
     @Override
     public void setRecipientUserId(String id) {
-        recipientAccountBasicInfo.setId(id);
+        recipientPublicProfile.setId(id);
     }
 
     @Override
     public void setCurrentUserId(String id) {
-        currentAccountBasicInfo.setId(id);
+        currentPublicProfile.setId(id);
     }
 
     @Override
@@ -115,30 +115,30 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
 
     @Override
     public void setup() {
-        chatService.setup(channelKey, currentAccountBasicInfo.getId(), recipientAccountBasicInfo.getId());
+        chatService.setup(channelKey, currentPublicProfile.getId(), recipientPublicProfile.getId());
 
-        accountManagerService.resolveAsync(currentAccountBasicInfo.getId(), new Callback<AccountBasicInfo>() {
-            @Override
-            public void onSuccess(AccountBasicInfo result) {
-                currentAccountBasicInfo = result;
-            }
-
-            @Override
-            public void onError(Throwable what) {
-                chatView.showErrorMessage(what.getMessage());
-            }
-        });
-        accountManagerService.resolveAsync(recipientAccountBasicInfo.getId(), new Callback<AccountBasicInfo>() {
-            @Override
-            public void onSuccess(AccountBasicInfo result) {
-                recipientAccountBasicInfo = result;
-            }
-
-            @Override
-            public void onError(Throwable what) {
-                chatView.showErrorMessage(what.getMessage());
-            }
-        });
+//        privateProfileService.resolveAsync(currentPublicProfile.getId(), new Callback<PublicProfile>() {
+//            @Override
+//            public void onSuccess(PublicProfile result) {
+//                currentPublicProfile = result;
+//            }
+//
+//            @Override
+//            public void onError(Throwable what) {
+//                chatView.showErrorMessage(what.getMessage());
+//            }
+//        });
+//        privateProfileService.resolveAsync(recipientPublicProfile.getId(), new Callback<PublicProfile>() {
+//            @Override
+//            public void onSuccess(PublicProfile result) {
+//                recipientPublicProfile = result;
+//            }
+//
+//            @Override
+//            public void onError(Throwable what) {
+//                chatView.showErrorMessage(what.getMessage());
+//            }
+//        });
     }
 
     private void addNewMessage(ChatMessage value) {
@@ -158,24 +158,24 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
 
         if (message != null) {
             message.setDate(value.getCreatedTime());
-            message.setSource(value.getSenderId().equalsIgnoreCase(currentAccountBasicInfo.getId()) ? MessageSource.LOCAL_USER : MessageSource.EXTERNAL_USER);
+            message.setSource(value.getSenderId().equalsIgnoreCase(currentPublicProfile.getId()) ? MessageSource.LOCAL_USER : MessageSource.EXTERNAL_USER);
             message.setUserId(value.getSenderId());
 
-            AccountBasicInfo senderAccountBasicInfo = getAccountBasicInfoById(value.getSenderId());
-            if (senderAccountBasicInfo != null) {
-                message.setDisplayName(senderAccountBasicInfo.getDisplayName());
-                message.setAvatarUrl(senderAccountBasicInfo.getAvatarUrl());
+            PublicProfile senderPublicProfile = getAccountBasicInfoById(value.getSenderId());
+            if (senderPublicProfile != null) {
+                message.setDisplayName(senderPublicProfile.getDisplayName());
+                message.setAvatarUrl(senderPublicProfile.getAvatarUrl());
 
                 chatView.displayMessage(message);
             }
         }
     }
 
-    private AccountBasicInfo getAccountBasicInfoById(String id) {
-        if (currentAccountBasicInfo.getId().equalsIgnoreCase(id))
-            return currentAccountBasicInfo;
-        if (recipientAccountBasicInfo.getId().equalsIgnoreCase(id))
-            return recipientAccountBasicInfo;
+    private PublicProfile getAccountBasicInfoById(String id) {
+        if (currentPublicProfile.getId().equalsIgnoreCase(id))
+            return currentPublicProfile;
+        if (recipientPublicProfile.getId().equalsIgnoreCase(id))
+            return recipientPublicProfile;
         return null;
     }
 }

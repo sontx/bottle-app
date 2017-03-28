@@ -8,4 +8,6 @@ public interface LoginPresenter {
     void unregister();
 
     void checkLoginState();
+
+    void logout();
 }

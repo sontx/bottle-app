@@ -23,12 +23,17 @@ import com.blogspot.sontx.bottle.view.custom.RichEmojiEditText;
 import com.blogspot.sontx.bottle.view.custom.RichFloatingActionButton;
 import com.blogspot.sontx.bottle.view.fragment.PhotoPreviewFragment;
 import com.blogspot.sontx.bottle.view.fragment.PreviewFragmentBase;
+import com.blogspot.sontx.bottle.view.fragment.VideoPreviewFragment;
 import com.blogspot.sontx.bottle.view.interfaces.WriteMessageView;
 import com.gordonwong.materialsheetfab.MaterialSheetFab;
 import com.mvc.imagepicker.ImagePicker;
 import com.vanniktech.emoji.EmojiManager;
 import com.vanniktech.emoji.EmojiPopup;
 import com.vanniktech.emoji.one.EmojiOneProvider;
+
+import net.alhazmy13.mediapicker.Video.VideoPicker;
+
+import java.util.List;
 
 import butterknife.BindColor;
 import butterknife.BindView;
@@ -139,7 +144,12 @@ public class WriteMessageActivity extends ActivityBase implements OnBackPressedL
         if (bitmap != null) {
             writeMessagePresenter.setExtraAsPhoto(bitmap);
             displayImagePreview(bitmap);
-        } else {
+        } else if (requestCode == VideoPicker.VIDEO_PICKER_REQUEST_CODE && resultCode == RESULT_OK) {
+            List<String> paths = (List<String>) data.getSerializableExtra(VideoPicker.EXTRA_VIDEO_PATH);
+            String videoPath = paths.get(0);
+            writeMessagePresenter.setExtraAsVideo(videoPath);
+            displayVideoPreview(videoPath);
+        }else {
             super.onActivityResult(requestCode, resultCode, data);
         }
     }
@@ -152,7 +162,13 @@ public class WriteMessageActivity extends ActivityBase implements OnBackPressedL
 
     @OnClick(R.id.fab_sheet_item_video)
     void onVideoClick() {
-
+        materialSheetFab.hideSheet();
+        new VideoPicker.Builder(this)
+                .mode(VideoPicker.Mode.CAMERA_AND_GALLERY)
+                .directory(VideoPicker.Directory.DEFAULT)
+                .extension(VideoPicker.Extension.MP4)
+                .enableDebuggingMode(true)
+                .build();
     }
 
     @OnClick(R.id.fab_sheet_item_recording)
@@ -246,6 +262,22 @@ public class WriteMessageActivity extends ActivityBase implements OnBackPressedL
         rootExtraView.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
+    private void displayVideoPreview(final String videoPath) {
+        showExtraLayout(true);
+        VideoPreviewFragment videoPreviewFragment = VideoPreviewFragment.newInstance();
+        replaceFragment(R.id.extra_layout, videoPreviewFragment);
+        videoPreviewFragment.setVideoPath(videoPath);
+        if (firstTime) {
+            firstTime = false;
+            DelayJobUtils.delay(new Runnable() {
+                @Override
+                public void run() {
+                    displayVideoPreview(videoPath);
+                }
+            }, 600);
+        }
+    }
+
     private void displayImagePreview(final Bitmap bitmap) {
         showExtraLayout(true);
         PhotoPreviewFragment photoPreviewFragment = PhotoPreviewFragment.newInstance();
@@ -262,13 +294,14 @@ public class WriteMessageActivity extends ActivityBase implements OnBackPressedL
         }
     }
 
+
+
     private void showSoftKeyboard() {
         InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
         inputMethodManager.showSoftInput(messageText, InputMethodManager.SHOW_IMPLICIT);
     }
-
     private enum InputType {
         WORD,
-        EMOJI
+        EMOJI;
     }
 }

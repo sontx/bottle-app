@@ -8,4 +8,6 @@ public interface WriteMessagePresenter {
     void removeExtra();
 
     boolean isContainsExtra();
+
+    void setExtraAsVideo(String videoPath);
 }

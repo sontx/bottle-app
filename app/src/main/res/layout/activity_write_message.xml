@@ -5,6 +5,7 @@
     android:id="@+id/root_view"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@color/background_primary"
     tools:context="com.blogspot.sontx.bottle.view.activity.WriteMessageActivity">
 
     <android.support.design.widget.AppBarLayout
@@ -138,11 +139,11 @@
                         android:text="@string/take_photo" />
 
                     <!-- Video -->
-                    <TextView
+                    <com.blogspot.sontx.bottle.view.custom.RichTextView
+                        app:tint="@color/secondary_text"
                         android:id="@+id/fab_sheet_item_video"
                         style="@style/TextAppearance.MaterialSheetFab.Sheet.Item"
                         android:drawableLeft="@drawable/ic_camera_black_24dp"
-                        android:drawableStart="@drawable/ic_camera_black_24dp"
                         android:text="@string/Video" />
 
                     <!-- Recording -->

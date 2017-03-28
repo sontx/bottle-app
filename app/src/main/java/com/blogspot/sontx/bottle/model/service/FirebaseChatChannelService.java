@@ -3,9 +3,9 @@ package com.blogspot.sontx.bottle.model.service;
 import android.content.Context;
 
 import com.blogspot.sontx.bottle.Constants;
-import com.blogspot.sontx.bottle.model.bean.AccountBasicInfo;
+import com.blogspot.sontx.bottle.model.bean.PublicProfile;
 import com.blogspot.sontx.bottle.model.bean.ChatChannelInfo;
-import com.blogspot.sontx.bottle.model.service.interfaces.AccountManagerService;
+import com.blogspot.sontx.bottle.model.service.interfaces.PrivateProfileService;
 import com.blogspot.sontx.bottle.model.service.interfaces.Callback;
 import com.blogspot.sontx.bottle.model.service.interfaces.ChatChannelService;
 import com.google.firebase.database.ChildEventListener;
@@ -23,11 +23,11 @@ public class FirebaseChatChannelService extends FirebaseServiceBase implements C
     private String currentUserId;
     @Setter
     private Callback<ChatChannelInfo> onNewChatChannel;
-    private final AccountManagerService accountManagerService;
+    private final PrivateProfileService privateProfileService;
 
     public FirebaseChatChannelService(Context context) {
         super(context);
-        accountManagerService = new FirebaseAccountManagerService(context);
+        privateProfileService = new FirebasePrivateProfileService(context);
     }
 
     @Override
@@ -99,23 +99,23 @@ public class FirebaseChatChannelService extends FirebaseServiceBase implements C
         else
             recipientUserId = tempChatChannelInfo.getUser1Id();
 
-        accountManagerService.resolveAsync(recipientUserId, new Callback<AccountBasicInfo>() {
-            @Override
-            public void onSuccess(AccountBasicInfo accountBasicInfo) {
-                ChatChannelInfo chatChannelInfo = new ChatChannelInfo();
-                chatChannelInfo.setLastActiveTime(tempChatChannelInfo.getLastActiveTime());
-                chatChannelInfo.setRecipientDisplayName(accountBasicInfo.getDisplayName());
-                chatChannelInfo.setRecipientAvatarUrl(accountBasicInfo.getAvatarUrl());
-                if (onNewChatChannel != null)
-                    onNewChatChannel.onSuccess(chatChannelInfo);
-            }
-
-            @Override
-            public void onError(Throwable what) {
-                if (onNewChatChannel != null)
-                    onNewChatChannel.onError(what);
-            }
-        });
+//        privateProfileService.resolveAsync(recipientUserId, new Callback<PublicProfile>() {
+//            @Override
+//            public void onSuccess(PublicProfile publicProfile) {
+//                ChatChannelInfo chatChannelInfo = new ChatChannelInfo();
+//                chatChannelInfo.setLastActiveTime(tempChatChannelInfo.getLastActiveTime());
+//                chatChannelInfo.setRecipientDisplayName(publicProfile.getDisplayName());
+//                chatChannelInfo.setRecipientAvatarUrl(publicProfile.getAvatarUrl());
+//                if (onNewChatChannel != null)
+//                    onNewChatChannel.onSuccess(chatChannelInfo);
+//            }
+//
+//            @Override
+//            public void onError(Throwable what) {
+//                if (onNewChatChannel != null)
+//                    onNewChatChannel.onError(what);
+//            }
+//        });
     }
 
     @Override

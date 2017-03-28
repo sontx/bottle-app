@@ -2,7 +2,6 @@ package com.blogspot.sontx.bottle.view.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.blogspot.sontx.bottle.R;
@@ -15,7 +14,6 @@ import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 public class FbLoginActivity extends ActivityBase implements FacebookCallback<LoginResult>, LoginView {

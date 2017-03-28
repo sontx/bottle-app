@@ -6,7 +6,10 @@ import com.blogspot.sontx.bottle.model.service.interfaces.ServiceBase;
 import com.firebase.client.Firebase;
 
 abstract class FirebaseServiceBase implements ServiceBase {
+    protected final static String TAG = "firebase";
+
     FirebaseServiceBase(Context context) {
-        Firebase.setAndroidContext(context);
+        if (context != null)
+            Firebase.setAndroidContext(context);
     }
 }

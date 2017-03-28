@@ -24,7 +24,7 @@ public class App extends MultiDexApplication {
     }
 
     private void setupEnvironmentProperties() {
-        System.setProperty(Constants.FIREBASE_USER_PUBLIC_INFO_KEY, "users_public_info");
+        System.setProperty(Constants.FIREBASE_PUBLIC_PROFILE_KEY, "public_profiles");
         System.setProperty(Constants.FIREBASE_CHAT_USER_CHANNEL_KEY, "user_channels");
         System.setProperty(Constants.FIREBASE_CHAT_CHANNEL_KEY, "channels");
         System.setProperty(Constants.FIREBASE_CHAT_CHANNEL_MESSAGES_KEY, "messages");

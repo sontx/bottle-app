@@ -9,11 +9,11 @@ import android.view.ViewGroup;
 
 import com.blogspot.sontx.bottle.R;
 import com.blogspot.sontx.bottle.model.bean.ChatChannelInfo;
-import com.blogspot.sontx.bottle.presenter.AccountManagerPresenterImpl;
-import com.blogspot.sontx.bottle.presenter.interfaces.AccountManagerPresenter;
+import com.blogspot.sontx.bottle.presenter.LoginPresenterImpl;
+import com.blogspot.sontx.bottle.presenter.interfaces.LoginPresenter;
 import com.blogspot.sontx.bottle.view.adapter.HomeFragmentPagerAdapter;
 import com.blogspot.sontx.bottle.view.fragment.SettingFragment;
-import com.blogspot.sontx.bottle.view.interfaces.AccountManagerView;
+import com.blogspot.sontx.bottle.view.interfaces.LoginView;
 import com.firebase.client.Firebase;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -25,29 +25,17 @@ import co.dift.ui.SwipeToAction;
 import devlight.io.library.ntb.NavigationTabBar;
 
 public class HomeActivity extends ActivityBase
-        implements AccountManagerView, SwipeToAction.SwipeListener<ChatChannelInfo>, SettingFragment.OnSettingFragmentInteractionListener {
+        implements SwipeToAction.SwipeListener<ChatChannelInfo>, SettingFragment.OnSettingFragmentInteractionListener, LoginView {
 
-    private AccountManagerPresenter accountManagerPresenter;
+    private LoginPresenter loginPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         Firebase.setAndroidContext(this);
-        accountManagerPresenter = new AccountManagerPresenterImpl(this);
+        loginPresenter = new LoginPresenterImpl(this);
         initUI();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        // accountManagerPresenter.register();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        //accountManagerPresenter.unregister();
     }
 
     @Override
@@ -168,7 +156,7 @@ public class HomeActivity extends ActivityBase
 
     @Override
     public void logoutClick() {
-        accountManagerPresenter.logout();
+        loginPresenter.logout();
         startActivity(new Intent(this, FbLoginActivity.class));
     }
 }
