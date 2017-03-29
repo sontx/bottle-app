@@ -65,4 +65,20 @@ public class FirebasePublicProfileService extends FirebaseServiceBase implements
             }
         });
     }
+
+    @Override
+    public void getPublicProfileAsync(String anotherMemberId, final Callback<PublicProfile> callback) {
+        publicProfileRef.child(anotherMemberId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                PublicProfile publicProfile = dataSnapshot.getValue(PublicProfile.class);
+                callback.onSuccess(publicProfile);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                callback.onError(databaseError.toException());
+            }
+        });
+    }
 }

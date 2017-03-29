@@ -1,7 +1,5 @@
 package com.blogspot.sontx.bottle.presenter;
 
-import android.support.annotation.Nullable;
-
 import com.blogspot.sontx.bottle.model.bean.PublicProfile;
 import com.blogspot.sontx.bottle.model.service.FirebasePrivateProfileService;
 import com.blogspot.sontx.bottle.model.service.FirebasePublicProfileService;
@@ -11,7 +9,7 @@ import com.blogspot.sontx.bottle.model.service.interfaces.PublicProfileService;
 import com.blogspot.sontx.bottle.presenter.interfaces.PublicProfilePresenter;
 import com.blogspot.sontx.bottle.view.interfaces.PublicProfileView;
 
-public class PublicProfilePresenterImpl implements PublicProfilePresenter {
+public class PublicProfilePresenterImpl extends PresenterBase implements PublicProfilePresenter {
     private final PublicProfileView publicProfileView;
     private final PublicProfileService publicProfileService;
     private final PrivateProfileService privateProfileService;

@@ -37,6 +37,10 @@ public class App extends MultiDexApplication {
         System.setProperty(Constants.UI_DEFAULT_DISPLAY_NAME_KEY, "sontx");
 
         System.setProperty(Constants.OPTIMIZE_IMAGE_MIN_WIDTH_KEY, "600");
-        System.setProperty(Constants.OPTIMIZE_IMAGE_MIN_HEIGH_KEY, "600");
+        System.setProperty(Constants.OPTIMIZE_IMAGE_MIN_HEIGHT_KEY, "600");
+
+        System.setProperty(Constants.FIREBASE_USER_CHANNEL_KEY, "user_channels");
+        System.setProperty(Constants.FIREBASE_CHANNEL_DETAIL_KEY, "channel_details");
+        System.setProperty(Constants.FIREBASE_CHANNEL_MEMBER_KEY, "channel_members");
     }
 }

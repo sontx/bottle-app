@@ -3,6 +3,7 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="text_margin">16dp</dimen>
+    <dimen name="container_margin">10dp</dimen>
     <dimen name="item_height">80dp</dimen>
     <dimen name="item_padding">16dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
@@ -16,7 +17,7 @@
     <dimen name="sheet_width">200dp</dimen>
     <dimen name="sheet_spacing">10dp</dimen>
     <dimen name="sheet_item_spacing">@dimen/keyline_spacing</dimen>
-    <dimen name="sheet_item_image_spacing">24dp</dimen>
+    <dimen name="sheet_item_image_spacing">20dp</dimen>
     <dimen name="sheet_item_textsize">16sp</dimen>
 
     <dimen name="toolbar_elevation">4dp</dimen>
