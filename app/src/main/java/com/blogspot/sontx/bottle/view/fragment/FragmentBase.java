@@ -14,6 +14,18 @@ abstract class FragmentBase extends Fragment implements ViewBase {
 
     private ProcessDialog processDialog;
 
+    protected void runOnUiThread(final Runnable runnable) {
+        final FragmentActivity activity = getActivity();
+        if (activity != null) {
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    runnable.run();
+                }
+            });
+        }
+    }
+
     @Override
     public void showProcess() {
         final FragmentActivity activity = getActivity();

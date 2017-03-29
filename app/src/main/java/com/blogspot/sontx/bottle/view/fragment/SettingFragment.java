@@ -3,10 +3,12 @@ package com.blogspot.sontx.bottle.view.fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 
 import com.blogspot.sontx.bottle.R;
 
@@ -18,6 +20,8 @@ import butterknife.Unbinder;
 public class SettingFragment extends FragmentBase {
     private OnSettingFragmentInteractionListener listener;
     private Unbinder unbinder;
+    @BindView(R.id.friend_id_view)
+    EditText anotherGuyIdView;
 
     public SettingFragment() {
     }
@@ -66,7 +70,16 @@ public class SettingFragment extends FragmentBase {
             listener.logoutClick();
     }
 
+    @OnClick(R.id.chat_button)
+    void onChatClick() {
+        if (listener != null) {
+            String id = anotherGuyIdView.getText().toString();
+            listener.chatClick(id);
+        }
+    }
+
     public interface OnSettingFragmentInteractionListener {
         void logoutClick();
+        void chatClick(String anotherGuyId);
     }
 }

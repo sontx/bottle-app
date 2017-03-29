@@ -80,7 +80,7 @@ public class WriteMessageActivity extends ActivityBase implements OnBackPressedL
         setInputType(InputType.WORD);
 
         ImagePicker.setMinQuality(Integer.parseInt(System.getProperty(Constants.OPTIMIZE_IMAGE_MIN_WIDTH_KEY)),
-                Integer.parseInt(System.getProperty(Constants.OPTIMIZE_IMAGE_MIN_HEIGH_KEY)));
+                Integer.parseInt(System.getProperty(Constants.OPTIMIZE_IMAGE_MIN_HEIGHT_KEY)));
 
         registerEvents();
 

@@ -4,37 +4,33 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import com.blogspot.sontx.bottle.view.fragment.ListChatChannelFragment;
+import com.blogspot.sontx.bottle.view.fragment.ChannelFragment;
 import com.blogspot.sontx.bottle.view.fragment.SettingFragment;
-import com.google.firebase.auth.FirebaseAuth;
+import com.squareup.picasso.Picasso;
+
+import lombok.Setter;
 
 public class HomeFragmentPagerAdapter extends FragmentPagerAdapter {
+
+    @Setter
+    private String currentUserId;
+    private Fragment[] fragments;
+
     public HomeFragmentPagerAdapter(FragmentManager fm) {
         super(fm);
     }
 
+    public void initialize() {
+        fragments = new Fragment[]{ChannelFragment.newInstance(currentUserId), SettingFragment.newInstance()};
+    }
+
     @Override
     public int getCount() {
-        return 3;
+        return fragments.length;
     }
 
     @Override
     public Fragment getItem(int position) {
-        if (position == 0) {
-            String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-            return ListChatChannelFragment.newInstance(uid);
-        } else {
-            return SettingFragment.newInstance();
-        }
-//        switch (position) {
-//            case 0:
-//                return ListChatChannelFragment.newInstance();
-//            case 1:
-//                return null;
-//            case 2:
-//                return null;
-//            default:
-//                return null;
-//        }
+        return fragments[position];
     }
 }

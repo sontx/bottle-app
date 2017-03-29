@@ -4,11 +4,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#423752"
+    android:background="@color/background_primary"
     android:orientation="vertical">
 
     <android.support.v4.view.ViewPager
         android:id="@+id/vp_horizontal_ntb"
+        android:layout_margin="@dimen/container_margin"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
@@ -30,12 +31,12 @@
                 android:id="@+id/ntb_horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
-                app:ntb_bg_color="#605271"
+                app:ntb_bg_color="@color/primary"
                 app:ntb_title_size="12sp"
                 app:ntb_badge_bg_color="#ffff0000"
                 app:ntb_badge_gravity="bottom"
                 app:ntb_badge_position="left"
-                app:ntb_badge_title_color="#ffffffff"
+                app:ntb_badge_title_color="@color/primary_text"
                 app:ntb_badge_use_typeface="true"
                 app:ntb_badged="true"
                 app:ntb_title_mode="active"
