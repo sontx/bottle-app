@@ -28,13 +28,13 @@ public class ChannelRecyclerViewAdapter extends RecyclerView.Adapter<ChannelRecy
     @Getter
     @Setter
     private List<Channel> values;
-    private final String currentUserId;
-    private final OnChannelInteractionListener listener;
+    @Setter
+    private String currentUserId;
+    @Setter
+    private OnChannelInteractionListener listener;
 
-    public ChannelRecyclerViewAdapter(List<Channel> items, String currentUserId, OnChannelInteractionListener listener) {
+    public ChannelRecyclerViewAdapter(List<Channel> items) {
         values = items;
-        this.currentUserId = currentUserId;
-        this.listener = listener;
     }
 
     @Override

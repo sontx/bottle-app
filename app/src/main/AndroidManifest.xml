@@ -59,7 +59,11 @@
         <activity
             android:name=".view.activity.WriteMessageActivity"
             android:label="@string/title_activity_write_message"
-            android:theme="@style/AppTheme"/>
+            android:theme="@style/AppTheme" />
+
+        <service
+            android:name=".system.service.MessagingService"
+            android:enabled="true" />
     </application>
 
 </manifest>

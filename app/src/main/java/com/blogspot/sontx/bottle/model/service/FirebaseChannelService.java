@@ -7,8 +7,7 @@ import com.blogspot.sontx.bottle.Constants;
 import com.blogspot.sontx.bottle.model.bean.chat.Channel;
 import com.blogspot.sontx.bottle.model.bean.chat.ChannelDetail;
 import com.blogspot.sontx.bottle.model.bean.chat.ChannelMember;
-import com.blogspot.sontx.bottle.model.bean.chat.MessageType;
-import com.blogspot.sontx.bottle.model.service.interfaces.Callback;
+import com.blogspot.sontx.bottle.model.bean.chat.ChatMessage;
 import com.blogspot.sontx.bottle.model.service.interfaces.ChannelService;
 import com.blogspot.sontx.bottle.utils.DateTimeUtils;
 import com.google.firebase.database.DataSnapshot;
@@ -20,12 +19,12 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FirebaseChannelService extends FirebaseServiceBase implements ChannelService {
+class FirebaseChannelService extends FirebaseServiceBase implements ChannelService {
     private final DatabaseReference userChannelRef;
     private final DatabaseReference channelDetailRef;
     private final DatabaseReference channelMemberRef;
 
-    public FirebaseChannelService(Context context) {
+    FirebaseChannelService(Context context) {
         super(context);
         String userChannelKey = System.getProperty(Constants.FIREBASE_USER_CHANNEL_KEY);
         userChannelRef = FirebaseDatabase.getInstance().getReference(userChannelKey);
@@ -134,7 +133,7 @@ public class FirebaseChannelService extends FirebaseServiceBase implements Chann
     private ChannelDetail createChannelDetail(Channel channel) {
         ChannelDetail detail = new ChannelDetail();
         detail.setLastMessage(null);
-        detail.setMessageType(MessageType.NONE.getType());
+        detail.setMessageType(ChatMessage.TYPE_NONE);
         detail.setTimestamp(DateTimeUtils.utc());
 
         channelDetailRef.child(channel.getId()).setValue(detail);

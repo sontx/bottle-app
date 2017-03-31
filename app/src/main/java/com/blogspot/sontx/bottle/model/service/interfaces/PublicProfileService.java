@@ -3,6 +3,7 @@ package com.blogspot.sontx.bottle.model.service.interfaces;
 import android.support.annotation.Nullable;
 
 import com.blogspot.sontx.bottle.model.bean.PublicProfile;
+import com.blogspot.sontx.bottle.model.service.Callback;
 
 public interface PublicProfileService extends ServiceBase {
     void updatePublicProfileAsync(PublicProfile publicProfile, @Nullable Callback<PublicProfile> callback);

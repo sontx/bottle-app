@@ -6,7 +6,6 @@ import android.util.Log;
 
 import com.blogspot.sontx.bottle.Constants;
 import com.blogspot.sontx.bottle.model.bean.PublicProfile;
-import com.blogspot.sontx.bottle.model.service.interfaces.Callback;
 import com.blogspot.sontx.bottle.model.service.interfaces.PublicProfileService;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -18,10 +17,10 @@ import com.google.firebase.database.ValueEventListener;
 
 import lombok.NonNull;
 
-public class FirebasePublicProfileService extends FirebaseServiceBase implements PublicProfileService {
+class FirebasePublicProfileService extends FirebaseServiceBase implements PublicProfileService {
     private final DatabaseReference publicProfileRef;
 
-    public FirebasePublicProfileService(Context context) {
+    FirebasePublicProfileService(Context context) {
         super(context);
         String publicProfileKey = System.getProperty(Constants.FIREBASE_PUBLIC_PROFILE_KEY);
         publicProfileRef = FirebaseDatabase.getInstance().getReference(publicProfileKey);

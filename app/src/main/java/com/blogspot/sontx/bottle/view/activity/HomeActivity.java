@@ -8,43 +8,68 @@ import android.support.v4.view.ViewPager;
 import com.blogspot.sontx.bottle.R;
 import com.blogspot.sontx.bottle.model.bean.chat.Channel;
 import com.blogspot.sontx.bottle.presenter.ChannelPresenterImpl;
+import com.blogspot.sontx.bottle.presenter.HomePresenterImpl;
 import com.blogspot.sontx.bottle.presenter.LoginPresenterImpl;
 import com.blogspot.sontx.bottle.presenter.interfaces.ChannelPresenter;
+import com.blogspot.sontx.bottle.presenter.interfaces.HomePresenter;
 import com.blogspot.sontx.bottle.presenter.interfaces.LoginPresenter;
 import com.blogspot.sontx.bottle.view.activity.helper.NavigationTabBarHelper;
 import com.blogspot.sontx.bottle.view.fragment.ChannelFragment;
 import com.blogspot.sontx.bottle.view.fragment.SettingFragment;
 import com.blogspot.sontx.bottle.view.interfaces.ChannelView;
+import com.blogspot.sontx.bottle.view.interfaces.HomeView;
 import com.blogspot.sontx.bottle.view.interfaces.LoginView;
 import com.google.firebase.auth.FirebaseUser;
-
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class HomeActivity extends ActivityBase
-        implements SettingFragment.OnSettingFragmentInteractionListener, ChannelFragment.OnChannelInteractionListener, NavigationTabBarHelper.OnViewPagerTabSelectedListener, LoginView, ChannelView {
+        implements SettingFragment.OnSettingFragmentInteractionListener, NavigationTabBarHelper.OnViewPagerTabSelectedListener,
+        ChannelFragment.OnChannelInteractionListener, LoginView, ChannelView, HomeView {
 
+    private final NavigationTabBarHelper navigationTabBarHelper = new NavigationTabBarHelper(this);
     @BindView(R.id.vp_horizontal_ntb)
     ViewPager viewPager;
     private LoginPresenter loginPresenter;
     private ChannelPresenter channelPresenter;
-    private final NavigationTabBarHelper navigationTabBarHelper = new NavigationTabBarHelper(this);
-    private boolean requestedChannels = false;
+    private HomePresenter homePresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         ButterKnife.bind(this);
+
+        homePresenter = new HomePresenterImpl(this);
         loginPresenter = new LoginPresenterImpl(this);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        homePresenter.onStart();
+        loginPresenter.onStart();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        loginPresenter.checkLoginState();
+        homePresenter.onResume();
+        loginPresenter.onResume();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        homePresenter.onStop();
+        loginPresenter.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        homePresenter.onDestroy();
     }
 
     @Override
@@ -54,9 +79,14 @@ public class HomeActivity extends ActivityBase
             finish();
         } else {
             String currentUserId = user.getUid();
-            channelPresenter = new ChannelPresenterImpl(this, currentUserId);
-            navigationTabBarHelper.initializeViewPager(currentUserId, viewPager);
-            navigationTabBarHelper.setOnViewPagerTabSelectedListener(this);
+
+            if (channelPresenter == null || !channelPresenter.getCurrentUserId().equalsIgnoreCase(currentUserId)) {
+                navigationTabBarHelper.initializeViewPager(currentUserId, viewPager);
+                navigationTabBarHelper.setOnViewPagerTabSelectedListener(this);
+
+                homePresenter.switchCurrentUserId(currentUserId);
+                channelPresenter = new ChannelPresenterImpl(this, currentUserId);
+            }
         }
     }
 
@@ -74,39 +104,13 @@ public class HomeActivity extends ActivityBase
     }
 
     @Override
-    public void addChannels(final List<Channel> channels) {
+    public void showChannel(final Channel channel) {
         final Fragment fragment = navigationTabBarHelper.getCurrentFragment();
         if (fragment instanceof ChannelFragment) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    ((ChannelFragment) fragment).addChannels(channels);
-                }
-            });
-        }
-    }
-
-    @Override
-    public void updateChannel(final Channel channel) {
-        final Fragment fragment = navigationTabBarHelper.getCurrentFragment();
-        if (fragment instanceof ChannelFragment) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    ((ChannelFragment) fragment).updateChannel(channel);
-                }
-            });
-        }
-    }
-
-    @Override
-    public void addChannel(final Channel channel) {
-        final Fragment fragment = navigationTabBarHelper.getCurrentFragment();
-        if (fragment instanceof ChannelFragment) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    ((ChannelFragment) fragment).addChannel(channel);
+                    ((ChannelFragment) fragment).showChannel(channel);
                 }
             });
         }
@@ -126,14 +130,20 @@ public class HomeActivity extends ActivityBase
 
     @Override
     public void onChannelInteraction(Channel channel) {
+        homePresenter.startChat(channel);
+    }
 
+    @Override
+    public void startChat(Channel channel, String currentUserId) {
+        Intent intent = new Intent(this, ChatActivity.class);
+        intent.putExtra(ChatActivity.CHANNEL_KEY, channel);
+        intent.putExtra(ChatActivity.CURRENT_USER_ID_KEY, currentUserId);
+        startActivity(intent);
     }
 
     @Override
     public void onViewPagerTabSelected(Fragment fragment) {
-        if (channelPresenter != null && !requestedChannels) {
-            requestedChannels = true;
-            channelPresenter.getCurrentChannelsAsync();
-        }
+        if (fragment instanceof ChannelFragment && channelPresenter != null)
+            channelPresenter.updateChannelsIfNecessary();
     }
 }

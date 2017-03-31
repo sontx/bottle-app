@@ -5,10 +5,13 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.blogspot.sontx.bottle.R;
+import com.blogspot.sontx.bottle.model.bean.PublicProfile;
+import com.blogspot.sontx.bottle.model.bean.chat.Channel;
 import com.blogspot.sontx.bottle.presenter.ChatPresenterImpl;
 import com.blogspot.sontx.bottle.presenter.interfaces.ChatPresenter;
 import com.blogspot.sontx.bottle.view.interfaces.ChatView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import it.slyce.messaging.SlyceMessagingFragment;
@@ -17,7 +20,7 @@ import it.slyce.messaging.listeners.UserSendsMessageListener;
 import it.slyce.messaging.message.Message;
 
 public class ChatActivity extends ActivityBase implements ChatView, UserSendsMessageListener, LoadMoreMessagesListener {
-    static final String RECIPIENT_USER_ID_KEY = "recipient_user_id";
+    static final String CHANNEL_KEY = "channel";
     static final String CURRENT_USER_ID_KEY = "current_user_id";
 
     private ChatPresenter chatPresenter;
@@ -28,30 +31,32 @@ public class ChatActivity extends ActivityBase implements ChatView, UserSendsMes
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
+        if (getIntent() != null) {
+            Channel channel = (Channel) getIntent().getSerializableExtra(CHANNEL_KEY);
+            String currentUserId = getIntent().getStringExtra(CURRENT_USER_ID_KEY);
 
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            String recipientUserId = extras.getString(RECIPIENT_USER_ID_KEY);
-            String currentUserId = extras.getString(CURRENT_USER_ID_KEY);
+            chatPresenter = new ChatPresenterImpl(this, currentUserId);
+            chatPresenter.setChannel(channel);
 
-            chatPresenter = new ChatPresenterImpl(this);
-            chatPresenter.setRecipientUserId(recipientUserId);
-            chatPresenter.setCurrentUserId(currentUserId);
-            chatPresenter.setup();
-
-            initUI();
+            initializeChatFragment();
         } else {
             finish();
         }
     }
 
-    private void initUI() {
-        slyceMessagingFragment = (SlyceMessagingFragment) getFragmentManager().findFragmentById(R.id.fragment_for_slyce_messaging);
-        slyceMessagingFragment.setDefaultAvatarUrl(chatPresenter.getDefaultAvatarUrl());
-        slyceMessagingFragment.setDefaultDisplayName(chatPresenter.getDefaultDisplayName());
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (chatPresenter != null) {
+            chatPresenter.register();
+        }
+    }
 
-        slyceMessagingFragment.setOnSendMessageListener(this);
-        slyceMessagingFragment.setLoadMoreMessagesListener(this);
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (chatPresenter != null)
+            chatPresenter.unregister();
     }
 
     @Override
@@ -63,24 +68,27 @@ public class ChatActivity extends ActivityBase implements ChatView, UserSendsMes
     @Override
     public void onUserSendsMediaMessage(Uri imageUri) {
         Log.d(TAG, "send-media: " + imageUri);
-        chatPresenter.sendAsync(imageUri);
     }
 
     @Override
     public List<Message> loadMoreMessages() {
         Log.d(TAG, "load more...");
-        List<Message> messages = chatPresenter.getMoreMessages();
-        slyceMessagingFragment.setMoreMessagesExist(chatPresenter.isMoreMessagesExist());
-        return messages;
+        return new ArrayList<>();
     }
 
     @Override
-    public void displayMessage(final Message result) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                slyceMessagingFragment.addNewMessage(result);
-            }
-        });
+    public void addNewMessage(final Message result) {
+        slyceMessagingFragment.addNewMessage(result);
+    }
+
+    private void initializeChatFragment() {
+        PublicProfile currentUserProfile = chatPresenter.getCurrentPublicProfile();
+
+        slyceMessagingFragment = (SlyceMessagingFragment) getFragmentManager().findFragmentById(R.id.fragment_for_slyce_messaging);
+        slyceMessagingFragment.setDefaultAvatarUrl(currentUserProfile.getAvatarUrl());
+        slyceMessagingFragment.setDefaultDisplayName(currentUserProfile.getDisplayName());
+
+        slyceMessagingFragment.setOnSendMessageListener(this);
+        slyceMessagingFragment.setLoadMoreMessagesListener(this);
     }
 }

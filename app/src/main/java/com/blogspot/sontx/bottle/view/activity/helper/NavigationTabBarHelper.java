@@ -2,24 +2,19 @@ package com.blogspot.sontx.bottle.view.activity.helper;
 
 import android.graphics.Color;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.view.ViewGroup;
 
 import com.blogspot.sontx.bottle.R;
 import com.blogspot.sontx.bottle.view.adapter.HomeFragmentPagerAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import devlight.io.library.ntb.NavigationTabBar;
 import lombok.Setter;
 
-public class NavigationTabBarHelper extends ActivityHelperBase {
+public class NavigationTabBarHelper extends ActivityHelperBase implements ViewPager.OnPageChangeListener {
     @Setter
     private OnViewPagerTabSelectedListener onViewPagerTabSelectedListener;
     private ViewPager viewPager;
@@ -33,7 +28,6 @@ public class NavigationTabBarHelper extends ActivityHelperBase {
 
         HomeFragmentPagerAdapter homeFragmentPagerAdapter = new HomeFragmentPagerAdapter(getSupportFragmentManager());
         homeFragmentPagerAdapter.setCurrentUserId(currentUserId);
-        homeFragmentPagerAdapter.initialize();
         viewPager.setAdapter(homeFragmentPagerAdapter);
 
         final String[] colors = getResources().getStringArray(R.array.default_preview);
@@ -56,7 +50,7 @@ public class NavigationTabBarHelper extends ActivityHelperBase {
         );
         navigationTabBar.setModels(models);
         navigationTabBar.setViewPager(viewPager, 1);
-        viewPager.setOffscreenPageLimit(2);
+        //viewPager.setOffscreenPageLimit(10);
 
         navigationTabBar.setOnTabBarSelectedIndexListener(new NavigationTabBar.OnTabBarSelectedIndexListener() {
             @Override
@@ -66,18 +60,33 @@ public class NavigationTabBarHelper extends ActivityHelperBase {
 
             @Override
             public void onEndTabSelected(final NavigationTabBar.Model model, final int index) {
-                if (onViewPagerTabSelectedListener != null) {
-                    Fragment fragment = ((FragmentPagerAdapter) viewPager.getAdapter()).getItem(index);
-                    onViewPagerTabSelectedListener.onViewPagerTabSelected(fragment);
-                }
                 model.hideBadge();
             }
         });
+
+        viewPager.addOnPageChangeListener(this);
     }
 
     public Fragment getCurrentFragment() {
-        int currentItem = viewPager.getCurrentItem();
-        return ((FragmentPagerAdapter) viewPager.getAdapter()).getItem(currentItem);
+        return ((HomeFragmentPagerAdapter) viewPager.getAdapter()).getCurrentFragment();
+    }
+
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+        if (onViewPagerTabSelectedListener != null) {
+            Fragment fragment = ((HomeFragmentPagerAdapter) viewPager.getAdapter()).getCurrentFragment();
+            onViewPagerTabSelectedListener.onViewPagerTabSelected(fragment);
+        }
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+
     }
 
     public interface OnViewPagerTabSelectedListener {

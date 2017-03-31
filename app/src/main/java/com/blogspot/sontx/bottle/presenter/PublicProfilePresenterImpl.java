@@ -1,9 +1,8 @@
 package com.blogspot.sontx.bottle.presenter;
 
 import com.blogspot.sontx.bottle.model.bean.PublicProfile;
-import com.blogspot.sontx.bottle.model.service.FirebasePrivateProfileService;
-import com.blogspot.sontx.bottle.model.service.FirebasePublicProfileService;
-import com.blogspot.sontx.bottle.model.service.interfaces.Callback;
+import com.blogspot.sontx.bottle.model.service.Callback;
+import com.blogspot.sontx.bottle.model.service.FirebaseServicePool;
 import com.blogspot.sontx.bottle.model.service.interfaces.PrivateProfileService;
 import com.blogspot.sontx.bottle.model.service.interfaces.PublicProfileService;
 import com.blogspot.sontx.bottle.presenter.interfaces.PublicProfilePresenter;
@@ -16,14 +15,12 @@ public class PublicProfilePresenterImpl extends PresenterBase implements PublicP
 
     public PublicProfilePresenterImpl(PublicProfileView publicProfileView) {
         this.publicProfileView = publicProfileView;
-        publicProfileService = new FirebasePublicProfileService(publicProfileView.getContext());
-        privateProfileService = new FirebasePrivateProfileService(publicProfileView.getContext());
+        publicProfileService = FirebaseServicePool.getInstance().getPublicProfileService();
+        privateProfileService = FirebaseServicePool.getInstance().getPrivateProfileService();
     }
 
     public PublicProfilePresenterImpl() {
-        this.publicProfileView = null;
-        publicProfileService = new FirebasePublicProfileService(null);
-        privateProfileService = new FirebasePrivateProfileService(null);
+        this(null);
     }
 
     private PublicProfile getDefaultPublicProfile() {

@@ -8,8 +8,15 @@ import java.util.Date;
 
 public final class DateTimeUtils {
 
+    private DateTimeUtils() {
+    }
+
     public static long utc() {
         return new DateTime(DateTimeZone.UTC).getMillis();
+    }
+
+    public static long local(long utc) {
+        return new DateTime(utc, DateTimeZone.UTC).withZone(DateTimeZone.getDefault()).getMillis();
     }
 
     public static String getTimestamp(long then) {
@@ -78,8 +85,5 @@ public final class DateTimeUtils {
         Date date = new Date(time);
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy");
         return Integer.parseInt(simpleDateFormat.format(date));
-    }
-
-    private DateTimeUtils() {
     }
 }

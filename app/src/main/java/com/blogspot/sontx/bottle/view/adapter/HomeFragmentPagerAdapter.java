@@ -6,31 +6,31 @@ import android.support.v4.app.FragmentPagerAdapter;
 
 import com.blogspot.sontx.bottle.view.fragment.ChannelFragment;
 import com.blogspot.sontx.bottle.view.fragment.SettingFragment;
-import com.squareup.picasso.Picasso;
 
+import lombok.Getter;
 import lombok.Setter;
 
 public class HomeFragmentPagerAdapter extends FragmentPagerAdapter {
 
     @Setter
     private String currentUserId;
-    private Fragment[] fragments;
+    @Getter
+    private Fragment currentFragment = null;
 
     public HomeFragmentPagerAdapter(FragmentManager fm) {
         super(fm);
     }
 
-    public void initialize() {
-        fragments = new Fragment[]{ChannelFragment.newInstance(currentUserId), SettingFragment.newInstance()};
-    }
-
     @Override
     public int getCount() {
-        return fragments.length;
+        return 2;
     }
 
     @Override
     public Fragment getItem(int position) {
-        return fragments[position];
+        if (position == 0)
+            return currentFragment = ChannelFragment.newInstance(currentUserId);
+
+        return currentFragment = SettingFragment.newInstance();
     }
 }

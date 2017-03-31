@@ -1,15 +1,17 @@
 package com.blogspot.sontx.bottle.model.bean.chat;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.firebase.database.PropertyName;
+
+import java.io.Serializable;
 
 import lombok.Data;
 
 @Data
-public class ChannelDetail {
-    @JsonProperty("last_message")
+public class ChannelDetail implements Serializable {
+    @PropertyName("last_message")
     private String lastMessage;
-    @JsonProperty("message_type")
+    @PropertyName("message_type")
     private String messageType;
-    @JsonProperty("timestamp")
+    @PropertyName("timestamp")
     private long timestamp;
 }

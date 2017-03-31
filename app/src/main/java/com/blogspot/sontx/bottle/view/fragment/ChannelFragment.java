@@ -18,11 +18,10 @@ import java.util.List;
 public class ChannelFragment extends FragmentBase {
     private final static String ARG_CURRENT_USER_ID = "current_user_id";
 
-    private OnChannelInteractionListener listener;
-    private String currentUserId;
     private ChannelRecyclerViewAdapter channelRecyclerViewAdapter;
 
     public ChannelFragment() {
+        channelRecyclerViewAdapter = new ChannelRecyclerViewAdapter(new ArrayList<Channel>());
     }
 
     public static ChannelFragment newInstance(String currentUserId) {
@@ -38,7 +37,8 @@ public class ChannelFragment extends FragmentBase {
         super.onCreate(savedInstanceState);
 
         if (getArguments() != null) {
-            currentUserId = getArguments().getString(ARG_CURRENT_USER_ID);
+            String currentUserId = getArguments().getString(ARG_CURRENT_USER_ID);
+            channelRecyclerViewAdapter.setCurrentUserId(currentUserId);
         }
     }
 
@@ -51,7 +51,7 @@ public class ChannelFragment extends FragmentBase {
             Context context = view.getContext();
             RecyclerView recyclerView = (RecyclerView) view;
             recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            recyclerView.setAdapter(channelRecyclerViewAdapter = new ChannelRecyclerViewAdapter(new ArrayList<Channel>(), currentUserId, listener));
+            recyclerView.setAdapter(channelRecyclerViewAdapter);
         }
         return view;
     }
@@ -60,7 +60,8 @@ public class ChannelFragment extends FragmentBase {
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof OnChannelInteractionListener) {
-            listener = (OnChannelInteractionListener) context;
+            OnChannelInteractionListener listener = (OnChannelInteractionListener) context;
+            channelRecyclerViewAdapter.setListener(listener);
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnChannelInteractionListener");
@@ -70,7 +71,7 @@ public class ChannelFragment extends FragmentBase {
     @Override
     public void onDetach() {
         super.onDetach();
-        listener = null;
+        channelRecyclerViewAdapter.setListener(null);
     }
 
     public void clearChannels() {
@@ -78,26 +79,23 @@ public class ChannelFragment extends FragmentBase {
             channelRecyclerViewAdapter.getValues().clear();
             channelRecyclerViewAdapter.notifyDataSetChanged();
         }
-
     }
 
-    public void addChannels(final List<Channel> channels) {
+    public void showChannel(Channel channel) {
         if (channelRecyclerViewAdapter != null) {
-            channelRecyclerViewAdapter.getValues().addAll(channels);
+            List<Channel> values = channelRecyclerViewAdapter.getValues();
+            for (int i = 0; i < values.size(); i++) {
+                Channel value = values.get(i);
+                if (value.getId().equalsIgnoreCase(channel.getId())) {
+                    values.set(i, channel);
+                    channelRecyclerViewAdapter.notifyDataSetChanged();
+                    //channelRecyclerViewAdapter.notifyItemChanged(i);
+                    return;
+                }
+            }
+            values.add(0, channel);
             channelRecyclerViewAdapter.notifyDataSetChanged();
-        }
-    }
-
-    public void updateChannel(Channel channel) {
-        if (channelRecyclerViewAdapter != null) {
-            channelRecyclerViewAdapter.notifyDataSetChanged();
-        }
-    }
-
-    public void addChannel(final Channel channel) {
-        if (channelRecyclerViewAdapter != null) {
-            channelRecyclerViewAdapter.getValues().add(channel);
-            channelRecyclerViewAdapter.notifyDataSetChanged();
+            //channelRecyclerViewAdapter.notifyItemInserted(0);
         }
     }
 

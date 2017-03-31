@@ -1,21 +1,21 @@
 package com.blogspot.sontx.bottle.model.service.interfaces;
 
-import android.net.Uri;
-
-import com.blogspot.sontx.bottle.model.bean.ChatMessage;
-
-import java.util.List;
-
-import it.slyce.messaging.message.Message;
+import com.blogspot.sontx.bottle.model.bean.chat.ChatMessage;
+import com.blogspot.sontx.bottle.model.service.Callback;
+import com.blogspot.sontx.bottle.model.service.SimpleCallback;
 
 public interface ChatService extends ServiceBase {
-    void sendAsync(String text, Callback<ChatMessage> callback);
+    void registerChannel(String channelId);
 
-    void sendAsync(Uri imageUri, Callback<ChatMessage> callback);
+    void unregisterChannel(String channelId);
 
-    List<Message> getMoreMessages();
-    
-    void setup(String channelKey, String user1, String user2);
+    void unregisterAllChannels();
+
+    void sendAsync(String channelId, String text, Callback<ChatMessage> callback);
 
     void setOnNewChatMessage(SimpleCallback<ChatMessage> callback);
+
+    void setOnChatMessageChanged(SimpleCallback<ChatMessage> callback);
+
+    void setCurrentUserId(String currentUserId);
 }

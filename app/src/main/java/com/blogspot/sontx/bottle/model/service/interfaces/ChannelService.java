@@ -3,6 +3,7 @@ package com.blogspot.sontx.bottle.model.service.interfaces;
 import com.blogspot.sontx.bottle.model.bean.chat.Channel;
 import com.blogspot.sontx.bottle.model.bean.chat.ChannelDetail;
 import com.blogspot.sontx.bottle.model.bean.chat.ChannelMember;
+import com.blogspot.sontx.bottle.model.service.Callback;
 
 import java.util.List;
 

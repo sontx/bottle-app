@@ -1,16 +1,18 @@
 package com.blogspot.sontx.bottle.model.bean;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.firebase.database.Exclude;
+import com.google.firebase.database.PropertyName;
+
+import java.io.Serializable;
 
 import lombok.Data;
 
 @Data
-public class PublicProfile {
-    @JsonIgnore
+public class PublicProfile implements Serializable {
+    @Exclude
     private String id;
-    @JsonProperty("avatar_url")
+    @PropertyName("avatar_url")
     private String avatarUrl;
-    @JsonProperty("display_name")
+    @PropertyName("display_name")
     private String displayName;
 }

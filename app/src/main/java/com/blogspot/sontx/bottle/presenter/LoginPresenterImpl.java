@@ -33,27 +33,24 @@ public class LoginPresenterImpl extends PresenterBase implements LoginPresenter,
     }
 
     @Override
-    public void register() {
-        firebaseAuth.addAuthStateListener(this);
-    }
-
-    @Override
-    public void unregister() {
-        firebaseAuth.removeAuthStateListener(this);
-    }
-
-    @Override
-    public void checkLoginState() {
-        FirebaseUser user = firebaseAuth.getCurrentUser();
-        if (user != null)
-            publicProfilePresenter.updatePublicProfileIfEmptyAsync();
-        loginView.updateUI(user);
-    }
-
-    @Override
     public void logout() {
         firebaseAuth.signOut();
         loginView.updateUI(null);
+    }
+
+    @Override
+    public void onStart() {
+        register();
+    }
+
+    @Override
+    public void onResume() {
+        checkLoginState();
+    }
+
+    @Override
+    public void onStop() {
+        unregister();
     }
 
     @Override
@@ -72,5 +69,20 @@ public class LoginPresenterImpl extends PresenterBase implements LoginPresenter,
             publicProfilePresenter.updatePublicProfileIfEmptyAsync();
         }
         loginView.hideProcess();
+    }
+
+    private void register() {
+        firebaseAuth.addAuthStateListener(this);
+    }
+
+    private void unregister() {
+        firebaseAuth.removeAuthStateListener(this);
+    }
+
+    private void checkLoginState() {
+        FirebaseUser user = firebaseAuth.getCurrentUser();
+        if (user != null)
+            publicProfilePresenter.updatePublicProfileIfEmptyAsync();
+        loginView.updateUI(user);
     }
 }

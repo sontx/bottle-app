@@ -1,17 +1,18 @@
 package com.blogspot.sontx.bottle.model.bean.chat;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.firebase.database.Exclude;
 
+import java.io.Serializable;
 import java.util.List;
 
 import lombok.Data;
 
 @Data
-public class Channel {
+public class Channel implements Serializable {
     private String id;
     private long timestamp;
-    @JsonIgnore
+    @Exclude
     private ChannelDetail detail;
-    @JsonIgnore
+    @Exclude
     private List<ChannelMember> memberList;
 }

@@ -1,27 +1,16 @@
 package com.blogspot.sontx.bottle.presenter.interfaces;
 
-import android.net.Uri;
+import com.blogspot.sontx.bottle.model.bean.PublicProfile;
+import com.blogspot.sontx.bottle.model.bean.chat.Channel;
 
-import java.util.List;
+public interface ChatPresenter extends ViewLifecyclePresenter {
+    void register();
 
-import it.slyce.messaging.message.Message;
-
-public interface ChatPresenter {
-    String getDefaultAvatarUrl();
-
-    String getDefaultDisplayName();
+    void unregister();
 
     void sendAsync(String text);
 
-    void sendAsync(Uri imageUri);
+    void setChannel(Channel channel);
 
-    void setRecipientUserId(String id);
-
-    void setCurrentUserId(String id);
-
-    List<Message> getMoreMessages();
-
-    boolean isMoreMessagesExist();
-
-    void setup();
+    PublicProfile getCurrentPublicProfile();
 }

@@ -25,8 +25,18 @@ public class LoadingActivity extends ActivityBase implements LoginView, LoadingV
 
         loginPresenter = new LoginPresenterImpl(this);
         loadingPresenter = new LoadingPresenterImpl(this);
+    }
 
-        loginPresenter.checkLoginState();
+    @Override
+    protected void onStart() {
+        super.onStart();
+        loginPresenter.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        loginPresenter.onStop();
     }
 
     @Override

@@ -1,13 +1,7 @@
 package com.blogspot.sontx.bottle.presenter.interfaces;
 
-public interface LoginPresenter {
+public interface LoginPresenter extends ViewLifecyclePresenter {
     void loginAsync(String token);
-
-    void register();
-
-    void unregister();
-
-    void checkLoginState();
 
     void logout();
 }

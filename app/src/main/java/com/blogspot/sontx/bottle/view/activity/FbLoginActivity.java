@@ -49,13 +49,13 @@ public class FbLoginActivity extends ActivityBase implements FacebookCallback<Lo
     @Override
     protected void onStart() {
         super.onStart();
-        loginPresenter.register();
+        loginPresenter.onStart();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        loginPresenter.unregister();
+        loginPresenter.onStop();
     }
 
     @Override
