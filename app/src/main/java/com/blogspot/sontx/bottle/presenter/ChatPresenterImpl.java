@@ -8,15 +8,19 @@ import com.blogspot.sontx.bottle.presenter.interfaces.ChatPresenter;
 import com.blogspot.sontx.bottle.system.event.ChatMessageReceivedEvent;
 import com.blogspot.sontx.bottle.system.event.ChatTextMessageEvent;
 import com.blogspot.sontx.bottle.system.event.RegisterServiceEvent;
+import com.blogspot.sontx.bottle.system.event.RequestChatMessagesEvent;
+import com.blogspot.sontx.bottle.system.event.ResponseChatMessagesEvent;
 import com.blogspot.sontx.bottle.system.event.ServiceState;
 import com.blogspot.sontx.bottle.system.event.ServiceStateEvent;
 import com.blogspot.sontx.bottle.system.service.MessagingService;
+import com.blogspot.sontx.bottle.utils.DateTimeUtils;
 import com.blogspot.sontx.bottle.view.interfaces.ChatView;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import it.slyce.messaging.message.Message;
@@ -27,6 +31,8 @@ import lombok.Setter;
 public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
     private final ChatView chatView;
     private String currentUserId;
+    private long oldestMessageTimestamp = 0;
+    private boolean isFirstLoadChatMessagesHistory = false;
     @Setter
     private Channel channel;
 
@@ -37,9 +43,25 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
 
     @Override
     public void onStart() {
-        EventBus.getDefault().register(this);
+        registerEventBusIfNecessary();
+
         if (MessagingService.isRunning())
             registerToService();
+
+        if (!isFirstLoadChatMessagesHistory) {
+            isFirstLoadChatMessagesHistory = true;
+            requestChatMessagesHistory(-1);
+        }
+    }
+
+    private void requestChatMessagesHistory(int count) {
+        long startAt = oldestMessageTimestamp <= 0 ? DateTimeUtils.utc() : oldestMessageTimestamp - 1;
+
+        RequestChatMessagesEvent requestChatMessagesEvent = new RequestChatMessagesEvent();
+        requestChatMessagesEvent.setChannelId(channel.getId());
+        requestChatMessagesEvent.setLimit(count <= 0 ? 5 : count);
+        requestChatMessagesEvent.setStartAtTimestamp(startAt);
+        EventBus.getDefault().post(requestChatMessagesEvent);
     }
 
     @Override
@@ -55,6 +77,10 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
         chatTextMessageEvent.setChannelId(channel.getId());
         chatTextMessageEvent.setText(text);
         EventBus.getDefault().post(chatTextMessageEvent);
+
+        long now = DateTimeUtils.utc();
+        if (oldestMessageTimestamp < now)
+            oldestMessageTimestamp = now;
     }
 
     @Override
@@ -71,17 +97,58 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
         return null;
     }
 
+    @Override
+    public void requestLoadMoreMessages() {
+        requestChatMessagesHistory(5);
+    }
+
+    /**
+     * --------------------------------- begin subscribe methods --------------------------------
+     **/
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onNewChatMessageReceivedEvent(ChatMessageReceivedEvent chatMessageReceivedEvent) {
         ChatMessage chatMessage = chatMessageReceivedEvent.getChatMessage();
-        if (chatMessage.getChannelId().equalsIgnoreCase(channel.getId()) && !chatMessage.getSenderId().equalsIgnoreCase(currentUserId))
+        if (chatMessage.getChannelId().equalsIgnoreCase(channel.getId()) && !chatMessage.getSenderId().equalsIgnoreCase(currentUserId)) {
             addNewMessage(chatMessage);
+            if (oldestMessageTimestamp < chatMessage.getTimestamp())
+                oldestMessageTimestamp = chatMessage.getTimestamp();
+        }
     }
 
     @Subscribe
     public void onServiceStateEvent(ServiceStateEvent serviceStateEvent) {
         if (serviceStateEvent.getServiceState() == ServiceState.RUNNING)
             registerToService();
+    }
+
+    @Subscribe(threadMode = ThreadMode.BACKGROUND)
+    public void onResponseChatMessagesEvent(ResponseChatMessagesEvent responseChatMessagesEvent) {
+        if (responseChatMessagesEvent.getChannelId().equalsIgnoreCase(channel.getId())) {
+            List<ChatMessage> chatMessageList = responseChatMessagesEvent.getChatMessageList();
+            if (chatMessageList.isEmpty()) {
+
+            } else {
+                List<Message> messageList = new ArrayList<>(chatMessageList.size());
+                for (ChatMessage chatMessage : chatMessageList) {
+                    Message message = convertChatMessage(chatMessage);
+                    if (message != null) {
+                        messageList.add(message);
+                    }
+                }
+                oldestMessageTimestamp = chatMessageList.get(0).getTimestamp();
+                chatView.onHasMoreMessages(messageList);
+            }
+        }
+    }
+
+    /**
+     * --------------------------------- end subscribe methods ----------------------------------
+     **/
+
+    private void registerEventBusIfNecessary() {
+        if (!EventBus.getDefault().isRegistered(this))
+            EventBus.getDefault().register(this);
     }
 
     private void registerToService() {
@@ -97,8 +164,14 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
     }
 
     private void addNewMessage(ChatMessage value) {
+        Message message = convertChatMessage(value);
+        if (message != null)
+            chatView.addNewMessage(message);
+    }
+
+    private Message convertChatMessage(ChatMessage value) {
         if (value.getMessageType() == null)
-            return;
+            return null;
 
         Message message = null;
         if (value.getMessageType().equalsIgnoreCase(ChatMessage.TYPE_TEXT)) {
@@ -117,9 +190,11 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
                 message.setDisplayName(senderPublicProfile.getDisplayName());
                 message.setAvatarUrl(senderPublicProfile.getAvatarUrl());
 
-                chatView.addNewMessage(message);
+                return message;
             }
         }
+
+        return null;
     }
 
     private PublicProfile getPublicProfileById(String senderId) {

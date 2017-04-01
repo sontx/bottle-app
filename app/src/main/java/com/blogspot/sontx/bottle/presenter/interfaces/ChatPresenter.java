@@ -9,4 +9,6 @@ public interface ChatPresenter extends ViewLifecyclePresenter {
     void setChannel(Channel channel);
 
     PublicProfile getCurrentPublicProfile();
+
+    void requestLoadMoreMessages();
 }

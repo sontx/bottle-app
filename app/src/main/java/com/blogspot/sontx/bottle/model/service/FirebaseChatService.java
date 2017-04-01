@@ -12,9 +12,12 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
 
 import lombok.Setter;
 
@@ -39,6 +42,26 @@ class FirebaseChatService extends FirebaseServiceBase implements ChatService {
         detailsRef = FirebaseDatabase.getInstance().getReference(channelDetailsKey);
 
         registerChannelsRef = new Hashtable<>();
+    }
+
+    @Override
+    public void getMoreMessages(String channelId, long startAt, int limit, final Callback<List<ChatMessage>> callback) {
+        messagesRef.child(channelId).orderByChild("timestamp").endAt(startAt).limitToLast(limit).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                List<ChatMessage> chatMessages = new ArrayList<>((int) dataSnapshot.getChildrenCount());
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    ChatMessage chatMessage = snapshot.getValue(ChatMessage.class);
+                    chatMessages.add(chatMessage);
+                }
+                callback.onSuccess(chatMessages);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                callback.onError(databaseError.toException());
+            }
+        });
     }
 
     @Override

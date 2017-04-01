@@ -1,1 +1,2 @@
+include ':slyce-messaging'
 include ':app'

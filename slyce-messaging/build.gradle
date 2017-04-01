@@ -1,0 +1,86 @@
+apply plugin: 'com.android.library'
+
+ext {
+    bintrayRepo = 'maven'
+    bintrayName = 'slyce-messaging'
+
+    publishedGroupId = 'it.slyce.slycemessaging'
+    libraryName = 'slyce-messaging'
+    artifact = 'slyce-messaging'
+
+    libraryDescription = 'A messaging library for Android'
+
+    siteUrl = 'https://github.com/snipsnap/SlyceMessaging'
+    gitUrl = 'https://github.com/snipsnap/SlyceMessaging.git'
+
+    libraryVersion = '1.0.1'
+
+    developerId = 'snipsnap'
+    developerName = 'SnipSnap'
+    developerEmail = 'support@snipsnap.it'
+
+    licenseName = 'The MIT License'
+    licenseUrl = 'https://opensource.org/licenses/mit-license.php'
+    allLicenses = ["MIT"]
+}
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "25.0.2"
+
+    defaultConfig {
+        minSdkVersion 16
+        targetSdkVersion 25
+        versionCode 102
+        versionName "4.0"
+        multiDexEnabled true
+        generatedDensities = []
+    }
+
+    aaptOptions {
+        additionalParameters "--no-version-vectors"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    dexOptions {
+        javaMaxHeapSize "2g"
+    }
+
+    packagingOptions {
+        exclude 'META-INF/maven/com.squareup/javawriter/pom.properties'
+        exclude 'META-INF/maven/com.squareup/javawriter/pom.xml'
+
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE-FIREBASE.txt'
+        exclude 'META-INF/NOTICE'
+    }
+}
+
+repositories {
+    maven {
+        url "https://s3.amazonaws.com/repo.commonsware.com"
+    }
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+
+    // Design
+    compile "com.android.support:appcompat-v7:25.3.0"
+    compile "com.android.support:design:25.3.0"
+    compile "com.android.support:percent:25.3.0"
+    compile "com.android.support:recyclerview-v7:25.3.0"
+    compile "com.android.support:support-v13:25.3.0"
+
+    // Image
+    compile 'com.makeramen:roundedimageview:2.2.1'
+    compile 'de.hdodenhof:circleimageview:2.1.0'
+    compile 'com.commonsware.cwac:cam2:0.6.2'
+    compile 'com.github.bumptech.glide:glide:3.7.0'
+}

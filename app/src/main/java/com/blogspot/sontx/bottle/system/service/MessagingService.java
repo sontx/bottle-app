@@ -14,6 +14,8 @@ import com.blogspot.sontx.bottle.system.event.ChatMessageReceivedEvent;
 import com.blogspot.sontx.bottle.system.event.ChatMessageResponseEvent;
 import com.blogspot.sontx.bottle.system.event.ChatTextMessageEvent;
 import com.blogspot.sontx.bottle.system.event.RegisterServiceEvent;
+import com.blogspot.sontx.bottle.system.event.RequestChatMessagesEvent;
+import com.blogspot.sontx.bottle.system.event.ResponseChatMessagesEvent;
 import com.blogspot.sontx.bottle.system.event.ServiceState;
 import com.blogspot.sontx.bottle.system.event.ServiceStateEvent;
 
@@ -22,6 +24,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 import lombok.Getter;
@@ -73,6 +76,10 @@ public class MessagingService extends ServiceBase {
         isRunning = false;
     }
 
+    /**
+     * --------------------------------- begin subscribe methods --------------------------------
+     **/
+
     @Subscribe
     public void onRegisterServiceEvent(RegisterServiceEvent registerServiceEvent) {
         isRegister = registerServiceEvent.isRegister();
@@ -100,6 +107,29 @@ public class MessagingService extends ServiceBase {
             }
         });
     }
+
+    @Subscribe(threadMode = ThreadMode.BACKGROUND)
+    public void onRequestChatMessagesEvent(final RequestChatMessagesEvent requestChatMessagesEvent) {
+        chatService.getMoreMessages(requestChatMessagesEvent.getChannelId(), requestChatMessagesEvent.getStartAtTimestamp(),
+                requestChatMessagesEvent.getLimit(), new Callback<List<ChatMessage>>() {
+                    @Override
+                    public void onSuccess(List<ChatMessage> result) {
+                        ResponseChatMessagesEvent responseChatMessagesEvent = new ResponseChatMessagesEvent();
+                        responseChatMessagesEvent.setChannelId(requestChatMessagesEvent.getChannelId());
+                        responseChatMessagesEvent.setChatMessageList(result);
+                        EventBus.getDefault().post(responseChatMessagesEvent);
+                    }
+
+                    @Override
+                    public void onError(Throwable what) {
+                        Log.e(TAG, what.getMessage());
+                    }
+                });
+    }
+
+    /**
+     * --------------------------------- end subscribe methods ----------------------------------
+     **/
 
     private String getMessageDescription(ChatMessage chatMessage) {
         if (ChatMessage.TYPE_TEXT.equalsIgnoreCase(chatMessage.getMessageType()))

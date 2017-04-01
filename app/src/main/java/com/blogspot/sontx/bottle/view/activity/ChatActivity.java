@@ -11,7 +11,6 @@ import com.blogspot.sontx.bottle.presenter.ChatPresenterImpl;
 import com.blogspot.sontx.bottle.presenter.interfaces.ChatPresenter;
 import com.blogspot.sontx.bottle.view.interfaces.ChatView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import it.slyce.messaging.SlyceMessagingFragment;
@@ -30,6 +29,7 @@ public class ChatActivity extends ActivityBase implements ChatView, UserSendsMes
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+
 
         if (getIntent() != null) {
             Channel channel = (Channel) getIntent().getSerializableExtra(CHANNEL_KEY);
@@ -68,14 +68,18 @@ public class ChatActivity extends ActivityBase implements ChatView, UserSendsMes
     }
 
     @Override
-    public List<Message> loadMoreMessages() {
-        Log.d(TAG, "load more...");
-        return new ArrayList<>();
+    public void addNewMessage(final Message result) {
+        slyceMessagingFragment.addNewMessage(result);
     }
 
     @Override
-    public void addNewMessage(final Message result) {
-        slyceMessagingFragment.addNewMessage(result);
+    public void onHasMoreMessages(List<Message> messages) {
+        slyceMessagingFragment.loadMoreMessages(messages);
+    }
+
+    @Override
+    public void requestLoadMoreMessages() {
+        chatPresenter.requestLoadMoreMessages();
     }
 
     private void initializeChatFragment() {

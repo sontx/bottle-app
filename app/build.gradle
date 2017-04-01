@@ -37,6 +37,8 @@ repositories {
     maven { url "https://jitpack.io" }
 }
 
+def AAVersion = "4.3.0"
+
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:multidex:1.0.1'
@@ -67,7 +69,6 @@ dependencies {
     compile 'com.facebook.fresco:fresco:1.1.0'
     compile 'devlight.io:navigationtabbar:1.2.5'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile 'com.github.Slyce-Inc:SlyceMessaging:1.1.2'
     compile 'com.jakewharton:butterknife:8.5.1'
     compile 'com.vanniktech:emoji-one:0.4.0'
     compile 'com.vanniktech:emoji:0.4.0'
@@ -77,8 +78,11 @@ dependencies {
     compile 'de.hdodenhof:circleimageview:2.1.0'
     compile 'org.greenrobot:eventbus:3.0.0'
     testCompile 'junit:junit:4.12'
+    compile "org.androidannotations:androidannotations-api:$AAVersion"
+    annotationProcessor "org.androidannotations:androidannotations:$AAVersion"
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
     provided 'org.projectlombok:lombok:1.12.6'
+    compile project(':slyce-messaging')
 }
 
 apply plugin: 'com.google.gms.google-services'
