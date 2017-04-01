@@ -72,9 +72,9 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onChatMessageReceivedEvent(ChatMessageReceivedEvent chatMessageReceivedEvent) {
+    public void onNewChatMessageReceivedEvent(ChatMessageReceivedEvent chatMessageReceivedEvent) {
         ChatMessage chatMessage = chatMessageReceivedEvent.getChatMessage();
-        if (chatMessage.getChannelId().equalsIgnoreCase(channel.getId()))
+        if (chatMessage.getChannelId().equalsIgnoreCase(channel.getId()) && !chatMessage.getSenderId().equalsIgnoreCase(currentUserId))
             addNewMessage(chatMessage);
     }
 
