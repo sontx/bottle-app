@@ -79,7 +79,7 @@ class FirebaseChatService extends FirebaseServiceBase implements ChatService {
             }
         };
 
-        registerChannelRef.addChildEventListener(childEventListener);
+        registerChannelRef.orderByChild("timestamp").startAt(DateTimeUtils.utc()).addChildEventListener(childEventListener);
 
         DatabaseRefWrapper databaseRefWrapper = new DatabaseRefWrapper();
         databaseRefWrapper.childEventListener = childEventListener;
