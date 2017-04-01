@@ -7,6 +7,10 @@ import com.blogspot.sontx.bottle.model.bean.chat.ChatMessage;
 import com.blogspot.sontx.bottle.presenter.interfaces.ChatPresenter;
 import com.blogspot.sontx.bottle.system.event.ChatMessageReceivedEvent;
 import com.blogspot.sontx.bottle.system.event.ChatTextMessageEvent;
+import com.blogspot.sontx.bottle.system.event.RegisterServiceEvent;
+import com.blogspot.sontx.bottle.system.event.ServiceState;
+import com.blogspot.sontx.bottle.system.event.ServiceStateEvent;
+import com.blogspot.sontx.bottle.system.service.MessagingService;
 import com.blogspot.sontx.bottle.view.interfaces.ChatView;
 
 import org.greenrobot.eventbus.EventBus;
@@ -32,13 +36,16 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
     }
 
     @Override
-    public void register() {
+    public void onStart() {
         EventBus.getDefault().register(this);
+        if (MessagingService.isRunning())
+            registerToService();
     }
 
     @Override
-    public void unregister() {
+    public void onStop() {
         EventBus.getDefault().unregister(this);
+        unregisterToService();
     }
 
     @Override
@@ -65,10 +72,28 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    void onChatMessageReceivedEvent(ChatMessageReceivedEvent chatMessageReceivedEvent) {
+    public void onChatMessageReceivedEvent(ChatMessageReceivedEvent chatMessageReceivedEvent) {
         ChatMessage chatMessage = chatMessageReceivedEvent.getChatMessage();
         if (chatMessage.getChannelId().equalsIgnoreCase(channel.getId()))
             addNewMessage(chatMessage);
+    }
+
+    @Subscribe
+    public void onServiceStateEvent(ServiceStateEvent serviceStateEvent) {
+        if (serviceStateEvent.getServiceState() == ServiceState.RUNNING)
+            registerToService();
+    }
+
+    private void registerToService() {
+        RegisterServiceEvent registerServiceEvent = new RegisterServiceEvent();
+        registerServiceEvent.setRegister(true);
+        EventBus.getDefault().post(registerServiceEvent);
+    }
+
+    private void unregisterToService() {
+        RegisterServiceEvent registerServiceEvent = new RegisterServiceEvent();
+        registerServiceEvent.setRegister(false);
+        EventBus.getDefault().post(registerServiceEvent);
     }
 
     private void addNewMessage(ChatMessage value) {

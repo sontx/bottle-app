@@ -47,16 +47,13 @@ public class ChatActivity extends ActivityBase implements ChatView, UserSendsMes
     @Override
     protected void onStart() {
         super.onStart();
-        if (chatPresenter != null) {
-            chatPresenter.register();
-        }
+        chatPresenter.onStart();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        if (chatPresenter != null)
-            chatPresenter.unregister();
+        chatPresenter.onStop();
     }
 
     @Override

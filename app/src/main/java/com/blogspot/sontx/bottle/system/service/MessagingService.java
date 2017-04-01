@@ -74,12 +74,12 @@ public class MessagingService extends ServiceBase {
     }
 
     @Subscribe
-    void onRegisterServiceEvent(RegisterServiceEvent registerServiceEvent) {
+    public void onRegisterServiceEvent(RegisterServiceEvent registerServiceEvent) {
         isRegister = registerServiceEvent.isRegister();
     }
 
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
-    void onChatTextMessageEvent(final ChatTextMessageEvent chatTextMessageEvent) {
+    public void onChatTextMessageEvent(final ChatTextMessageEvent chatTextMessageEvent) {
         chatService.sendAsync(chatTextMessageEvent.getChannelId(), chatTextMessageEvent.getText(), new Callback<ChatMessage>() {
             @Override
             public void onSuccess(ChatMessage result) {
@@ -124,6 +124,7 @@ public class MessagingService extends ServiceBase {
 
         @Override
         public void onCallback(ChatMessage value) {
+
             if (isRegister) {
                 ChatMessageReceivedEvent chatMessageReceivedEvent = new ChatMessageReceivedEvent();
                 chatMessageReceivedEvent.setChatMessage(value);
