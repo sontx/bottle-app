@@ -6,6 +6,7 @@ import com.blogspot.sontx.bottle.model.service.interfaces.ChannelService;
 import com.blogspot.sontx.bottle.model.service.interfaces.ChatService;
 import com.blogspot.sontx.bottle.model.service.interfaces.PrivateProfileService;
 import com.blogspot.sontx.bottle.model.service.interfaces.PublicProfileService;
+import com.google.firebase.database.FirebaseDatabase;
 
 import lombok.Getter;
 
@@ -20,7 +21,7 @@ public final class FirebaseServicePool implements ServicePool {
     @Getter
     private PublicProfileService publicProfileService;
 
-    FirebaseServicePool() {
+    private FirebaseServicePool() {
     }
 
     public static ServicePool getInstance() {
@@ -31,6 +32,8 @@ public final class FirebaseServicePool implements ServicePool {
 
     @Override
     public void initialize(Context context) {
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+
         channelService = new FirebaseChannelService(context);
         chatService = new FirebaseChatService(context);
         privateProfileService = new FirebasePrivateProfileService(context);
