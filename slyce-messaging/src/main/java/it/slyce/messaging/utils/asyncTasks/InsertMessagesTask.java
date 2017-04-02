@@ -1,7 +1,6 @@
 package it.slyce.messaging.utils.asyncTasks;
 
 import android.content.Context;
-import android.os.AsyncTask;
 
 import java.util.List;
 
@@ -11,7 +10,7 @@ import it.slyce.messaging.message.messageItem.MessageRecyclerAdapter;
 import it.slyce.messaging.utils.MessageUtils;
 import it.slyce.messaging.utils.Refresher;
 
-public class InsertMessagesTask extends AsyncTask {
+public class InsertMessagesTask extends AsyncTaskBase {
     private List<Message> mMessages;
     private List<MessageItem> mMessageItems;
     private MessageRecyclerAdapter mRecyclerAdapter;
@@ -44,9 +43,11 @@ public class InsertMessagesTask extends AsyncTask {
         if (context == null)
             return null;
 
-        for (int i = upTo - 1; i >= 0; i--) {
-            Message message = mMessages.get(i);
-            mMessageItems.add(0, message.toMessageItem(context)); // this call is why we need the AsyncTask
+        synchronized (getLock()) {
+            for (int i = upTo - 1; i >= 0; i--) {
+                Message message = mMessages.get(i);
+                mMessageItems.add(0, message.toMessageItem(context)); // this call is why we need the AsyncTask
+            }
         }
 
         for (int i = 0; i < mMessageItems.size(); i++) {

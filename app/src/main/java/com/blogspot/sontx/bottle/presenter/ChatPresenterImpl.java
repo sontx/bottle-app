@@ -6,12 +6,13 @@ import com.blogspot.sontx.bottle.model.bean.chat.ChannelMember;
 import com.blogspot.sontx.bottle.model.bean.chat.ChatMessage;
 import com.blogspot.sontx.bottle.presenter.interfaces.ChatPresenter;
 import com.blogspot.sontx.bottle.system.event.ChatMessageReceivedEvent;
-import com.blogspot.sontx.bottle.system.event.ChatTextMessageEvent;
 import com.blogspot.sontx.bottle.system.event.RegisterServiceEvent;
 import com.blogspot.sontx.bottle.system.event.RequestChatMessagesEvent;
 import com.blogspot.sontx.bottle.system.event.ResponseChatMessagesEvent;
+import com.blogspot.sontx.bottle.system.event.SendChatMessageResultEvent;
+import com.blogspot.sontx.bottle.system.event.SendChatTextMessageEvent;
 import com.blogspot.sontx.bottle.system.event.ServiceState;
-import com.blogspot.sontx.bottle.system.event.ServiceStateEvent;
+import com.blogspot.sontx.bottle.system.event.ServiceStateChangedEvent;
 import com.blogspot.sontx.bottle.system.service.MessagingService;
 import com.blogspot.sontx.bottle.utils.DateTimeUtils;
 import com.blogspot.sontx.bottle.view.interfaces.ChatView;
@@ -29,6 +30,9 @@ import it.slyce.messaging.message.TextMessage;
 import lombok.Setter;
 
 public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
+    private static final int MAX_INITIAL_MESSAGES = 15;
+    private static final int MAX_LOAD_MORE_MESSAGES = 10;
+
     private final ChatView chatView;
     private String currentUserId;
     private long oldestMessageTimestamp = 0;
@@ -50,7 +54,7 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
 
         if (!isFirstLoadChatMessagesHistory) {
             isFirstLoadChatMessagesHistory = true;
-            requestChatMessagesHistory(-1);
+            requestChatMessagesHistory(MAX_INITIAL_MESSAGES);
         }
     }
 
@@ -58,8 +62,9 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
         long startAt = oldestMessageTimestamp <= 0 ? DateTimeUtils.utc() : oldestMessageTimestamp - 1;
 
         RequestChatMessagesEvent requestChatMessagesEvent = new RequestChatMessagesEvent();
+        requestChatMessagesEvent.setCurrentUserId(currentUserId);
         requestChatMessagesEvent.setChannelId(channel.getId());
-        requestChatMessagesEvent.setLimit(count <= 0 ? 5 : count);
+        requestChatMessagesEvent.setLimit(count);
         requestChatMessagesEvent.setStartAtTimestamp(startAt);
         EventBus.getDefault().post(requestChatMessagesEvent);
     }
@@ -71,12 +76,12 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
     }
 
     @Override
-    public void sendAsync(String text) {
-        ChatTextMessageEvent chatTextMessageEvent = new ChatTextMessageEvent();
-        chatTextMessageEvent.setId(0);
-        chatTextMessageEvent.setChannelId(channel.getId());
-        chatTextMessageEvent.setText(text);
-        EventBus.getDefault().post(chatTextMessageEvent);
+    public void sendAsync(String text, int internalId) {
+        SendChatTextMessageEvent sendChatTextMessageEvent = new SendChatTextMessageEvent();
+        sendChatTextMessageEvent.setId(internalId);
+        sendChatTextMessageEvent.setChannelId(channel.getId());
+        sendChatTextMessageEvent.setText(text);
+        EventBus.getDefault().post(sendChatTextMessageEvent);
 
         long now = DateTimeUtils.utc();
         if (oldestMessageTimestamp < now)
@@ -99,12 +104,21 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
 
     @Override
     public void requestLoadMoreMessages() {
-        requestChatMessagesHistory(5);
+        requestChatMessagesHistory(MAX_LOAD_MORE_MESSAGES);
     }
 
     /**
      * --------------------------------- begin subscribe methods --------------------------------
      **/
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onSendChatMessageResultEvent(SendChatMessageResultEvent sendChatMessageResultEvent) {
+        ChatMessage result = sendChatMessageResultEvent.getResult();
+        if (result != null)
+            chatView.updateChatMessage(sendChatMessageResultEvent.getId(), result.getState());
+        else
+            chatView.updateChatMessage(sendChatMessageResultEvent.getId(), ChatMessage.STATE_ERROR);
+    }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onNewChatMessageReceivedEvent(ChatMessageReceivedEvent chatMessageReceivedEvent) {
@@ -117,8 +131,8 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
     }
 
     @Subscribe
-    public void onServiceStateEvent(ServiceStateEvent serviceStateEvent) {
-        if (serviceStateEvent.getServiceState() == ServiceState.RUNNING)
+    public void onServiceStateChangedEvent(ServiceStateChangedEvent serviceStateChangedEvent) {
+        if (serviceStateChangedEvent.getServiceState() == ServiceState.RUNNING)
             registerToService();
     }
 
@@ -181,6 +195,7 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
         }
 
         if (message != null) {
+            message.setState(value.getState());
             message.setDate(value.getTimestamp());
             message.setSource(value.getSenderId().equalsIgnoreCase(currentUserId) ? MessageSource.LOCAL_USER : MessageSource.EXTERNAL_USER);
             message.setUserId(value.getSenderId());

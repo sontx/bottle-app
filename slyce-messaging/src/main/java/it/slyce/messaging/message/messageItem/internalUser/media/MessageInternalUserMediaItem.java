@@ -13,4 +13,9 @@ public class MessageInternalUserMediaItem extends MessageMediaItem {
     public MessageInternalUserMediaItem(MediaMessage messageMedia, Context context) {
         super(messageMedia, context);
     }
+
+    @Override
+    protected String getSubtitle() {
+        return message.getState();
+    }
 }

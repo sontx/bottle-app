@@ -16,13 +16,13 @@ import it.slyce.messaging.message.TextMessage;
 import it.slyce.messaging.message.messageItem.MessageItem;
 import it.slyce.messaging.message.messageItem.MessageItemType;
 import it.slyce.messaging.message.messageItem.MessageViewHolder;
-import it.slyce.messaging.utils.DateUtils;
+import it.slyce.messaging.utils.StringUtils;
 
 /**
  * Created by matthewpage on 6/27/16.
  */
-public class MessageTextItem extends MessageItem {
-    private Context context;
+public abstract class MessageTextItem extends MessageItem {
+    protected Context context;
     private String avatarUrl;
 
     public MessageTextItem(TextMessage textMessage, Context context) {
@@ -38,15 +38,15 @@ public class MessageTextItem extends MessageItem {
             final MessageTextViewHolder messageTextViewHolder = (MessageTextViewHolder) messageViewHolder;
 
             // Get content
-            String date = DateUtils.getTimestamp(context, message.getDate());
             String text = ((TextMessage) message).getText();
+            String subtitle = getSubtitle();
             this.avatarUrl = message.getAvatarUrl();
             this.initials = message.getInitials();
 
             // Populate views with content
             messageTextViewHolder.initials.setText(initials != null ? initials : "");
             messageTextViewHolder.text.setText(text != null ? text : "");
-            messageTextViewHolder.timestamp.setText(date != null ? date : "");
+            messageTextViewHolder.timestamp.setText(subtitle != null ? StringUtils.toUppercaseFirstCharacter(subtitle) : "");
 
             messageTextViewHolder.bubble.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override

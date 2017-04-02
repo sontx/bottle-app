@@ -8,12 +8,32 @@ import it.slyce.messaging.message.messageItem.MessageItem;
  * Created by matthewpage on 6/21/16.
  */
 public abstract class Message {
+    private static int freeId = 0;
+
     long date;
     MessageSource source;
     String avatarUrl;
     String displayName;
     String userId;
     String initials;
+    String state;
+    int internalId;
+
+    public Message() {
+        internalId = ++freeId;
+    }
+
+    public int getInternalId() {
+        return internalId;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
 
     public long getDate() {
         return date;

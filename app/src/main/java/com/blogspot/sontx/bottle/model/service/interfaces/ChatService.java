@@ -7,7 +7,7 @@ import com.blogspot.sontx.bottle.model.service.SimpleCallback;
 import java.util.List;
 
 public interface ChatService extends ServiceBase {
-    void getMoreMessages(String channelId, long startAt, int limit, Callback<List<ChatMessage>> callback);
+    void getMoreMessages(String currentUserId, String channelId, long startAt, int limit, Callback<List<ChatMessage>> callback);
 
     void registerChannel(String channelId);
 

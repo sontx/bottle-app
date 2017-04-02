@@ -14,6 +14,11 @@ public class SpinnerItem extends MessageItem {
     }
 
     @Override
+    protected String getSubtitle() {
+        return null;
+    }
+
+    @Override
     public void buildMessageItem(MessageViewHolder messageViewHolder) {
 
     }

@@ -49,6 +49,7 @@ import it.slyce.messaging.utils.DateUtils;
 import it.slyce.messaging.utils.Refresher;
 import it.slyce.messaging.utils.ScrollUtils;
 import it.slyce.messaging.utils.asyncTasks.AddNewMessageTask;
+import it.slyce.messaging.utils.asyncTasks.AsyncTaskBase;
 import it.slyce.messaging.utils.asyncTasks.InsertMessagesTask;
 import it.slyce.messaging.utils.asyncTasks.OnTaskCompletedListener;
 import it.slyce.messaging.view.ViewUtils;
@@ -260,6 +261,19 @@ public class SlyceMessagingFragment extends Fragment implements OnClickListener 
         }
     }
 
+    public void updateMessage(int internalId, String newChatState) {
+        synchronized (AsyncTaskBase.getLock()) {
+            for (int i = mMessageItems.size() - 1; i >= 0; i++) {
+                MessageItem item = mMessageItems.get(i);
+                if (item.getMessage().getInternalId() == internalId) {
+                    item.getMessage().setState(newChatState);
+                    mRecyclerAdapter.notifyItemChanged(i);
+                    break;
+                }
+            }
+        }
+    }
+
     public void loadMoreMessages(List<Message> messages) {
         mRefresher.setIsRefreshing(true);
         int upTo = messages.size();
@@ -372,7 +386,7 @@ public class SlyceMessagingFragment extends Fragment implements OnClickListener 
                 addNewMessage(message);
                 ScrollUtils.scrollToBottomAfterDelay(mRecyclerView, mRecyclerAdapter);
                 if (listener != null)
-                    listener.onUserSendsMediaMessage(selectedImageUri);
+                    listener.onUserSendsMediaMessage(selectedImageUri, message.getInternalId());
             }
         } catch (RuntimeException exception) {
             Log.d("debug", exception.getMessage());
@@ -398,6 +412,6 @@ public class SlyceMessagingFragment extends Fragment implements OnClickListener 
 
         ScrollUtils.scrollToBottomAfterDelay(mRecyclerView, mRecyclerAdapter);
         if (listener != null)
-            listener.onUserSendsTextMessage(message.getText());
+            listener.onUserSendsTextMessage(message.getText(), message.getInternalId());
     }
 }

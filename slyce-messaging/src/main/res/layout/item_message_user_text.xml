@@ -77,7 +77,7 @@
         android:layout_marginBottom="@dimen/message_timestamp_margin_bottom"
         android:layout_marginTop="@dimen/message_timestamp_margin_top"
         android:gravity="right"
-        android:singleLine="true"
+        android:maxLines="1"
         android:textColor="@color/text_gray_darkest"
         android:textSize="10sp"
         tools:text="12:29pm" />

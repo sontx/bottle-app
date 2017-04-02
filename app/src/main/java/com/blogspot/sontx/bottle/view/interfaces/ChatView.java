@@ -8,4 +8,6 @@ public interface ChatView extends ViewBase {
     void addNewMessage(Message result);
 
     void onHasMoreMessages(List<Message> messages);
+
+    void updateChatMessage(int internalId, String newChatState);
 }

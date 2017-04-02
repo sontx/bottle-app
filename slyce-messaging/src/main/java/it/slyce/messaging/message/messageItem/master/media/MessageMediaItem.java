@@ -15,12 +15,13 @@ import it.slyce.messaging.message.messageItem.MessageItemType;
 import it.slyce.messaging.message.messageItem.MessageViewHolder;
 import it.slyce.messaging.utils.DateUtils;
 import it.slyce.messaging.utils.MediaUtils;
+import it.slyce.messaging.utils.StringUtils;
 
 /**
  * Created by matthewpage on 6/27/16.
  */
 public abstract class MessageMediaItem extends MessageItem {
-    private Context context;
+    protected Context context;
 
     public MessageMediaItem(MediaMessage mediaMessage, Context context) {
         super(mediaMessage);
@@ -37,12 +38,12 @@ public abstract class MessageMediaItem extends MessageItem {
 
             // Get content
             float widthToHeightRatio = MediaUtils.getWidthToHeightRatio(getMediaMessage().getUrl(), context);
-            date = DateUtils.getTimestamp(context, message.getDate());
+            String subtitle = getSubtitle();
             final String mediaUrl = getMediaMessage().getUrl();
             this.avatarUrl = message.getAvatarUrl();
 
             // Populate views with content
-            messageMediaViewHolder.timestamp.setText(date != null ? date : "");
+            messageMediaViewHolder.timestamp.setText(subtitle != null ? StringUtils.toUppercaseFirstCharacter(subtitle) : "");
             messageMediaViewHolder.initials.setText(initials != null ? initials : "");
 
             messageMediaViewHolder.media.setWidthToHeightRatio(widthToHeightRatio);
