@@ -26,6 +26,7 @@ public class AddNewMessageTask extends AsyncTaskBase {
     private Context context;
     private CustomSettings customSettings;
     private int rangeStartingPoint;
+    private OnTaskCompletedListener onTaskCompletedListener;
 
     public AddNewMessageTask(
             List<Message> messages,
@@ -40,6 +41,10 @@ public class AddNewMessageTask extends AsyncTaskBase {
         this.mRecyclerView = mRecyclerView;
         this.context = context;
         this.customSettings = customSettings;
+    }
+
+    public void setOnTaskCompletedListener(OnTaskCompletedListener onTaskCompletedListener) {
+        this.onTaskCompletedListener = onTaskCompletedListener;
     }
 
     @Override
@@ -94,6 +99,11 @@ public class AddNewMessageTask extends AsyncTaskBase {
             }
             snackbar.getView().setBackgroundColor(customSettings.snackbarBackground);
             snackbar.show();
+        }
+
+        if (onTaskCompletedListener != null) {
+            onTaskCompletedListener.onTaskCompleted();
+            onTaskCompletedListener = null;
         }
     }
 }
