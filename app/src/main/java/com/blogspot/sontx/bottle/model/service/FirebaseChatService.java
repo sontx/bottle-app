@@ -155,6 +155,7 @@ class FirebaseChatService extends FirebaseServiceBase implements ChatService {
                     detailsRef.child(channelId).setValue(detail);
 
                     chatMessage.setState(ChatMessage.STATE_SENT);
+                    chatMessage.setId(databaseReference.getKey());
                     callback.onSuccess(chatMessage);
 
                     databaseReference.child("state").setValue(ChatMessage.STATE_SENT);

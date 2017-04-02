@@ -28,21 +28,18 @@ public class UpdateMessageTask extends AsyncTaskBase<Void, Void, Integer> {
 
     @Override
     protected Integer doInBackground(Void[] objects) {
-        if (message.getId() == null || message.getId().length() == 0) {
-            for (int i = mMessageItems.size() - 1; i >= 0; i--) {
-                MessageItem messageItem = mMessageItems.get(i);
-                if (messageItem.getMessage().getTempId() == message.getTempId()) {
-                    messageItem.getMessage().setState(message.getState());
-                    return i;
-                }
-            }
-        } else {
-            for (int i = mMessageItems.size() - 1; i >= 0; i--) {
-                MessageItem messageItem = mMessageItems.get(i);
-                if (messageItem.getMessage().getId().equalsIgnoreCase(message.getId())) {
+        for (int i = mMessageItems.size() - 1; i >= 0; i--) {
+            MessageItem messageItem = mMessageItems.get(i);
+            String messageId = messageItem.getMessage().getId();
+            if (messageId != null) {
+                if (messageId.equalsIgnoreCase(message.getId())) {
                     messageItem.setMessage(message);
                     return i;
                 }
+            } else if (messageItem.getMessage().getTempId() == message.getTempId()) {
+                messageItem.getMessage().setState(message.getState());
+                messageItem.getMessage().setId(message.getId());
+                return i;
             }
         }
         return null;
@@ -52,10 +49,8 @@ public class UpdateMessageTask extends AsyncTaskBase<Void, Void, Integer> {
     protected void onPostExecute(Integer position) {
         super.onPostExecute(position);
 
-        if (position == null)
-            return;
-
-        mRecyclerAdapter.notifyItemChanged(position);
+        if (position != null)
+            mRecyclerAdapter.notifyItemChanged(position);
 
         mRefresher.setIsRefreshing(false);
     }

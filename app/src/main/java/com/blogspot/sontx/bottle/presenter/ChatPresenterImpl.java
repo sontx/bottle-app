@@ -112,12 +112,17 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
      * --------------------------------- begin subscribe methods --------------------------------
      **/
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
+    @Subscribe
     public void onSendChatMessageResultEvent(SendChatMessageResultEvent sendChatMessageResultEvent) {
         ChatMessage result = sendChatMessageResultEvent.getResult();
         Message message = new TextMessage();
         message.setTempId(sendChatMessageResultEvent.getId());
-        message.setState(result != null ? result.getState() : ChatMessage.STATE_ERROR);
+        if (result != null) {
+            message.setId(result.getId());
+            message.setState(result.getState());
+        } else {
+            message.setState(ChatMessage.STATE_ERROR);
+        }
         chatView.updateChatMessage(message);
     }
 
@@ -131,7 +136,7 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
         }
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
+    @Subscribe
     public void onChatMessageChangedEvent(ChatMessageChangedEvent chatMessageChangedEvent) {
         Message message = convertChatMessage(chatMessageChangedEvent.getChatMessage());
         chatView.updateChatMessage(message);

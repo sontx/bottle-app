@@ -61,11 +61,6 @@ public class InsertMessagesTask extends AsyncTaskBase {
     protected void onPostExecute(Object o) {
         super.onPostExecute(o);
 
-        if (o != null) {
-            return;
-        }
-
-
         if (upTo >= 0 && upTo < mMessageItems.size()) {
             mRecyclerAdapter.notifyItemRangeInserted(0, upTo);
             mRecyclerAdapter.notifyItemChanged(upTo);
