@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class RequestChatMessagesEvent {
+    private String currentUserId;
     private String channelId;
     private long startAtTimestamp;
     private int limit;

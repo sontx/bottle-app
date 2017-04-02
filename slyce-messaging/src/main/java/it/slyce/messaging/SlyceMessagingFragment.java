@@ -51,6 +51,7 @@ import it.slyce.messaging.utils.ScrollUtils;
 import it.slyce.messaging.utils.asyncTasks.AddNewMessageTask;
 import it.slyce.messaging.utils.asyncTasks.InsertMessagesTask;
 import it.slyce.messaging.utils.asyncTasks.OnTaskCompletedListener;
+import it.slyce.messaging.utils.asyncTasks.UpdateMessageTask;
 import it.slyce.messaging.view.ViewUtils;
 
 /**
@@ -260,6 +261,11 @@ public class SlyceMessagingFragment extends Fragment implements OnClickListener 
         }
     }
 
+    public void updateMessage(Message message) {
+        if (getActivity() != null)
+            new UpdateMessageTask(message, mMessageItems, mRecyclerAdapter, mRefresher).execute();
+    }
+
     public void loadMoreMessages(List<Message> messages) {
         mRefresher.setIsRefreshing(true);
         int upTo = messages.size();
@@ -372,7 +378,7 @@ public class SlyceMessagingFragment extends Fragment implements OnClickListener 
                 addNewMessage(message);
                 ScrollUtils.scrollToBottomAfterDelay(mRecyclerView, mRecyclerAdapter);
                 if (listener != null)
-                    listener.onUserSendsMediaMessage(selectedImageUri);
+                    listener.onUserSendsMediaMessage(selectedImageUri, message.getTempId());
             }
         } catch (RuntimeException exception) {
             Log.d("debug", exception.getMessage());
@@ -398,6 +404,6 @@ public class SlyceMessagingFragment extends Fragment implements OnClickListener 
 
         ScrollUtils.scrollToBottomAfterDelay(mRecyclerView, mRecyclerAdapter);
         if (listener != null)
-            listener.onUserSendsTextMessage(message.getText());
+            listener.onUserSendsTextMessage(message.getText(), message.getTempId());
     }
 }

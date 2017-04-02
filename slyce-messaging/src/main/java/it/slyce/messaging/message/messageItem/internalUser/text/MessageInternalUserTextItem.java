@@ -13,4 +13,9 @@ public class MessageInternalUserTextItem extends MessageTextItem {
     public MessageInternalUserTextItem(TextMessage messageText, Context context) {
         super(messageText, context);
     }
+
+    @Override
+    protected String getSubtitle() {
+        return message.getState();
+    }
 }

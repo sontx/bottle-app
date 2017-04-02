@@ -12,6 +12,11 @@ public class MessageGeneralTextItem extends MessageItem {
     }
 
     @Override
+    protected String getSubtitle() {
+        return null;
+    }
+
+    @Override
     public void buildMessageItem(
             MessageViewHolder messageViewHolder) {
         MessageGeneralTextViewHolder viewHolder = (MessageGeneralTextViewHolder) messageViewHolder;

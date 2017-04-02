@@ -10,14 +10,15 @@ import com.blogspot.sontx.bottle.model.service.Callback;
 import com.blogspot.sontx.bottle.model.service.FirebaseServicePool;
 import com.blogspot.sontx.bottle.model.service.SimpleCallback;
 import com.blogspot.sontx.bottle.model.service.interfaces.ChatService;
+import com.blogspot.sontx.bottle.system.event.ChatMessageChangedEvent;
 import com.blogspot.sontx.bottle.system.event.ChatMessageReceivedEvent;
-import com.blogspot.sontx.bottle.system.event.ChatMessageResponseEvent;
-import com.blogspot.sontx.bottle.system.event.ChatTextMessageEvent;
 import com.blogspot.sontx.bottle.system.event.RegisterServiceEvent;
 import com.blogspot.sontx.bottle.system.event.RequestChatMessagesEvent;
 import com.blogspot.sontx.bottle.system.event.ResponseChatMessagesEvent;
+import com.blogspot.sontx.bottle.system.event.SendChatMessageResultEvent;
+import com.blogspot.sontx.bottle.system.event.SendChatTextMessageEvent;
 import com.blogspot.sontx.bottle.system.event.ServiceState;
-import com.blogspot.sontx.bottle.system.event.ServiceStateEvent;
+import com.blogspot.sontx.bottle.system.event.ServiceStateChangedEvent;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -43,16 +44,16 @@ public class MessagingService extends ServiceBase {
         super.onCreate();
 
         chatService = FirebaseServicePool.getInstance().getChatService();
-        chatService.setOnNewChatMessage(new IncommingChatMessageHandler());
+        chatService.setOnNewChatMessage(new IncommingNewChatMessageHandler());
         chatService.setOnChatMessageChanged(new IncommingChatMessageChangedHandler());
 
         EventBus.getDefault().register(this);
 
         isRunning = true;
 
-        ServiceStateEvent serviceStateEvent = new ServiceStateEvent();
-        serviceStateEvent.setServiceState(ServiceState.RUNNING);
-        EventBus.getDefault().post(serviceStateEvent);
+        ServiceStateChangedEvent serviceStateChangedEvent = new ServiceStateChangedEvent();
+        serviceStateChangedEvent.setServiceState(ServiceState.RUNNING);
+        EventBus.getDefault().post(serviceStateChangedEvent);
 
         Log.d(TAG, "Service started");
     }
@@ -86,31 +87,31 @@ public class MessagingService extends ServiceBase {
     }
 
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
-    public void onChatTextMessageEvent(final ChatTextMessageEvent chatTextMessageEvent) {
-        chatService.sendAsync(chatTextMessageEvent.getChannelId(), chatTextMessageEvent.getText(), new Callback<ChatMessage>() {
+    public void onSendChatTextMessageEvent(final SendChatTextMessageEvent sendChatTextMessageEvent) {
+        chatService.sendAsync(sendChatTextMessageEvent.getChannelId(), sendChatTextMessageEvent.getText(), new Callback<ChatMessage>() {
             @Override
             public void onSuccess(ChatMessage result) {
-                ChatMessageResponseEvent chatMessageResponseEvent = new ChatMessageResponseEvent();
-                chatMessageResponseEvent.setChannelId(chatTextMessageEvent.getChannelId());
-                chatMessageResponseEvent.setId(chatTextMessageEvent.getId());
-                chatMessageResponseEvent.setResult("Sent");
-                EventBus.getDefault().post(chatMessageResponseEvent);
+                SendChatMessageResultEvent sendChatMessageResultEvent = new SendChatMessageResultEvent();
+                sendChatMessageResultEvent.setChannelId(sendChatTextMessageEvent.getChannelId());
+                sendChatMessageResultEvent.setId(sendChatTextMessageEvent.getId());
+                sendChatMessageResultEvent.setResult(result);
+                EventBus.getDefault().post(sendChatMessageResultEvent);
             }
 
             @Override
             public void onError(Throwable what) {
-                ChatMessageResponseEvent chatMessageResponseEvent = new ChatMessageResponseEvent();
-                chatMessageResponseEvent.setChannelId(chatTextMessageEvent.getChannelId());
-                chatMessageResponseEvent.setId(chatTextMessageEvent.getId());
-                chatMessageResponseEvent.setResult("Error");
-                EventBus.getDefault().post(chatMessageResponseEvent);
+                SendChatMessageResultEvent sendChatMessageResultEvent = new SendChatMessageResultEvent();
+                sendChatMessageResultEvent.setChannelId(sendChatTextMessageEvent.getChannelId());
+                sendChatMessageResultEvent.setId(sendChatTextMessageEvent.getId());
+                sendChatMessageResultEvent.setResult(null);
+                EventBus.getDefault().post(sendChatMessageResultEvent);
             }
         });
     }
 
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
     public void onRequestChatMessagesEvent(final RequestChatMessagesEvent requestChatMessagesEvent) {
-        chatService.getMoreMessages(requestChatMessagesEvent.getChannelId(), requestChatMessagesEvent.getStartAtTimestamp(),
+        chatService.getMoreMessages(requestChatMessagesEvent.getCurrentUserId(), requestChatMessagesEvent.getChannelId(), requestChatMessagesEvent.getStartAtTimestamp(),
                 requestChatMessagesEvent.getLimit(), new Callback<List<ChatMessage>>() {
                     @Override
                     public void onSuccess(List<ChatMessage> result) {
@@ -150,7 +151,7 @@ public class MessagingService extends ServiceBase {
         notificationManager.notify(NOTIFICATION_UNREAD_MESSAGE_ID, builder.build());
     }
 
-    private class IncommingChatMessageHandler implements SimpleCallback<ChatMessage> {
+    private class IncommingNewChatMessageHandler implements SimpleCallback<ChatMessage> {
 
         @Override
         public void onCallback(ChatMessage value) {
@@ -170,7 +171,11 @@ public class MessagingService extends ServiceBase {
 
         @Override
         public void onCallback(ChatMessage value) {
-
+            if (isRegister) {
+                ChatMessageChangedEvent chatMessageChangedEvent = new ChatMessageChangedEvent();
+                chatMessageChangedEvent.setChatMessage(value);
+                EventBus.getDefault().post(chatMessageChangedEvent);
+            }
         }
     }
 }

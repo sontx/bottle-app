@@ -1,7 +1,6 @@
 package it.slyce.messaging.utils.asyncTasks;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -19,7 +18,7 @@ import it.slyce.messaging.utils.CustomSettings;
 import it.slyce.messaging.utils.MessageUtils;
 import it.slyce.messaging.utils.ScrollUtils;
 
-public class AddNewMessageTask extends AsyncTask {
+public class AddNewMessageTask extends AsyncTaskBase {
     private List<Message> messages;
     private List<MessageItem> mMessageItems;
     private MessageRecyclerAdapter mRecyclerAdapter;
@@ -46,11 +45,14 @@ public class AddNewMessageTask extends AsyncTask {
     @Override
     protected Object doInBackground(Object[] objects) {
         this.rangeStartingPoint = mMessageItems.size() - 1;
-        for (Message message : messages) {
-            if (context == null) {
-                return null;
+
+        synchronized (getLock()) {
+            for (Message message : messages) {
+                if (context == null) {
+                    return null;
+                }
+                mMessageItems.add(message.toMessageItem(context)); // this call is why we need the AsyncTask
             }
-            mMessageItems.add(message.toMessageItem(context)); // this call is why we need the AsyncTask
         }
 
         for (int i = rangeStartingPoint; i < mMessageItems.size(); i++) {

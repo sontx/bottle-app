@@ -57,13 +57,13 @@ public class ChatActivity extends ActivityBase implements ChatView, UserSendsMes
     }
 
     @Override
-    public void onUserSendsTextMessage(String text) {
+    public void onUserSendsTextMessage(String text, int internalId) {
         Log.d(TAG, "send-text: " + text);
-        chatPresenter.sendAsync(text);
+        chatPresenter.sendAsync(text, internalId);
     }
 
     @Override
-    public void onUserSendsMediaMessage(Uri imageUri) {
+    public void onUserSendsMediaMessage(Uri imageUri, int internalId) {
         Log.d(TAG, "send-media: " + imageUri);
     }
 
@@ -75,6 +75,11 @@ public class ChatActivity extends ActivityBase implements ChatView, UserSendsMes
     @Override
     public void onHasMoreMessages(List<Message> messages) {
         slyceMessagingFragment.loadMoreMessages(messages);
+    }
+
+    @Override
+    public void updateChatMessage(Message message) {
+        slyceMessagingFragment.updateMessage(message);
     }
 
     @Override

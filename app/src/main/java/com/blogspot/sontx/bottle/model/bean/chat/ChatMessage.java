@@ -17,7 +17,10 @@ public class ChatMessage implements Serializable {
     public final static String STATE_SENT = "sent";
     public final static String STATE_RECEIVED = "received";
     public final static String STATE_SEEN = "seen";
+    public final static String STATE_ERROR = "error";
 
+    @Exclude
+    private String id;
     @Exclude
     private String channelId;
     @PropertyName("sender_id")

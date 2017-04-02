@@ -45,14 +45,17 @@ class FirebaseChatService extends FirebaseServiceBase implements ChatService {
     }
 
     @Override
-    public void getMoreMessages(String channelId, long startAt, int limit, final Callback<List<ChatMessage>> callback) {
+    public void getMoreMessages(final String currentUserId, String channelId, long startAt, int limit, final Callback<List<ChatMessage>> callback) {
         messagesRef.child(channelId).orderByChild("timestamp").endAt(startAt).limitToLast(limit).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 List<ChatMessage> chatMessages = new ArrayList<>((int) dataSnapshot.getChildrenCount());
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     ChatMessage chatMessage = snapshot.getValue(ChatMessage.class);
+                    chatMessage.setId(snapshot.getKey());
                     chatMessages.add(chatMessage);
+                    if (!chatMessage.getSenderId().equalsIgnoreCase(currentUserId))
+                        updateReceivedMessageState(snapshot.getRef());
                 }
                 callback.onSuccess(chatMessages);
             }
@@ -70,42 +73,37 @@ class FirebaseChatService extends FirebaseServiceBase implements ChatService {
             return;
 
         DatabaseReference registerChannelRef = messagesRef.child(channelId);
-        ChildEventListener childEventListener = new ChildEventListener() {
+
+        ChildEventListener addChildEventListener = new ChildEventAdapter() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 if (onNewChatMessage != null) {
                     ChatMessage chatMessage = dataSnapshot.getValue(ChatMessage.class);
                     chatMessage.setChannelId(channelId);
+                    chatMessage.setId(dataSnapshot.getKey());
                     onNewChatMessage.onCallback(chatMessage);
+                    updateReceivedMessageState(dataSnapshot.getRef());
                 }
             }
-
+        };
+        ChildEventListener updateChildEventListener = new ChildEventAdapter() {
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                 if (onChatMessageChanged != null) {
                     ChatMessage chatMessage = dataSnapshot.getValue(ChatMessage.class);
                     chatMessage.setChannelId(channelId);
+                    chatMessage.setId(dataSnapshot.getKey());
                     onChatMessageChanged.onCallback(chatMessage);
                 }
             }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
         };
 
-        registerChannelRef.orderByChild("timestamp").startAt(DateTimeUtils.utc()).addChildEventListener(childEventListener);
+        registerChannelRef.orderByChild("timestamp").startAt(DateTimeUtils.utc()).addChildEventListener(addChildEventListener);
+        registerChannelRef.orderByChild("timestamp").addChildEventListener(updateChildEventListener);
 
         DatabaseRefWrapper databaseRefWrapper = new DatabaseRefWrapper();
-        databaseRefWrapper.childEventListener = childEventListener;
+        databaseRefWrapper.addChildEventListener = addChildEventListener;
+        databaseRefWrapper.updateChildEventListener = updateChildEventListener;
         databaseRefWrapper.databaseReference = registerChannelRef;
 
         registerChannelsRef.put(channelId, databaseRefWrapper);
@@ -115,7 +113,8 @@ class FirebaseChatService extends FirebaseServiceBase implements ChatService {
     public void unregisterChannel(String channelId) {
         DatabaseRefWrapper databaseRefWrapper = registerChannelsRef.remove(channelId);
         if (databaseRefWrapper != null) {
-            databaseRefWrapper.databaseReference.removeEventListener(databaseRefWrapper.childEventListener);
+            databaseRefWrapper.databaseReference.removeEventListener(databaseRefWrapper.addChildEventListener);
+            databaseRefWrapper.databaseReference.removeEventListener(databaseRefWrapper.updateChildEventListener);
         }
     }
 
@@ -124,7 +123,8 @@ class FirebaseChatService extends FirebaseServiceBase implements ChatService {
         Enumeration<DatabaseRefWrapper> elements = registerChannelsRef.elements();
         while (elements.hasMoreElements()) {
             DatabaseRefWrapper databaseRefWrapper = elements.nextElement();
-            databaseRefWrapper.databaseReference.removeEventListener(databaseRefWrapper.childEventListener);
+            databaseRefWrapper.databaseReference.removeEventListener(databaseRefWrapper.addChildEventListener);
+            databaseRefWrapper.databaseReference.removeEventListener(databaseRefWrapper.updateChildEventListener);
         }
     }
 
@@ -140,6 +140,7 @@ class FirebaseChatService extends FirebaseServiceBase implements ChatService {
         chatMessage.setTimestamp(DateTimeUtils.utc());
         chatMessage.setSenderId(currentUserId);
         chatMessage.setMessageType(type);
+        chatMessage.setState(ChatMessage.STATE_SENDING);
 
         messagesRef.child(channelId).push().setValue(chatMessage, new DatabaseReference.CompletionListener() {
             @Override
@@ -152,14 +153,23 @@ class FirebaseChatService extends FirebaseServiceBase implements ChatService {
                     detail.setLastMessage(chatMessage.getMessage());
                     detail.setTimestamp(chatMessage.getTimestamp());
                     detailsRef.child(channelId).setValue(detail);
+
+                    chatMessage.setState(ChatMessage.STATE_SENT);
                     callback.onSuccess(chatMessage);
+
+                    databaseReference.child("state").setValue(ChatMessage.STATE_SENT);
                 }
             }
         });
     }
 
+    private void updateReceivedMessageState(DatabaseReference databaseReference) {
+        databaseReference.child("state").setValue(ChatMessage.STATE_RECEIVED);
+    }
+
     private static class DatabaseRefWrapper {
         private DatabaseReference databaseReference;
-        private ChildEventListener childEventListener;
+        private ChildEventListener addChildEventListener;
+        private ChildEventListener updateChildEventListener;
     }
 }

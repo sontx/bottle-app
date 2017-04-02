@@ -23,6 +23,8 @@ public abstract class MessageItem {
         this.message = message;
     }
 
+    protected abstract String getSubtitle();
+
     public abstract void buildMessageItem(
             MessageViewHolder messageViewHolder);
 
@@ -32,6 +34,10 @@ public abstract class MessageItem {
 
     public Message getMessage() {
         return message;
+    }
+
+    public void setMessage(Message message) {
+        this.message = message;
     }
 
     public int getMessageItemTypeOrdinal() {

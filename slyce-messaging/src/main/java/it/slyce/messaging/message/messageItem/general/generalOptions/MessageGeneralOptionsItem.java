@@ -23,6 +23,11 @@ public class MessageGeneralOptionsItem extends MessageItem {
     }
 
     @Override
+    protected String getSubtitle() {
+        return null;
+    }
+
+    @Override
     public void buildMessageItem(MessageViewHolder messageViewHolder) {
         final MessageGeneralOptionsViewHolder viewHolder = (MessageGeneralOptionsViewHolder) messageViewHolder;
         final GeneralOptionsMessage generalTextMessage = (GeneralOptionsMessage) message;

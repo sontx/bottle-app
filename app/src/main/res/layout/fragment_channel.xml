@@ -2,35 +2,35 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="@dimen/sheet_item_spacing"
-    android:background="?android:attr/selectableItemBackground">
+    android:background="?android:attr/selectableItemBackground"
+    android:padding="@dimen/sheet_item_spacing">
 
     <de.hdodenhof.circleimageview.CircleImageView
-        android:src="@drawable/ic_person_pin_black_48dp"
         android:id="@+id/avatar_view"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_marginRight="@dimen/sheet_spacing"/>
+        android:layout_marginRight="@dimen/sheet_spacing"
+        android:src="@drawable/ic_person_pin_black_48dp" />
 
     <TextView
-        android:text="Unknown"
-        android:textColor="@color/primary_text"
         android:id="@+id/title_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/avatar_view"
         android:maxLines="1"
+        android:text="Unknown"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="@color/primary_text"
         android:textStyle="bold" />
 
     <TextView
+        android:id="@+id/detail_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/title_view"
+        android:layout_below="@+id/title_view"
         android:text=""
         android:textAppearance="@style/TextAppearance.AppCompat.Small"
         android:textColor="@color/secondary_text"
-        android:id="@+id/detail_view"
-        android:layout_below="@+id/title_view"
-        android:layout_alignLeft="@+id/title_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:textSize="14dp" />
 </RelativeLayout>
