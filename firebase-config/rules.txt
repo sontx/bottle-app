@@ -5,8 +5,11 @@
     "messages": {
       "$channel": {
         "$message": {
-          "message": { 
-            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length < 255" 
+          "senderId": {
+            ".validate": "newData.val() == auth.uid"
+          },
+          "message": {
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length < 255"
           },
           "state": {
             ".validate": "newData.isString() && ((!data.exists() && newData.val() == 'sending') || root.child('config/message_states').child(newData.val()).val() > root.child('config/message_states').child(data.val()).val())"
