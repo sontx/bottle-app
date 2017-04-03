@@ -39,7 +39,7 @@ public class FbLoginActivity extends ActivityBase implements FacebookCallback<Lo
             public void run() {
                 if (user != null) {
                     Log.d(TAG, "login with: " + user.getDisplayName());
-                    startActivity(new Intent(FbLoginActivity.this, HomeActivity.class));
+                    startActivity(new Intent(FbLoginActivity.this, LoadingActivity.class));
                     finish();
                 }
             }

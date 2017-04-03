@@ -4,6 +4,8 @@ import android.content.Context;
 import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
 
+import com.blogspot.sontx.bottle.model.service.FirebaseServicePool;
+
 public class App extends MultiDexApplication {
 
     @Override
@@ -16,6 +18,7 @@ public class App extends MultiDexApplication {
     public void onCreate() {
         super.onCreate();
         setupEnvironmentProperties();
+        FirebaseServicePool.getInstance().initialize(this);
     }
 
     private void setupEnvironmentProperties() {

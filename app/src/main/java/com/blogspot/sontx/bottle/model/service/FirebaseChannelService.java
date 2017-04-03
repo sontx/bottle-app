@@ -11,6 +11,7 @@ import com.blogspot.sontx.bottle.model.bean.chat.ChannelMember;
 import com.blogspot.sontx.bottle.model.bean.chat.ChatMessage;
 import com.blogspot.sontx.bottle.model.service.interfaces.ChannelService;
 import com.blogspot.sontx.bottle.utils.DateTimeUtils;
+import com.blogspot.sontx.bottle.utils.ThreadUtils;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -124,59 +125,67 @@ class FirebaseChannelService extends FirebaseServiceBase implements ChannelServi
     public void cacheChannelsAsync(String currentUserId, final Callback<Void> callback) {
         userChannelRef.child(currentUserId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+            public void onDataChange(final DataSnapshot dataSnapshot) {
                 final boolean[] childThreadResults = {true};
 
-                if (dataSnapshot != null && dataSnapshot.exists()) {
+                final boolean hasChannel = dataSnapshot != null && dataSnapshot.exists();
 
-                    final CountDownLatch countDownLatch = new CountDownLatch((int) (dataSnapshot.getChildrenCount() * 2));
-
-                    cachedChannels = new ArrayList<>();
-
-                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                        final Channel channel = snapshot.getValue(Channel.class);
-                        cachedChannels.add(channel);
-
-                        getChannelDetailAsync(channel.getId(), new Callback<ChannelDetail>() {
-                            @Override
-                            public void onSuccess(ChannelDetail result) {
-                                channel.setDetail(result);
-                                countDownLatch.countDown();
-                            }
-
-                            @Override
-                            public void onError(Throwable what) {
-                                callback.onError(what);
-                                childThreadResults[0] = false;
-                                countDownLatch.countDown();
-                            }
-                        });
-
-                        getChannelMembersAsync(channel.getId(), new Callback<List<ChannelMember>>() {
-                            @Override
-                            public void onSuccess(List<ChannelMember> result) {
-                                channel.setMemberList(result);
-                                countDownLatch.countDown();
-                            }
-
-                            @Override
-                            public void onError(Throwable what) {
-                                callback.onError(what);
-                                childThreadResults[0] = false;
-                                countDownLatch.countDown();
-                            }
-                        });
+                ThreadUtils.run(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (hasChannel)
+                            collectChannelInfo(dataSnapshot, childThreadResults);
+                        if (childThreadResults[0])
+                            callback.onSuccess(null);
                     }
+                });
+            }
 
-                    try {
-                        countDownLatch.await(60, TimeUnit.SECONDS);
-                    } catch (InterruptedException e) {
-                        Log.d(TAG, e.getMessage());
-                    }
+            private void collectChannelInfo(DataSnapshot dataSnapshot, final boolean[] childThreadResults) {
+                final CountDownLatch countDownLatch = new CountDownLatch((int) (dataSnapshot.getChildrenCount() * 2));
+
+                cachedChannels = new ArrayList<>();
+
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    final Channel channel = snapshot.getValue(Channel.class);
+                    cachedChannels.add(channel);
+
+                    getChannelDetailAsync(channel.getId(), new Callback<ChannelDetail>() {
+                        @Override
+                        public void onSuccess(ChannelDetail result) {
+                            channel.setDetail(result);
+                            countDownLatch.countDown();
+                        }
+
+                        @Override
+                        public void onError(Throwable what) {
+                            callback.onError(what);
+                            childThreadResults[0] = false;
+                            countDownLatch.countDown();
+                        }
+                    });
+
+                    getChannelMembersAsync(channel.getId(), new Callback<List<ChannelMember>>() {
+                        @Override
+                        public void onSuccess(List<ChannelMember> result) {
+                            channel.setMemberList(result);
+                            countDownLatch.countDown();
+                        }
+
+                        @Override
+                        public void onError(Throwable what) {
+                            callback.onError(what);
+                            childThreadResults[0] = false;
+                            countDownLatch.countDown();
+                        }
+                    });
                 }
 
-                if (childThreadResults[0])
-                    callback.onSuccess(null);
+                try {
+                    countDownLatch.await(60, TimeUnit.SECONDS);
+                } catch (InterruptedException e) {
+                    Log.d(TAG, e.getMessage());
+                }
             }
 
             @Override

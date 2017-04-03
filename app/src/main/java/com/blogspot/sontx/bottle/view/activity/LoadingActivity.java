@@ -2,7 +2,6 @@ package com.blogspot.sontx.bottle.view.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.TextView;
 
 import com.blogspot.sontx.bottle.R;
 import com.blogspot.sontx.bottle.presenter.LoadingPresenterImpl;
@@ -42,9 +41,8 @@ public class LoadingActivity extends ActivityBase implements LoginView, LoadingV
     @Override
     public void updateUI(FirebaseUser user) {
         if (user != null) {
-            TextView welcomeTextView = (TextView) findViewById(R.id.welcome_text);
-            welcomeTextView.setText(user.getDisplayName());
-            loadingPresenter.loadAsync();
+            loadingPresenter.setCurrentUserId(user.getUid());
+            loadingPresenter.loadIfNecessaryAsync();
         } else {
             startActivity(new Intent(this, FbLoginActivity.class));
             finish();

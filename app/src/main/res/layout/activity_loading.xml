@@ -1,38 +1,28 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_primary"
+    android:background="@color/primary_dark"
     tools:context=".view.activity.LoadingActivity">
 
-    <LinearLayout
+    <me.itangqi.waveloadingview.WaveLoadingView
+        android:id="@+id/waveLoadingView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
-        android:orientation="vertical">
-
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:src="@drawable/personal_logo"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="@string/dummy_content"
-            android:visibility="gone"
-            android:id="@+id/welcome_text"
-            android:layout_gravity="center_horizontal" />
-
-        <ProgressBar
-            style="?android:attr/progressBarStyleLarge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal|bottom"
-            android:indeterminate="true"
-            android:indeterminateOnly="true" />
-    </LinearLayout>
+        app:wlv_borderColor="@color/background_primary"
+        app:wlv_borderWidth="0dp"
+        app:wlv_progressValue="40"
+        app:wlv_round_rectangle="false"
+        app:wlv_shapeType="rectangle"
+        app:wlv_titleCenter="@string/welcome_to_bottle"
+        app:wlv_titleCenterColor="@color/background_primary"
+        app:wlv_titleCenterSize="30sp"
+        app:wlv_titleCenterStrokeColor="@android:color/holo_blue_dark"
+        app:wlv_titleCenterStrokeWidth="1dp"
+        app:wlv_triangle_direction="north"
+        app:wlv_waveAmplitude="15"
+        app:wlv_waveColor="@color/background_primary" />
 
 </FrameLayout>
