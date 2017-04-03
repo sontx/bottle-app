@@ -9,15 +9,17 @@ import it.slyce.messaging.utils.Refresher;
 
 public class UpdateMessageTask extends AsyncTaskBase<Void, Void, Integer> {
     private List<MessageItem> mMessageItems;
+    private boolean refresh;
     private Message message;
     private MessageRecyclerAdapter mRecyclerAdapter;
     private Refresher mRefresher;
 
-    public UpdateMessageTask(Message message, List<MessageItem> messageItems, MessageRecyclerAdapter mRecyclerAdapter, Refresher refresher) {
+    public UpdateMessageTask(Message message, List<MessageItem> messageItems, MessageRecyclerAdapter mRecyclerAdapter, Refresher refresher, boolean refresh) {
         this.message = message;
         this.mRecyclerAdapter = mRecyclerAdapter;
         this.mRefresher = refresher;
         this.mMessageItems = messageItems;
+        this.refresh = refresh;
     }
 
     @Override
@@ -50,7 +52,7 @@ public class UpdateMessageTask extends AsyncTaskBase<Void, Void, Integer> {
     protected void onPostExecute(Integer position) {
         super.onPostExecute(position);
 
-        if (position != null)
+        if (position != null && refresh)
             mRecyclerAdapter.notifyItemChanged(position);
 
         mRefresher.setIsRefreshing(false);

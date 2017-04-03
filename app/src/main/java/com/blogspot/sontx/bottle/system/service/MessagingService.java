@@ -10,6 +10,7 @@ import com.blogspot.sontx.bottle.model.service.Callback;
 import com.blogspot.sontx.bottle.model.service.FirebaseServicePool;
 import com.blogspot.sontx.bottle.model.service.SimpleCallback;
 import com.blogspot.sontx.bottle.model.service.interfaces.ChatService;
+import com.blogspot.sontx.bottle.system.event.ChangeCurrentUserEvent;
 import com.blogspot.sontx.bottle.system.event.ChatMessageChangedEvent;
 import com.blogspot.sontx.bottle.system.event.ChatMessageReceivedEvent;
 import com.blogspot.sontx.bottle.system.event.RegisterServiceEvent;
@@ -87,6 +88,11 @@ public class MessagingService extends ServiceBase {
         isRegister = registerServiceEvent.isRegister();
     }
 
+    @Subscribe
+    public void onChangeCurrentUserEvent(ChangeCurrentUserEvent changeCurrentUserEvent) {
+        chatService.setCurrentUserId(changeCurrentUserEvent.getNewCurrentUserId());
+    }
+
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
     public void onUpdateChatMessageStateEvent(UpdateChatMessageStateEvent updateChatMessageStateEvent) {
         List<ChatMessage> chatMessageList = updateChatMessageStateEvent.getChatMessageList();
@@ -124,7 +130,7 @@ public class MessagingService extends ServiceBase {
 
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
     public void onRequestChatMessagesEvent(final RequestChatMessagesEvent requestChatMessagesEvent) {
-        chatService.getMoreMessages(requestChatMessagesEvent.getCurrentUserId(), requestChatMessagesEvent.getChannelId(), requestChatMessagesEvent.getStartAtTimestamp(),
+        chatService.getMoreMessages(requestChatMessagesEvent.getChannelId(), requestChatMessagesEvent.getStartAtTimestamp(),
                 requestChatMessagesEvent.getLimit(), new Callback<List<ChatMessage>>() {
                     @Override
                     public void onSuccess(List<ChatMessage> result) {

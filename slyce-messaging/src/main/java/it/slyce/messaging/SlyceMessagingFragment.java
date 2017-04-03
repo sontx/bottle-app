@@ -268,9 +268,9 @@ public class SlyceMessagingFragment extends Fragment implements OnClickListener 
         }
     }
 
-    public void updateMessage(Message message) {
+    public void updateMessage(Message message, boolean refresh) {
         if (getActivity() != null && message != null)
-            new UpdateMessageTask(message, mMessageItems, mRecyclerAdapter, mRefresher).execute();
+            new UpdateMessageTask(message, mMessageItems, mRecyclerAdapter, mRefresher, refresh).execute();
     }
 
     public void loadMoreMessages(List<Message> messages) {

@@ -7,8 +7,11 @@ import com.blogspot.sontx.bottle.model.bean.chat.ChannelMember;
 import com.blogspot.sontx.bottle.model.service.FirebaseServicePool;
 import com.blogspot.sontx.bottle.model.service.interfaces.PrivateProfileService;
 import com.blogspot.sontx.bottle.presenter.interfaces.HomePresenter;
+import com.blogspot.sontx.bottle.system.event.ChangeCurrentUserEvent;
 import com.blogspot.sontx.bottle.system.service.MessagingService;
 import com.blogspot.sontx.bottle.view.interfaces.HomeView;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 
@@ -24,6 +27,10 @@ public class HomePresenterImpl extends PresenterBase implements HomePresenter {
     @Override
     public void switchCurrentUserId(String currentUserId) {
         FirebaseServicePool.getInstance().getChatService().setCurrentUserId(currentUserId);
+
+        ChangeCurrentUserEvent changeCurrentUserEvent = new ChangeCurrentUserEvent();
+        changeCurrentUserEvent.setNewCurrentUserId(currentUserId);
+        EventBus.getDefault().post(changeCurrentUserEvent);
     }
 
     @Override

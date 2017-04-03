@@ -64,7 +64,6 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
         long startAt = oldestMessageTimestamp <= 0 ? DateTimeUtils.utc() : oldestMessageTimestamp - 1;
 
         RequestChatMessagesEvent requestChatMessagesEvent = new RequestChatMessagesEvent();
-        requestChatMessagesEvent.setCurrentUserId(currentUserId);
         requestChatMessagesEvent.setChannelId(channel.getId());
         requestChatMessagesEvent.setLimit(count);
         requestChatMessagesEvent.setStartAtTimestamp(startAt);
@@ -124,27 +123,32 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
         } else {
             message.setState(ChatMessage.STATE_ERROR);
         }
-        chatView.updateChatMessage(message);
+        chatView.updateChatMessage(message, true);
     }
 
     @Subscribe
     public void onNewChatMessageReceivedEvent(ChatMessageReceivedEvent chatMessageReceivedEvent) {
         ChatMessage chatMessage = chatMessageReceivedEvent.getChatMessage();
-        if (chatMessage.getChannelId().equalsIgnoreCase(channel.getId()) && !chatMessage.getSenderId().equalsIgnoreCase(currentUserId)) {
-            addNewMessage(chatMessage);
-            if (oldestMessageTimestamp < chatMessage.getTimestamp())
-                oldestMessageTimestamp = chatMessage.getTimestamp();
+        if (chatMessage.getChannelId().equalsIgnoreCase(channel.getId())) {
+            if (chatMessage.getSenderId().equalsIgnoreCase(currentUserId)) {
+                Message message = convertChatMessage(chatMessage);
+                chatView.updateChatMessage(message, false);
+            } else {
+                addNewMessage(chatMessage);
+                if (oldestMessageTimestamp < chatMessage.getTimestamp())
+                    oldestMessageTimestamp = chatMessage.getTimestamp();
 
-            List<ChatMessage> chatMessages = new ArrayList<>(1);
-            chatMessages.add(chatMessage);
-            updateSeenStateForChatMessagesIfNecessary(chatMessages);
+                List<ChatMessage> chatMessages = new ArrayList<>(1);
+                chatMessages.add(chatMessage);
+                updateSeenStateForChatMessagesIfNecessary(chatMessages);
+            }
         }
     }
 
     @Subscribe
     public void onChatMessageChangedEvent(ChatMessageChangedEvent chatMessageChangedEvent) {
         Message message = convertChatMessage(chatMessageChangedEvent.getChatMessage());
-        chatView.updateChatMessage(message);
+        chatView.updateChatMessage(message, true);
     }
 
     @Subscribe

@@ -78,8 +78,8 @@ public class ChatActivity extends ActivityBase implements ChatView, UserSendsMes
     }
 
     @Override
-    public void updateChatMessage(Message message) {
-        slyceMessagingFragment.updateMessage(message);
+    public void updateChatMessage(Message message, boolean refresh) {
+        slyceMessagingFragment.updateMessage(message, refresh);
     }
 
     @Override
