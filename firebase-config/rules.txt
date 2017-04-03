@@ -10,6 +10,12 @@
         ".write": "$userId == auth.uid"
       }
     },
+    "user_channels": {
+      "$userId": {
+        ".read": "$userId == auth.uid",
+        ".write": "auth.uid == 'you-never-knew-how-much-i-love-you'"
+      }
+    },
     "channel_details": {
       "$channel": {
         ".read": "root.child('channel_members/' + $channel).child(auth.uid).exists()",
