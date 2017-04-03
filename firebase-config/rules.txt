@@ -10,6 +10,9 @@
           },
           "state": {
             ".validate": "newData.isString() && ((!data.exists() && newData.val() == 'sending') || root.child('states').child(newData.val()).val() > root.child('states').child(data.val()).val())"
+          },
+          "timestamp": {
+            ".validate": "newData.val() <= now"
           }
         }
       }
