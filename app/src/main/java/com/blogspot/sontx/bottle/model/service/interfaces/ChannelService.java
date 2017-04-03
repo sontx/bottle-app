@@ -15,4 +15,6 @@ public interface ChannelService extends ServiceBase {
     void getChannelDetailAsync(String channelId, Callback<ChannelDetail> callback);
 
     Channel createChannel(String currentUserId, String anotherMemberId);
+
+    void cacheChannelsAsync(String currentUserId, Callback<Void> callback);
 }

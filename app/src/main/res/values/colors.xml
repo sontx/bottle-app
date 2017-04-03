@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary">#4CAF50</color>
-    <color name="primary_dark">#388E3C</color>
-    <color name="primary_light">#C8E6C9</color>
+    <color name="primary">#3ec286</color>
+    <color name="primary_dark">#03af60</color>
+    <color name="primary_light">#B3E5FC</color>
     <color name="accent">#E040FB</color>
     <color name="primary_text">#212121</color>
     <color name="secondary_text">#757575</color>
@@ -18,5 +18,4 @@
     <color name="background_card">#fff</color>
 
     <color name="fab_text_black">#de000000</color>
-
 </resources>

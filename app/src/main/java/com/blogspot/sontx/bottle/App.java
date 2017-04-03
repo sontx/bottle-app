@@ -4,10 +4,6 @@ import android.content.Context;
 import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
 
-import com.blogspot.sontx.bottle.model.service.FirebaseServicePool;
-import com.facebook.FacebookSdk;
-import com.facebook.drawee.backends.pipeline.Fresco;
-
 public class App extends MultiDexApplication {
 
     @Override
@@ -19,10 +15,7 @@ public class App extends MultiDexApplication {
     @Override
     public void onCreate() {
         super.onCreate();
-        FacebookSdk.sdkInitialize(getApplicationContext());
-        Fresco.initialize(this);
         setupEnvironmentProperties();
-        FirebaseServicePool.getInstance().initialize(this);
     }
 
     private void setupEnvironmentProperties() {

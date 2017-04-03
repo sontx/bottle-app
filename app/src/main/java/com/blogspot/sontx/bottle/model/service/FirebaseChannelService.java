@@ -2,6 +2,7 @@ package com.blogspot.sontx.bottle.model.service;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.blogspot.sontx.bottle.Constants;
 import com.blogspot.sontx.bottle.model.bean.chat.Channel;
@@ -18,11 +19,14 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 class FirebaseChannelService extends FirebaseServiceBase implements ChannelService {
     private final DatabaseReference userChannelRef;
     private final DatabaseReference channelDetailRef;
     private final DatabaseReference channelMemberRef;
+    private List<Channel> cachedChannels;
 
     FirebaseChannelService(Context context) {
         super(context);
@@ -38,6 +42,11 @@ class FirebaseChannelService extends FirebaseServiceBase implements ChannelServi
 
     @Override
     public void getCurrentChannelsAsync(String currentUserId, final Callback<List<Channel>> callback) {
+        if (cachedChannels != null) {
+            callback.onSuccess(cachedChannels);
+            return;
+        }
+
         userChannelRef.child(currentUserId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -109,6 +118,72 @@ class FirebaseChannelService extends FirebaseServiceBase implements ChannelServi
         channel.setMemberList(members);
 
         return channel;
+    }
+
+    @Override
+    public void cacheChannelsAsync(String currentUserId, final Callback<Void> callback) {
+        userChannelRef.child(currentUserId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                final boolean[] childThreadResults = {true};
+
+                if (dataSnapshot != null && dataSnapshot.exists()) {
+
+                    final CountDownLatch countDownLatch = new CountDownLatch((int) (dataSnapshot.getChildrenCount() * 2));
+
+                    cachedChannels = new ArrayList<>();
+
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        final Channel channel = snapshot.getValue(Channel.class);
+                        cachedChannels.add(channel);
+
+                        getChannelDetailAsync(channel.getId(), new Callback<ChannelDetail>() {
+                            @Override
+                            public void onSuccess(ChannelDetail result) {
+                                channel.setDetail(result);
+                                countDownLatch.countDown();
+                            }
+
+                            @Override
+                            public void onError(Throwable what) {
+                                callback.onError(what);
+                                childThreadResults[0] = false;
+                                countDownLatch.countDown();
+                            }
+                        });
+
+                        getChannelMembersAsync(channel.getId(), new Callback<List<ChannelMember>>() {
+                            @Override
+                            public void onSuccess(List<ChannelMember> result) {
+                                channel.setMemberList(result);
+                                countDownLatch.countDown();
+                            }
+
+                            @Override
+                            public void onError(Throwable what) {
+                                callback.onError(what);
+                                childThreadResults[0] = false;
+                                countDownLatch.countDown();
+                            }
+                        });
+                    }
+
+                    try {
+                        countDownLatch.await(60, TimeUnit.SECONDS);
+                    } catch (InterruptedException e) {
+                        Log.d(TAG, e.getMessage());
+                    }
+                }
+
+                if (childThreadResults[0])
+                    callback.onSuccess(null);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                callback.onError(databaseError.toException());
+            }
+        });
     }
 
     @NonNull

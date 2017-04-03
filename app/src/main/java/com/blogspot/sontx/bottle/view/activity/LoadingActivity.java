@@ -44,7 +44,7 @@ public class LoadingActivity extends ActivityBase implements LoginView, LoadingV
         if (user != null) {
             TextView welcomeTextView = (TextView) findViewById(R.id.welcome_text);
             welcomeTextView.setText(user.getDisplayName());
-            loadingPresenter.loadLasSessionDataAsync();
+            loadingPresenter.loadAsync();
         } else {
             startActivity(new Intent(this, FbLoginActivity.class));
             finish();
@@ -60,5 +60,10 @@ public class LoadingActivity extends ActivityBase implements LoginView, LoadingV
                 finish();
             }
         });
+    }
+
+    @Override
+    public void navigateToErrorActivity(String message) {
+        
     }
 }

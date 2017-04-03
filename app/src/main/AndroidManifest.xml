@@ -64,6 +64,7 @@
         <service
             android:name=".system.service.MessagingService"
             android:enabled="true" />
+
     </application>
 
 </manifest>
