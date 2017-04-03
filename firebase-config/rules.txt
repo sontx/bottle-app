@@ -1,7 +1,11 @@
 {
   "rules": {
-    ".read": "auth != null",
-    ".write": "auth != null",
+    "channel_details": {
+      "$channel": {
+        ".read": "root.child('channel_members/' + $channel).child(auth.uid).exists()",
+        ".write": "root.child('channel_members/' + $channel).child(auth.uid).exists()"
+      }
+    },
     "messages": {
       "$channel": {
         ".read": "root.child('channel_members/' + $channel).child(auth.uid).exists()",
