@@ -14,6 +14,7 @@ import com.blogspot.sontx.bottle.system.event.SendChatMessageResultEvent;
 import com.blogspot.sontx.bottle.system.event.SendChatTextMessageEvent;
 import com.blogspot.sontx.bottle.system.event.ServiceState;
 import com.blogspot.sontx.bottle.system.event.ServiceStateChangedEvent;
+import com.blogspot.sontx.bottle.system.event.UpdateChatMessageStateEvent;
 import com.blogspot.sontx.bottle.system.service.MessagingService;
 import com.blogspot.sontx.bottle.utils.DateTimeUtils;
 import com.blogspot.sontx.bottle.view.interfaces.ChatView;
@@ -133,6 +134,10 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
             addNewMessage(chatMessage);
             if (oldestMessageTimestamp < chatMessage.getTimestamp())
                 oldestMessageTimestamp = chatMessage.getTimestamp();
+
+            List<ChatMessage> chatMessages = new ArrayList<>(1);
+            chatMessages.add(chatMessage);
+            updateSeenStateForChatMessagesIfNecessary(chatMessages);
         }
     }
 
@@ -164,6 +169,8 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
                 }
                 oldestMessageTimestamp = chatMessageList.get(0).getTimestamp();
                 chatView.onHasMoreMessages(messageList);
+
+                updateSeenStateForChatMessagesIfNecessary(chatMessageList);
             }
         }
     }
@@ -171,6 +178,14 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
     /**
      * --------------------------------- end subscribe methods ----------------------------------
      **/
+
+
+    private void updateSeenStateForChatMessagesIfNecessary(List<ChatMessage> chatMessageList) {
+        UpdateChatMessageStateEvent updateChatMessageStateEvent = new UpdateChatMessageStateEvent();
+        updateChatMessageStateEvent.setChatMessageList(chatMessageList);
+        updateChatMessageStateEvent.setNewState(ChatMessage.STATE_SEEN);
+        EventBus.getDefault().post(updateChatMessageStateEvent);
+    }
 
     private void registerEventBusIfNecessary() {
         if (!EventBus.getDefault().isRegistered(this))

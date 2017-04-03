@@ -19,6 +19,7 @@ import com.blogspot.sontx.bottle.system.event.SendChatMessageResultEvent;
 import com.blogspot.sontx.bottle.system.event.SendChatTextMessageEvent;
 import com.blogspot.sontx.bottle.system.event.ServiceState;
 import com.blogspot.sontx.bottle.system.event.ServiceStateChangedEvent;
+import com.blogspot.sontx.bottle.system.event.UpdateChatMessageStateEvent;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -84,6 +85,18 @@ public class MessagingService extends ServiceBase {
     @Subscribe
     public void onRegisterServiceEvent(RegisterServiceEvent registerServiceEvent) {
         isRegister = registerServiceEvent.isRegister();
+    }
+
+    @Subscribe(threadMode = ThreadMode.BACKGROUND)
+    public void onUpdateChatMessageStateEvent(UpdateChatMessageStateEvent updateChatMessageStateEvent) {
+        List<ChatMessage> chatMessageList = updateChatMessageStateEvent.getChatMessageList();
+        String newState = updateChatMessageStateEvent.getNewState();
+        for (ChatMessage chatMessage : chatMessageList) {
+            if (!chatMessage.getState().equalsIgnoreCase(newState)) {
+                chatService.updateChatMessageStateAsync(chatMessage.getChannelId(), chatMessage.getId(), newState);
+            }
+        }
+
     }
 
     @Subscribe(threadMode = ThreadMode.BACKGROUND)

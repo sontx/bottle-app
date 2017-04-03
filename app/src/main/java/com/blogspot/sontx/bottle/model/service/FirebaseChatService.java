@@ -45,7 +45,7 @@ class FirebaseChatService extends FirebaseServiceBase implements ChatService {
     }
 
     @Override
-    public void getMoreMessages(final String currentUserId, String channelId, long startAt, int limit, final Callback<List<ChatMessage>> callback) {
+    public void getMoreMessages(final String currentUserId, final String channelId, long startAt, int limit, final Callback<List<ChatMessage>> callback) {
         messagesRef.child(channelId).orderByChild("timestamp").endAt(startAt).limitToLast(limit).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -53,6 +53,7 @@ class FirebaseChatService extends FirebaseServiceBase implements ChatService {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     ChatMessage chatMessage = snapshot.getValue(ChatMessage.class);
                     chatMessage.setId(snapshot.getKey());
+                    chatMessage.setChannelId(channelId);
                     chatMessages.add(chatMessage);
                     if (!chatMessage.getSenderId().equalsIgnoreCase(currentUserId))
                         updateReceivedMessageState(snapshot.getRef());
@@ -131,6 +132,11 @@ class FirebaseChatService extends FirebaseServiceBase implements ChatService {
     @Override
     public void sendAsync(String channelId, String text, Callback<ChatMessage> callback) {
         sendAsync(channelId, text, ChatMessage.TYPE_TEXT, callback);
+    }
+
+    @Override
+    public void updateChatMessageStateAsync(String channelId, String id, String newState) {
+        messagesRef.child(channelId).child(id).child("state").setValue(newState);
     }
 
     private void sendAsync(final String channelId, String content, String type, final Callback<ChatMessage> callback) {

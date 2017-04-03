@@ -30,15 +30,16 @@ public class UpdateMessageTask extends AsyncTaskBase<Void, Void, Integer> {
     protected Integer doInBackground(Void[] objects) {
         for (int i = mMessageItems.size() - 1; i >= 0; i--) {
             MessageItem messageItem = mMessageItems.get(i);
-            String messageId = messageItem.getMessage().getId();
+            Message message = messageItem.getMessage();
+            String messageId = message.getId();
             if (messageId != null) {
-                if (messageId.equalsIgnoreCase(message.getId())) {
-                    messageItem.setMessage(message);
+                if (messageId.equalsIgnoreCase(this.message.getId())) {
+                    messageItem.setMessage(this.message);
                     return i;
                 }
-            } else if (messageItem.getMessage().getTempId() == message.getTempId()) {
-                messageItem.getMessage().setState(message.getState());
-                messageItem.getMessage().setId(message.getId());
+            } else if (message.getTempId() == this.message.getTempId()) {
+                message.setState(this.message.getState());
+                message.setId(this.message.getId());
                 return i;
             }
         }
