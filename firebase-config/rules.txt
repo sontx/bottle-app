@@ -6,6 +6,12 @@
         ".write": "root.child('channel_members/' + $channel).child(auth.uid).exists()"
       }
     },
+    "channel_members": {
+      "$channel": {
+        ".read": "data.child(auth.uid).exists()",
+        ".write": "auth.uid == 'you-never-knew-how-much-i-love-you'"
+      }
+    },
     "messages": {
       "$channel": {
         ".read": "root.child('channel_members/' + $channel).child(auth.uid).exists()",
