@@ -155,15 +155,24 @@ class FirebaseChatService extends FirebaseServiceBase implements ChatService {
 
         messagesRef.child(channelId).push().setValue(objectMap, new DatabaseReference.CompletionListener() {
             @Override
-            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+            public void onComplete(final DatabaseError databaseError, DatabaseReference databaseReference) {
                 if (databaseError != null) {
                     callback.onError(databaseError.toException());
                 } else {
-                    ChannelDetail detail = new ChannelDetail();
-                    detail.setMessageType(chatMessage.getMessageType());
-                    detail.setLastMessage(chatMessage.getMessage());
-                    detail.setTimestamp(chatMessage.getTimestamp());
-                    detailsRef.child(channelId).setValue(detail);
+                    databaseReference.child("timestamp").addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            ChannelDetail detail = new ChannelDetail();
+                            detail.setMessageType(chatMessage.getMessageType());
+                            detail.setLastMessage(chatMessage.getMessage());
+                            detail.setTimestamp(dataSnapshot.getValue(Long.class));
+                            detailsRef.child(channelId).setValue(detail);
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+                        }
+                    });
 
                     chatMessage.setState(ChatMessage.STATE_SENT);
                     chatMessage.setId(databaseReference.getKey());
