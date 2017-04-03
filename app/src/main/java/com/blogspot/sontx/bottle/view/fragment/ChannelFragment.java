@@ -99,6 +99,13 @@ public class ChannelFragment extends FragmentBase {
         }
     }
 
+    public void showChannels(List<Channel> channels) {
+        if (channelRecyclerViewAdapter != null) {
+            channelRecyclerViewAdapter.getValues().addAll(channels);
+            channelRecyclerViewAdapter.notifyDataSetChanged();
+        }
+    }
+
     public interface OnChannelInteractionListener {
         void onChannelInteraction(Channel channel);
     }

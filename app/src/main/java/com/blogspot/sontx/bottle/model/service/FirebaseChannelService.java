@@ -5,11 +5,13 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.blogspot.sontx.bottle.Constants;
+import com.blogspot.sontx.bottle.model.bean.PublicProfile;
 import com.blogspot.sontx.bottle.model.bean.chat.Channel;
 import com.blogspot.sontx.bottle.model.bean.chat.ChannelDetail;
 import com.blogspot.sontx.bottle.model.bean.chat.ChannelMember;
 import com.blogspot.sontx.bottle.model.bean.chat.ChatMessage;
 import com.blogspot.sontx.bottle.model.service.interfaces.ChannelService;
+import com.blogspot.sontx.bottle.model.service.interfaces.PublicProfileService;
 import com.blogspot.sontx.bottle.utils.DateTimeUtils;
 import com.blogspot.sontx.bottle.utils.ThreadUtils;
 import com.google.firebase.database.DataSnapshot;
@@ -28,9 +30,12 @@ class FirebaseChannelService extends FirebaseServiceBase implements ChannelServi
     private final DatabaseReference channelDetailRef;
     private final DatabaseReference channelMemberRef;
     private List<Channel> cachedChannels;
+    private PublicProfileService publicProfileService;
 
-    FirebaseChannelService(Context context) {
+    FirebaseChannelService(Context context, PublicProfileService publicProfileService) {
         super(context);
+        this.publicProfileService = publicProfileService;
+
         String userChannelKey = System.getProperty(Constants.FIREBASE_USER_CHANNEL_KEY);
         userChannelRef = FirebaseDatabase.getInstance().getReference(userChannelKey);
 
@@ -39,6 +44,7 @@ class FirebaseChannelService extends FirebaseServiceBase implements ChannelServi
 
         String channelMemberKey = System.getProperty(Constants.FIREBASE_CHANNEL_MEMBER_KEY);
         channelMemberRef = FirebaseDatabase.getInstance().getReference(channelMemberKey);
+
     }
 
     @Override
@@ -122,7 +128,7 @@ class FirebaseChannelService extends FirebaseServiceBase implements ChannelServi
     }
 
     @Override
-    public void cacheChannelsAsync(String currentUserId, final Callback<Void> callback) {
+    public void cacheChannelsAsync(final String currentUserId, final Callback<Void> callback) {
         userChannelRef.child(currentUserId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(final DataSnapshot dataSnapshot) {
@@ -130,19 +136,33 @@ class FirebaseChannelService extends FirebaseServiceBase implements ChannelServi
 
                 final boolean hasChannel = dataSnapshot != null && dataSnapshot.exists();
 
-                ThreadUtils.run(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (hasChannel)
-                            collectChannelInfo(dataSnapshot, childThreadResults);
-                        if (childThreadResults[0])
-                            callback.onSuccess(null);
-                    }
-                });
+                if (hasChannel) {
+                    publicProfileService.getPublicProfileAsync(currentUserId, new Callback<PublicProfile>() {
+                        @Override
+                        public void onSuccess(final PublicProfile result) {
+                            ThreadUtils.run(new Runnable() {
+                                @Override
+                                public void run() {
+                                    collectChannelInfo(dataSnapshot, childThreadResults, result);
+                                    if (childThreadResults[0])
+                                        callback.onSuccess(null);
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onError(Throwable what) {
+                            callback.onError(what);
+                        }
+                    });
+
+                } else {
+                    callback.onSuccess(null);
+                }
             }
 
-            private void collectChannelInfo(DataSnapshot dataSnapshot, final boolean[] childThreadResults) {
-                final CountDownLatch countDownLatch = new CountDownLatch((int) (dataSnapshot.getChildrenCount() * 2));
+            private void collectChannelInfo(DataSnapshot dataSnapshot, final boolean[] childThreadResults, final PublicProfile currentUserProfile) {
+                final CountDownLatch countDownLatch = new CountDownLatch((int) (dataSnapshot.getChildrenCount() * 3));// detail + members + 1 another public profile
 
                 cachedChannels = new ArrayList<>();
 
@@ -169,7 +189,25 @@ class FirebaseChannelService extends FirebaseServiceBase implements ChannelServi
                         @Override
                         public void onSuccess(List<ChannelMember> result) {
                             channel.setMemberList(result);
+
+                            final Members members = new Members().analysis(channel);
+                            members.currentUser.setPublicProfile(currentUserProfile);
+                            publicProfileService.getPublicProfileAsync(members.anotherGuy.getId(), new Callback<PublicProfile>() {
+                                @Override
+                                public void onSuccess(PublicProfile result) {
+                                    members.anotherGuy.setPublicProfile(result);
+                                    countDownLatch.countDown();
+                                }
+
+                                @Override
+                                public void onError(Throwable what) {
+                                    callback.onError(what);
+                                    childThreadResults[0] = false;
+                                    countDownLatch.countDown();
+                                }
+                            });
                             countDownLatch.countDown();
+
                         }
 
                         @Override
@@ -192,7 +230,29 @@ class FirebaseChannelService extends FirebaseServiceBase implements ChannelServi
             public void onCancelled(DatabaseError databaseError) {
                 callback.onError(databaseError.toException());
             }
+
+            class Members {
+                ChannelMember currentUser;
+                ChannelMember anotherGuy;
+
+                Members analysis(Channel channel) {
+                    List<ChannelMember> memberList = channel.getMemberList();
+                    if (memberList.get(0).getId().equalsIgnoreCase(currentUserId)) {
+                        currentUser = memberList.get(0);
+                        anotherGuy = memberList.get(1);
+                    } else {
+                        currentUser = memberList.get(1);
+                        anotherGuy = memberList.get(0);
+                    }
+                    return this;
+                }
+            }
         });
+    }
+
+    @Override
+    public boolean isCachedChannels() {
+        return cachedChannels != null;
     }
 
     @NonNull

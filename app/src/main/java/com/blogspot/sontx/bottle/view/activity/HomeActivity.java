@@ -21,6 +21,8 @@ import com.blogspot.sontx.bottle.view.interfaces.HomeView;
 import com.blogspot.sontx.bottle.view.interfaces.LoginView;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -111,6 +113,19 @@ public class HomeActivity extends ActivityBase
                 @Override
                 public void run() {
                     ((ChannelFragment) fragment).showChannel(channel);
+                }
+            });
+        }
+    }
+
+    @Override
+    public void showChannels(final List<Channel> channels) {
+        final Fragment fragment = navigationTabBarHelper.getCurrentFragment();
+        if (fragment instanceof ChannelFragment) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    ((ChannelFragment) fragment).showChannels(channels);
                 }
             });
         }

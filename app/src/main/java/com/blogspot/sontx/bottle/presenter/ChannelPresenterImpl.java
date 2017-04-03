@@ -46,16 +46,17 @@ public class ChannelPresenterImpl extends PresenterBase implements ChannelPresen
             @Override
             public void onSuccess(List<Channel> result) {
                 channels = result;
-                if (!channels.isEmpty()) {
+                if (channelService.isCachedChannels()) {
+                    channelView.showChannels(channels);
+                } else if (!channels.isEmpty()) {
                     ChatService chatService = FirebaseServicePool.getInstance().getChatService();
                     for (Channel channel : channels) {
                         chatService.registerChannel(channel.getId());
                         getChannelDetailAsync(channel);
                         getChannelMembersAsync(channel);
-
-                        isUpdatedChannels = true;
                     }
                 }
+                isUpdatedChannels = true;
             }
 
             @Override

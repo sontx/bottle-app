@@ -34,9 +34,9 @@ public final class FirebaseServicePool implements ServicePool {
     public void initialize(Context context) {
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 
-        channelService = new FirebaseChannelService(context);
-        chatService = new FirebaseChatService(context);
         privateProfileService = new FirebasePrivateProfileService(context);
         publicProfileService = new FirebasePublicProfileService(context);
+        chatService = new FirebaseChatService(context);
+        channelService = new FirebaseChannelService(context, publicProfileService);
     }
 }

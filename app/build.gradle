@@ -81,6 +81,7 @@ dependencies {
     compile 'de.hdodenhof:circleimageview:2.1.0'
     compile 'org.greenrobot:eventbus:3.0.0'
     compile 'me.itangqi.waveloadingview:library:0.3.5'
+    compile 'com.malinskiy:superrecyclerview:1.1.4'
     testCompile 'junit:junit:4.12'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
     provided 'org.projectlombok:lombok:1.12.6'
