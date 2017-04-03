@@ -5,7 +5,9 @@
     "messages": {
       "$channel": {
         "$message": {
-          ".validate": "(newData.hasChild('message') && newData.hasChild('senderId') && newData.hasChild('messageType'))",
+          "message": { 
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length < 255" 
+          },
           "state": {
             ".validate": "newData.isString() && ((!data.exists() && newData.val() == 'sending') || root.child('states').child(newData.val()).val() > root.child('states').child(data.val()).val())"
           }
