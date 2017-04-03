@@ -4,6 +4,12 @@
       ".read": "auth != null",
       ".write": "auth.uid == 'you-never-knew-how-much-i-love-you'"
     },
+    "public_profiles": {
+      ".read": "auth != null",
+      "$userId": {
+        ".write": "$userId == auth.uid"
+      }
+    },
     "channel_details": {
       "$channel": {
         ".read": "root.child('channel_members/' + $channel).child(auth.uid).exists()",
