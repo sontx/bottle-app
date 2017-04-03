@@ -1,0 +1,16 @@
+{
+  "rules": {
+    ".read": "auth != null",
+    ".write": "auth != null",
+    "messages": {
+      "$channel": {
+        "$message": {
+          ".validate": "(newData.hasChild('message') && newData.hasChild('senderId') && newData.hasChild('messageType'))",
+          "state": {
+            ".validate": "newData.isString() && ((!data.exists() && newData.val() == 'sending') || root.child('states').child(newData.val()).val() > root.child('states').child(data.val()).val())"
+          }
+        }
+      }
+    }
+  }
+}
