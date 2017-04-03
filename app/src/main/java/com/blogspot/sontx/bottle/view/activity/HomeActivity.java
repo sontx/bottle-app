@@ -88,13 +88,15 @@ public class HomeActivity extends ActivityBase
 
                 homePresenter.switchCurrentUserId(currentUserId);
                 channelPresenter = new ChannelPresenterImpl(this, currentUserId);
+
+                channelPresenter.updateChannelsIfNecessary();
             }
         }
     }
 
     @Override
     public void clearChannels() {
-        final Fragment fragment = navigationTabBarHelper.getCurrentFragment();
+        final Fragment fragment = navigationTabBarHelper.getFragment(0);
         if (fragment instanceof ChannelFragment) {
             runOnUiThread(new Runnable() {
                 @Override
@@ -107,7 +109,7 @@ public class HomeActivity extends ActivityBase
 
     @Override
     public void showChannel(final Channel channel) {
-        final Fragment fragment = navigationTabBarHelper.getCurrentFragment();
+        final Fragment fragment = navigationTabBarHelper.getFragment(0);
         if (fragment instanceof ChannelFragment) {
             runOnUiThread(new Runnable() {
                 @Override
@@ -120,7 +122,7 @@ public class HomeActivity extends ActivityBase
 
     @Override
     public void showChannels(final List<Channel> channels) {
-        final Fragment fragment = navigationTabBarHelper.getCurrentFragment();
+        final Fragment fragment = navigationTabBarHelper.getFragment(0);
         if (fragment instanceof ChannelFragment) {
             runOnUiThread(new Runnable() {
                 @Override
@@ -128,6 +130,8 @@ public class HomeActivity extends ActivityBase
                     ((ChannelFragment) fragment).showChannels(channels);
                 }
             });
+        } else {
+            ChannelFragment.setTempList(channels);
         }
     }
 
@@ -158,7 +162,7 @@ public class HomeActivity extends ActivityBase
 
     @Override
     public void onViewPagerTabSelected(Fragment fragment) {
-        if (fragment instanceof ChannelFragment && channelPresenter != null)
-            channelPresenter.updateChannelsIfNecessary();
+        //if (fragment instanceof ChannelFragment && channelPresenter != null)
+        //channelPresenter.updateChannelsIfNecessary();
     }
 }

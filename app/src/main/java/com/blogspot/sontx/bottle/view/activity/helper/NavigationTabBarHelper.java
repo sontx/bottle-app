@@ -67,19 +67,19 @@ public class NavigationTabBarHelper extends ActivityHelperBase implements ViewPa
         viewPager.addOnPageChangeListener(this);
     }
 
-    public Fragment getCurrentFragment() {
-        return ((HomeFragmentPagerAdapter) viewPager.getAdapter()).getCurrentFragment();
-    }
-
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
     }
 
+    public Fragment getFragment(int position) {
+        return ((HomeFragmentPagerAdapter) viewPager.getAdapter()).getRegisteredFragment(position);
+    }
+
     @Override
     public void onPageSelected(int position) {
         if (onViewPagerTabSelectedListener != null) {
-            Fragment fragment = ((HomeFragmentPagerAdapter) viewPager.getAdapter()).getCurrentFragment();
+            Fragment fragment = getFragment(position);
             onViewPagerTabSelectedListener.onViewPagerTabSelected(fragment);
         }
     }

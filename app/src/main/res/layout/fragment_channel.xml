@@ -9,10 +9,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingBottom="@dimen/item_padding"
+        android:paddingBottom="@dimen/half_item_padding"
         android:paddingLeft="@dimen/half_item_padding"
-        android:paddingRight="@dimen/item_padding"
-        android:paddingTop="@dimen/item_padding">
+        android:paddingRight="@dimen/half_item_padding"
+        android:paddingTop="@dimen/half_item_padding">
 
         <View
             android:id="@+id/online_view"

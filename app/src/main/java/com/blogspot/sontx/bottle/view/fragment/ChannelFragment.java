@@ -15,13 +15,21 @@ import com.blogspot.sontx.bottle.view.adapter.ChannelRecyclerViewAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Setter;
+
 public class ChannelFragment extends FragmentBase {
     private final static String ARG_CURRENT_USER_ID = "current_user_id";
-
+    @Setter
+    private static List<Channel> tempList;
     private ChannelRecyclerViewAdapter channelRecyclerViewAdapter;
 
     public ChannelFragment() {
-        channelRecyclerViewAdapter = new ChannelRecyclerViewAdapter(new ArrayList<Channel>());
+        if (tempList != null) {
+            channelRecyclerViewAdapter = new ChannelRecyclerViewAdapter(tempList);
+            tempList = null;
+        } else {
+            channelRecyclerViewAdapter = new ChannelRecyclerViewAdapter(new ArrayList<Channel>());
+        }
     }
 
     public static ChannelFragment newInstance(String currentUserId) {
@@ -103,6 +111,8 @@ public class ChannelFragment extends FragmentBase {
         if (channelRecyclerViewAdapter != null) {
             channelRecyclerViewAdapter.getValues().addAll(channels);
             channelRecyclerViewAdapter.notifyDataSetChanged();
+        } else {
+
         }
     }
 
