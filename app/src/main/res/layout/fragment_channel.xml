@@ -29,6 +29,8 @@
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/title_view"
         android:layout_below="@+id/title_view"
+        android:ellipsize="end"
+        android:maxLines="1"
         android:text=""
         android:textAppearance="@style/TextAppearance.AppCompat.Small"
         android:textColor="@color/secondary_text"
