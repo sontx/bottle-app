@@ -12,7 +12,6 @@ import com.blogspot.sontx.bottle.model.bean.PublicProfile;
 import com.blogspot.sontx.bottle.model.bean.chat.Channel;
 import com.blogspot.sontx.bottle.model.bean.chat.ChannelDetail;
 import com.blogspot.sontx.bottle.model.bean.chat.ChannelMember;
-import com.blogspot.sontx.bottle.utils.DateTimeUtils;
 import com.blogspot.sontx.bottle.view.fragment.ChannelFragment.OnChannelInteractionListener;
 import com.squareup.picasso.Picasso;
 
@@ -53,7 +52,7 @@ public class ChannelRecyclerViewAdapter extends RecyclerView.Adapter<ChannelRecy
         ChannelDetail detail = channel.getDetail();
 
         holder.titleView.setText(anotherGuy != null ? anotherGuy.getDisplayName() : "Unknown");
-        holder.subtitleView.setText(detail != null ? DateTimeUtils.getTimestamp(detail.getTimestamp()) : "...");
+        holder.subtitleView.setText(detail != null ? detail.getLastMessage() : "");
 
         String avatarUrl = anotherGuy != null ? anotherGuy.getAvatarUrl() : System.getProperty(Constants.UI_DEFAULT_AVATAR_URL_KEY);
         Picasso.with(holder.root.getContext()).load(avatarUrl).into(holder.avatarView);
