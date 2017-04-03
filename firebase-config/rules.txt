@@ -4,6 +4,8 @@
     ".write": "auth != null",
     "messages": {
       "$channel": {
+        ".read": "root.child('channel_members/' + $channel).child(auth.uid).exists()",
+        ".write": "root.child('channel_members/' + $channel).child(auth.uid).exists()",
         "$message": {
           "senderId": {
             ".validate": "newData.val() == auth.uid"
