@@ -33,5 +33,7 @@ public class App extends MultiDexApplication {
         System.setProperty(Constants.FIREBASE_CHANNEL_DETAIL_KEY, "channel_details");
         System.setProperty(Constants.FIREBASE_CHANNEL_MEMBER_KEY, "channel_members");
         System.setProperty(Constants.FIREBASE_MESSAGES_KEY, "messages");
+
+        System.setProperty(Constants.BOTTLE_SERVER_BASE_URL_KEY, "http://localhost/bottle/");
     }
 }

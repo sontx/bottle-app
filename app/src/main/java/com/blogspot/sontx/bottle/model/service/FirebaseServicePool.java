@@ -11,7 +11,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import lombok.Getter;
 
-public final class FirebaseServicePool implements ServicePool {
+public final class FirebaseServicePool extends ServicePoolBase {
     private static ServicePool instance = null;
     @Getter
     private LoginService loginService;
@@ -35,6 +35,8 @@ public final class FirebaseServicePool implements ServicePool {
 
     @Override
     public void initialize(Context context) {
+        super.initialize(context);
+
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 
         loginService = new FirebaseLoginService(context);

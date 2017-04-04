@@ -2,6 +2,7 @@ package com.blogspot.sontx.bottle.model.service;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.blogspot.sontx.bottle.model.bean.LoginData;
 import com.blogspot.sontx.bottle.model.service.interfaces.LoginService;
@@ -12,6 +13,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GetTokenResult;
 
 class FirebaseLoginService extends FirebaseServiceBase implements LoginService {
     private final FirebaseAuth firebaseAuth;
@@ -19,6 +21,26 @@ class FirebaseLoginService extends FirebaseServiceBase implements LoginService {
     FirebaseLoginService(Context context) {
         super(context);
         firebaseAuth = FirebaseAuth.getInstance();
+    }
+
+    @Override
+    public void getCurrentUserTokenAsync(final SimpleCallback<String> onCompleted) {
+        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+        if (currentUser != null) {
+            currentUser.getToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+                @Override
+                public void onComplete(@NonNull Task<GetTokenResult> task) {
+                    if (task.isSuccessful()) {
+                        onCompleted.onCallback(task.getResult().getToken());
+                    } else {
+                        onCompleted.onCallback(null);
+                        Log.d(TAG, task.getException().getMessage());
+                    }
+                }
+            });
+        } else {
+            onCompleted.onCallback(null);
+        }
     }
 
     @Override
