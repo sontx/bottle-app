@@ -34,6 +34,7 @@
     <declare-styleable name="SlyceMessagingTheme">
         <attr name="backgroundColor" format="color" />
         <attr name="timestampTextColor" format="color" />
+        <attr name="stateTextColor" format="color" />
         <attr name="localBubbleBackground" format="color" />
         <attr name="localBubbleTextColor" format="color" />
         <attr name="externalBubbleBackground" format="color" />

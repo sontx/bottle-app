@@ -114,9 +114,10 @@ public class SlyceMessagingFragment extends Fragment implements OnClickListener 
 
     public void setStyle(int style) {
         TypedArray ta = getActivity().obtainStyledAttributes(style, R.styleable.SlyceMessagingTheme);
-        this.customSettings.backgroudColor = ta.getColor(R.styleable.SlyceMessagingTheme_backgroundColor, Color.GRAY);
-        rootView.setBackgroundColor(this.customSettings.backgroudColor); // the background color
+        this.customSettings.backgroundColor = ta.getColor(R.styleable.SlyceMessagingTheme_backgroundColor, Color.GRAY);
+        rootView.setBackgroundColor(this.customSettings.backgroundColor); // the background color
         this.customSettings.timestampColor = ta.getColor(R.styleable.SlyceMessagingTheme_timestampTextColor, Color.BLACK);
+        this.customSettings.stateColor = ta.getColor(R.styleable.SlyceMessagingTheme_stateTextColor, Color.BLACK);
         this.customSettings.externalBubbleTextColor = ta.getColor(R.styleable.SlyceMessagingTheme_externalBubbleTextColor, Color.WHITE);
         this.customSettings.externalBubbleBackgroundColor = ta.getColor(R.styleable.SlyceMessagingTheme_externalBubbleBackground, Color.WHITE);
         this.customSettings.localBubbleBackgroundColor = ta.getColor(R.styleable.SlyceMessagingTheme_localBubbleBackground, Color.WHITE);

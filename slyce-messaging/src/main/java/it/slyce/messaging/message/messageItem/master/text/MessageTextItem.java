@@ -16,7 +16,7 @@ import it.slyce.messaging.message.TextMessage;
 import it.slyce.messaging.message.messageItem.MessageItem;
 import it.slyce.messaging.message.messageItem.MessageItemType;
 import it.slyce.messaging.message.messageItem.MessageViewHolder;
-import it.slyce.messaging.utils.StringUtils;
+import it.slyce.messaging.utils.DateUtils;
 
 /**
  * Created by matthewpage on 6/27/16.
@@ -39,14 +39,14 @@ public abstract class MessageTextItem extends MessageItem {
 
             // Get content
             String text = ((TextMessage) message).getText();
-            String subtitle = getSubtitle();
+            date = DateUtils.getTimestamp(context, message.getDate());
             this.avatarUrl = message.getAvatarUrl();
             this.initials = message.getInitials();
 
             // Populate views with content
             messageTextViewHolder.initials.setText(initials != null ? initials : "");
             messageTextViewHolder.text.setText(text != null ? text : "");
-            messageTextViewHolder.timestamp.setText(subtitle != null ? StringUtils.toUppercaseFirstCharacter(subtitle) : "");
+            messageTextViewHolder.timestamp.setText(date);
 
             messageTextViewHolder.bubble.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
@@ -79,7 +79,6 @@ public abstract class MessageTextItem extends MessageItem {
             messageTextViewHolder.avatarContainer.setVisibility(isFirstConsecutiveMessageFromSource ? View.VISIBLE : View.INVISIBLE);
             messageTextViewHolder.carrot.setVisibility(isFirstConsecutiveMessageFromSource ? View.VISIBLE : View.INVISIBLE);
             messageTextViewHolder.initials.setVisibility(isFirstConsecutiveMessageFromSource && TextUtils.isEmpty(avatarUrl) ? View.VISIBLE : View.GONE);
-            messageTextViewHolder.timestamp.setVisibility(isLastConsecutiveMessageFromSource ? View.VISIBLE : View.GONE);
         }
     }
 

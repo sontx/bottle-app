@@ -24,4 +24,73 @@
         <item name="snackbarButtonColor">@color/text_blue_lightest</item>
     </style>
 
+    <style name="TextStyleBase">
+        <item name="font">@string/chat_font_name</item>
+    </style>
+
+    <style name="InitialsStyle" parent="TextStyleBase">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:gravity">center</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">@color/text_white</item>
+        <item name="android:textSize">@dimen/initials_font_size</item>
+    </style>
+
+    <style name="AvatarStyle">
+        <item name="android:layout_width">@dimen/avatar_circle_radius</item>
+        <item name="android:layout_height">@dimen/avatar_circle_radius</item>
+    </style>
+
+    <style name="BubbleStyleBase">
+        <item name="android:orientation">vertical</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/shape_rounded_rectangle_white</item>
+        <item name="android:padding">@dimen/bubble_padding</item>
+        <item name="android:minWidth">@dimen/bubble_min_width</item>
+    </style>
+
+    <style name="TextBubbleStyle" parent="BubbleStyleBase"></style>
+
+    <style name="MediaBubbleStyle" parent="BubbleStyleBase">
+        <item name="android:layout_width">match_parent</item>
+    </style>
+
+    <style name="TextMessageStyle" parent="TextStyleBase">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:autoLink">all</item>
+        <item name="android:textColor">@color/text_navy</item>
+        <item name="android:textSize">@dimen/message_text_font_size</item>
+    </style>
+
+    <style name="MessageTimestampStyle" parent="TextStyleBase">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:layout_marginTop">@dimen/message_timestamp_margin_top</item>
+        <item name="android:textColor">@color/text_gray_darkest</item>
+        <item name="android:textSize">@dimen/message_timestamp_font_size</item>
+    </style>
+
+    <style name="MessageStateStyle" parent="TextStyleBase">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:layout_marginTop">@dimen/message_state_margin_top</item>
+        <item name="android:layout_marginBottom">@dimen/message_state_margin_bottom</item>
+        <item name="android:textColor">@color/text_gray_darkest</item>
+        <item name="android:textSize">@dimen/message_state_font_size</item>
+    </style>
+
+    <style name="MediaMessageStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:adjustViewBounds">true</item>
+        <item name="android:scaleType">centerCrop</item>
+        <item name="riv_corner_radius">@dimen/media_message_corner_radius</item>
+    </style>
 </resources>

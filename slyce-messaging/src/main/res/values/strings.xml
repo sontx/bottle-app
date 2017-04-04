@@ -15,5 +15,6 @@
     <string name="message_new">New message!</string>
     <string name="message_text_copied">Text copied</string>
     <string name="message_view">VIEW</string>
+    <string name="chat_font_name">museo_sans_500.otf</string>
 
 </resources>

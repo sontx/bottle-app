@@ -30,6 +30,7 @@ public class ChatActivity extends ActivityBase implements ChatView, UserSendsMes
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
+        slyceMessagingFragment = (SlyceMessagingFragment) getFragmentManager().findFragmentById(R.id.fragment_for_slyce_messaging);
 
         if (getIntent() != null) {
             Channel channel = (Channel) getIntent().getSerializableExtra(CHANNEL_KEY);
@@ -89,6 +90,8 @@ public class ChatActivity extends ActivityBase implements ChatView, UserSendsMes
 
     private void initializeChatFragment() {
         PublicProfile currentUserProfile = chatPresenter.getCurrentPublicProfile();
+
+        slyceMessagingFragment.setStyle(R.style.ChatFragmentStyle);
 
         slyceMessagingFragment = (SlyceMessagingFragment) getFragmentManager().findFragmentById(R.id.fragment_for_slyce_messaging);
         slyceMessagingFragment.setDefaultAvatarUrl(currentUserProfile.getAvatarUrl());

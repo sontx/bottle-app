@@ -23,5 +23,7 @@ public class MessageExternalUserMediaViewHolder extends MessageMediaViewHolder {
         media = (GlideRoundedImageView) itemView.findViewById(R.id.message_scout_media_picasso_rounded_image_view_media);
         timestamp = (TextView) itemView.findViewById(R.id.message_scout_media_text_view_timestamp);
         initials = (TextView) itemView.findViewById(R.id.message_scout_media_text_view_initials);
+
+        timestamp.setTextColor(customSettings.timestampColor);
     }
 }

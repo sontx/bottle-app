@@ -14,6 +14,6 @@ public class MessageGeneralTextViewHolder extends MessageViewHolder {
         super(itemView, customSettings);
 
         messageTextView = (TextView) itemView.findViewById(R.id.message_general_text_text_view);
-        messageTextView.setTextColor(customSettings.timestampColor);
+        messageTextView.setTextColor(customSettings.stateColor);
     }
 }

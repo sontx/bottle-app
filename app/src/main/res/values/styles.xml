@@ -60,4 +60,19 @@
         <item name="android:drawablePadding">@dimen/sheet_item_image_spacing</item>
     </style>
 
+    <style name="ChatFragmentStyle">
+        <item name="backgroundColor">@color/background_gray_lightest</item>
+        <item name="timestampTextColor">@color/secondary_text</item>
+        <item name="stateTextColor">@color/secondary_text</item>
+
+        <item name="localBubbleBackground">@color/background_gray_lighter</item>
+        <item name="localBubbleTextColor">@color/primary3_text</item>
+
+        <item name="externalBubbleBackground">@color/primary_dark</item>
+        <item name="externalBubbleTextColor">@color/primary2_text</item>
+
+        <item name="snackbarBackground">@color/background_gray_darkest</item>
+        <item name="snackbarTitleColor">@color/text_black</item>
+        <item name="snackbarButtonColor">@color/accent</item>
+    </style>
 </resources>

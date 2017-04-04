@@ -13,7 +13,7 @@
         android:layout_gravity="center_vertical"
         app:wlv_borderColor="@color/background_primary"
         app:wlv_borderWidth="0dp"
-        app:wlv_progressValue="40"
+        app:wlv_progressValue="35"
         app:wlv_round_rectangle="false"
         app:wlv_shapeType="rectangle"
         app:wlv_titleCenter="@string/welcome_to_bottle"

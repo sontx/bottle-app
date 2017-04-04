@@ -1,7 +1,7 @@
 package it.slyce.messaging.message.messageItem.master.text;
 
 import android.view.View;
-import android.widget.FrameLayout;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -14,7 +14,7 @@ import it.slyce.messaging.utils.CustomSettings;
 public abstract class MessageTextViewHolder extends MessageViewHolder {
     public ImageView carrot;
     public TextView text;
-    public FrameLayout bubble;
+    public ViewGroup bubble;
 
     public MessageTextViewHolder(View itemView, CustomSettings customSettings) {
         super(itemView, customSettings);

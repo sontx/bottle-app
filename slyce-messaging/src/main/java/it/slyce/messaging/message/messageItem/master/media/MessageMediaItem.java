@@ -15,7 +15,6 @@ import it.slyce.messaging.message.messageItem.MessageItemType;
 import it.slyce.messaging.message.messageItem.MessageViewHolder;
 import it.slyce.messaging.utils.DateUtils;
 import it.slyce.messaging.utils.MediaUtils;
-import it.slyce.messaging.utils.StringUtils;
 
 /**
  * Created by matthewpage on 6/27/16.
@@ -38,12 +37,12 @@ public abstract class MessageMediaItem extends MessageItem {
 
             // Get content
             float widthToHeightRatio = MediaUtils.getWidthToHeightRatio(getMediaMessage().getUrl(), context);
-            String subtitle = getSubtitle();
+            date = DateUtils.getTimestamp(context, message.getDate());
             final String mediaUrl = getMediaMessage().getUrl();
             this.avatarUrl = message.getAvatarUrl();
 
             // Populate views with content
-            messageMediaViewHolder.timestamp.setText(subtitle != null ? StringUtils.toUppercaseFirstCharacter(subtitle) : "");
+            messageMediaViewHolder.timestamp.setText(date);
             messageMediaViewHolder.initials.setText(initials != null ? initials : "");
 
             messageMediaViewHolder.media.setWidthToHeightRatio(widthToHeightRatio);
@@ -75,7 +74,6 @@ public abstract class MessageMediaItem extends MessageItem {
             messageMediaViewHolder.avatarContainer.setVisibility(isFirstConsecutiveMessageFromSource ? View.VISIBLE : View.INVISIBLE);
             messageMediaViewHolder.initials.setVisibility(isFirstConsecutiveMessageFromSource && TextUtils.isEmpty(avatarUrl) ? View.VISIBLE : View.GONE);
             messageMediaViewHolder.media.setVisibility(!TextUtils.isEmpty(mediaUrl) ? View.VISIBLE : View.INVISIBLE);
-            messageMediaViewHolder.timestamp.setVisibility(isLastConsecutiveMessageFromSource ? View.VISIBLE : View.GONE);
         }
     }
 
