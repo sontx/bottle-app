@@ -7,8 +7,8 @@
 
     <!-- Date -->
     <string name="date_now">Just now</string>
-    <string name="date_a_minute_ago">1 minute ago</string>
-    <string name="date_minutes_ago">minutes ago</string>
+    <string name="date_a_minute_ago">1 min ago</string>
+    <string name="date_minutes_ago">mins ago</string>
     <string name="date_yesterday">Yesterday</string>
 
     <!-- Messages -->

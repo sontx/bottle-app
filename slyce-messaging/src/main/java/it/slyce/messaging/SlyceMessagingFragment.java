@@ -45,7 +45,7 @@ import it.slyce.messaging.message.TextMessage;
 import it.slyce.messaging.message.messageItem.MessageItem;
 import it.slyce.messaging.message.messageItem.MessageRecyclerAdapter;
 import it.slyce.messaging.utils.CustomSettings;
-import it.slyce.messaging.utils.DateUtils;
+import it.slyce.messaging.utils.DateTimeUtils;
 import it.slyce.messaging.utils.Refresher;
 import it.slyce.messaging.utils.ScrollUtils;
 import it.slyce.messaging.utils.asyncTasks.AddNewMessageTask;
@@ -227,7 +227,7 @@ public class SlyceMessagingFragment extends Fragment implements OnClickListener 
                     try {
                         MessageItem messageItem = mMessageItems.get(i);
                         Message message = messageItem.getMessage();
-                        if (DateUtils.dateNeedsUpdated(getActivity(), message.getDate(), messageItem.getDate())) {
+                        if (DateTimeUtils.dateNeedsUpdated(getActivity(), message.getDate(), messageItem.getDate())) {
                             messageItem.updateDate(getActivity(), message.getDate());
                             updateTimestampAtValue(i);
                         } else if (i == startHereWhenUpdate) {

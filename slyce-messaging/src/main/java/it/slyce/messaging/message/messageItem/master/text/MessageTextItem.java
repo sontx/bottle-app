@@ -16,7 +16,7 @@ import it.slyce.messaging.message.TextMessage;
 import it.slyce.messaging.message.messageItem.MessageItem;
 import it.slyce.messaging.message.messageItem.MessageItemType;
 import it.slyce.messaging.message.messageItem.MessageViewHolder;
-import it.slyce.messaging.utils.DateUtils;
+import it.slyce.messaging.utils.DateTimeUtils;
 
 /**
  * Created by matthewpage on 6/27/16.
@@ -39,7 +39,7 @@ public abstract class MessageTextItem extends MessageItem {
 
             // Get content
             String text = ((TextMessage) message).getText();
-            date = DateUtils.getTimestamp(context, message.getDate());
+            date = DateTimeUtils.getTimestamp(context, message.getDate());
             this.avatarUrl = message.getAvatarUrl();
             this.initials = message.getInitials();
 
@@ -79,6 +79,7 @@ public abstract class MessageTextItem extends MessageItem {
             messageTextViewHolder.avatarContainer.setVisibility(isFirstConsecutiveMessageFromSource ? View.VISIBLE : View.INVISIBLE);
             messageTextViewHolder.carrot.setVisibility(isFirstConsecutiveMessageFromSource ? View.VISIBLE : View.INVISIBLE);
             messageTextViewHolder.initials.setVisibility(isFirstConsecutiveMessageFromSource && TextUtils.isEmpty(avatarUrl) ? View.VISIBLE : View.GONE);
+            messageTextViewHolder.timestamp.setVisibility(isLastConsecutiveMessageFromSource ? View.VISIBLE : View.GONE);
         }
     }
 

@@ -4,7 +4,7 @@ import android.content.Context;
 
 import it.slyce.messaging.message.Message;
 import it.slyce.messaging.message.MessageSource;
-import it.slyce.messaging.utils.DateUtils;
+import it.slyce.messaging.utils.DateTimeUtils;
 
 /**
  * Created by John C. Hunchar on 5/12/16.
@@ -63,6 +63,6 @@ public abstract class MessageItem {
     }
 
     public void updateDate(Context context, long time) {
-        this.date = DateUtils.getTimestamp(context, time);
+        this.date = DateTimeUtils.getTimestamp(context, time);
     }
 }

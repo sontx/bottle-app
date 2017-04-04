@@ -13,7 +13,7 @@ import it.slyce.messaging.message.MessageSource;
 import it.slyce.messaging.message.messageItem.MessageItem;
 import it.slyce.messaging.message.messageItem.MessageItemType;
 import it.slyce.messaging.message.messageItem.MessageViewHolder;
-import it.slyce.messaging.utils.DateUtils;
+import it.slyce.messaging.utils.DateTimeUtils;
 import it.slyce.messaging.utils.MediaUtils;
 
 /**
@@ -37,7 +37,7 @@ public abstract class MessageMediaItem extends MessageItem {
 
             // Get content
             float widthToHeightRatio = MediaUtils.getWidthToHeightRatio(getMediaMessage().getUrl(), context);
-            date = DateUtils.getTimestamp(context, message.getDate());
+            date = DateTimeUtils.getTimestamp(context, message.getDate());
             final String mediaUrl = getMediaMessage().getUrl();
             this.avatarUrl = message.getAvatarUrl();
 
@@ -74,6 +74,7 @@ public abstract class MessageMediaItem extends MessageItem {
             messageMediaViewHolder.avatarContainer.setVisibility(isFirstConsecutiveMessageFromSource ? View.VISIBLE : View.INVISIBLE);
             messageMediaViewHolder.initials.setVisibility(isFirstConsecutiveMessageFromSource && TextUtils.isEmpty(avatarUrl) ? View.VISIBLE : View.GONE);
             messageMediaViewHolder.media.setVisibility(!TextUtils.isEmpty(mediaUrl) ? View.VISIBLE : View.INVISIBLE);
+            messageMediaViewHolder.timestamp.setVisibility(isLastConsecutiveMessageFromSource ? View.VISIBLE : View.GONE);
         }
     }
 
@@ -96,7 +97,7 @@ public abstract class MessageMediaItem extends MessageItem {
     }
 
     public boolean dateNeedsUpdated(long time) {
-        return DateUtils.dateNeedsUpdated(context, time, date);
+        return DateTimeUtils.dateNeedsUpdated(context, time, date);
     }
 
     public void setInitials(String initials) {
