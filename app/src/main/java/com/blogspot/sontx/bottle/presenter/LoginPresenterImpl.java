@@ -1,46 +1,68 @@
 package com.blogspot.sontx.bottle.presenter;
 
-import android.support.annotation.NonNull;
-import android.util.Log;
-
+import com.blogspot.sontx.bottle.R;
+import com.blogspot.sontx.bottle.model.bean.LoginData;
+import com.blogspot.sontx.bottle.model.bean.PublicProfile;
+import com.blogspot.sontx.bottle.model.service.Callback;
+import com.blogspot.sontx.bottle.model.service.FirebaseServicePool;
+import com.blogspot.sontx.bottle.model.service.SimpleCallback;
+import com.blogspot.sontx.bottle.model.service.interfaces.LoginService;
+import com.blogspot.sontx.bottle.model.service.interfaces.PrivateProfileService;
+import com.blogspot.sontx.bottle.model.service.interfaces.PublicProfileService;
 import com.blogspot.sontx.bottle.presenter.interfaces.LoginPresenter;
-import com.blogspot.sontx.bottle.presenter.interfaces.PublicProfilePresenter;
+import com.blogspot.sontx.bottle.system.provider.Auth2Provider;
+import com.blogspot.sontx.bottle.system.provider.Auth2ProviderBase;
 import com.blogspot.sontx.bottle.view.interfaces.LoginView;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FacebookAuthProvider;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
-public class LoginPresenterImpl extends PresenterBase implements LoginPresenter, FirebaseAuth.AuthStateListener, OnCompleteListener<AuthResult> {
+public class LoginPresenterImpl extends PresenterBase implements LoginPresenter {
     private final LoginView loginView;
-    private final FirebaseAuth firebaseAuth;
-    private final PublicProfilePresenter publicProfilePresenter;
+    private final PublicProfileService publicProfileService;
+    private final PrivateProfileService privateProfileService;
+    private final LoginService loginService;
 
     public LoginPresenterImpl(@lombok.NonNull LoginView loginView) {
         this.loginView = loginView;
-        this.firebaseAuth = FirebaseAuth.getInstance();
-        publicProfilePresenter = new PublicProfilePresenterImpl();
+        publicProfileService = FirebaseServicePool.getInstance().getPublicProfileService();
+        privateProfileService = FirebaseServicePool.getInstance().getPrivateProfileService();
+        loginService = FirebaseServicePool.getInstance().getLoginService();
     }
 
     @Override
-    public void loginAsync(String token) {
-        loginView.showProcess();
-        AuthCredential credential = FacebookAuthProvider.getCredential(token);
-        firebaseAuth.signInWithCredential(credential).addOnCompleteListener(this);
+    public void facebookLoginAsync(LoginData loginData) {
+        if (loginData.getState() != LoginData.STATE_SUCCESS) {
+            if (loginData.getState() == LoginData.STATE_ERROR)
+                loginView.showErrorMessage(loginView.getContext().getString(R.string.facebook_login_error));
+        } else {
+            loginView.showProcess();
+            loginService.facebookLoginAsync(loginData, new SimpleCallback<String>() {
+                @Override
+                public void onCallback(String value) {
+                    loginView.hideProcess();
+                    if (value == null)
+                        loginView.showErrorMessage("Authentication failed.");
+                    else
+                        updatePublicProfileIfEmptyAsync();
+                    loginView.updateUI(value);
+                }
+            });
+        }
     }
 
     @Override
     public void logout() {
-        firebaseAuth.signOut();
-        loginView.updateUI(null);
-    }
+        loginView.showProcess();
 
-    @Override
-    public void onStart() {
-        register();
+        Auth2Provider currentProvider = Auth2ProviderBase.getCurrentProvider();
+        if (currentProvider != null)
+            currentProvider.logout();
+
+        loginService.signOut(new SimpleCallback<String>() {
+            @Override
+            public void onCallback(String value) {
+                loginView.hideProcess();
+                loginView.updateUI(null);
+            }
+        });
     }
 
     @Override
@@ -48,41 +70,24 @@ public class LoginPresenterImpl extends PresenterBase implements LoginPresenter,
         checkLoginState();
     }
 
-    @Override
-    public void onStop() {
-        unregister();
-    }
+    private void updatePublicProfileIfEmptyAsync() {
+        PublicProfile defaultPublicProfile = privateProfileService.getDefaultPublicProfile();
+        publicProfileService.updatePublicProfileIfEmptyAsync(defaultPublicProfile, new Callback<PublicProfile>() {
+            @Override
+            public void onSuccess(PublicProfile result) {
+            }
 
-    @Override
-    public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-        FirebaseUser user = firebaseAuth.getCurrentUser();
-        loginView.updateUI(user);
-    }
-
-    @Override
-    public void onComplete(@NonNull Task<AuthResult> task) {
-        Log.d(TAG, "signInWithCredential:onComplete:" + task.isSuccessful());
-        if (!task.isSuccessful()) {
-            Log.w(TAG, "signInWithCredential", task.getException());
-            loginView.showErrorMessage("Authentication failed.");
-        } else {
-            publicProfilePresenter.updatePublicProfileIfEmptyAsync();
-        }
-        loginView.hideProcess();
-    }
-
-    private void register() {
-        firebaseAuth.addAuthStateListener(this);
-    }
-
-    private void unregister() {
-        firebaseAuth.removeAuthStateListener(this);
+            @Override
+            public void onError(Throwable what) {
+                loginView.showErrorMessage(what.getMessage());
+            }
+        });
     }
 
     private void checkLoginState() {
-        FirebaseUser user = firebaseAuth.getCurrentUser();
-        if (user != null)
-            publicProfilePresenter.updatePublicProfileIfEmptyAsync();
-        loginView.updateUI(user);
+        String currentUserId = loginService.getCurrentUserId();
+        if (currentUserId != null)
+            updatePublicProfileIfEmptyAsync();
+        loginView.updateUI(currentUserId);
     }
 }

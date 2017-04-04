@@ -48,7 +48,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".view.activity.FbLoginActivity"
+            android:name=".view.activity.LoginActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_fb_login"
             android:theme="@style/FullscreenTheme" />

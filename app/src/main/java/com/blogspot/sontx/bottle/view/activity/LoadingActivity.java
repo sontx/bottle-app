@@ -10,7 +10,6 @@ import com.blogspot.sontx.bottle.presenter.interfaces.LoadingPresenter;
 import com.blogspot.sontx.bottle.presenter.interfaces.LoginPresenter;
 import com.blogspot.sontx.bottle.view.interfaces.LoadingView;
 import com.blogspot.sontx.bottle.view.interfaces.LoginView;
-import com.google.firebase.auth.FirebaseUser;
 
 public class LoadingActivity extends ActivityBase implements LoginView, LoadingView {
     private LoginPresenter loginPresenter;
@@ -27,24 +26,18 @@ public class LoadingActivity extends ActivityBase implements LoginView, LoadingV
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        loginPresenter.onStart();
+    protected void onResume() {
+        super.onResume();
+        loginPresenter.onResume();
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        loginPresenter.onStop();
-    }
-
-    @Override
-    public void updateUI(FirebaseUser user) {
-        if (user != null) {
-            loadingPresenter.setCurrentUserId(user.getUid());
+    public void updateUI(String userId) {
+        if (userId != null) {
+            loadingPresenter.setCurrentUserId(userId);
             loadingPresenter.loadIfNecessaryAsync();
         } else {
-            startActivity(new Intent(this, FbLoginActivity.class));
+            startActivity(new Intent(this, LoginActivity.class));
             finish();
         }
     }

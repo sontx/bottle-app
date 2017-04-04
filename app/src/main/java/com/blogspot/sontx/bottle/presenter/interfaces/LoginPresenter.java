@@ -1,7 +1,9 @@
 package com.blogspot.sontx.bottle.presenter.interfaces;
 
+import com.blogspot.sontx.bottle.model.bean.LoginData;
+
 public interface LoginPresenter extends ViewLifecyclePresenter {
-    void loginAsync(String token);
+    void facebookLoginAsync(LoginData loginData);
 
     void logout();
 }

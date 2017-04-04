@@ -4,11 +4,14 @@ import android.content.Context;
 
 import com.blogspot.sontx.bottle.model.service.interfaces.ChannelService;
 import com.blogspot.sontx.bottle.model.service.interfaces.ChatService;
+import com.blogspot.sontx.bottle.model.service.interfaces.LoginService;
 import com.blogspot.sontx.bottle.model.service.interfaces.PrivateProfileService;
 import com.blogspot.sontx.bottle.model.service.interfaces.PublicProfileService;
 
 public interface ServicePool {
     void initialize(Context context);
+
+    LoginService getLoginService();
 
     ChannelService getChannelService();
 

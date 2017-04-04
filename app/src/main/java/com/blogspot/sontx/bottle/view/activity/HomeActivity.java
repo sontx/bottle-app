@@ -19,7 +19,6 @@ import com.blogspot.sontx.bottle.view.fragment.SettingFragment;
 import com.blogspot.sontx.bottle.view.interfaces.ChannelView;
 import com.blogspot.sontx.bottle.view.interfaces.HomeView;
 import com.blogspot.sontx.bottle.view.interfaces.LoginView;
-import com.google.firebase.auth.FirebaseUser;
 
 import java.util.List;
 
@@ -75,22 +74,18 @@ public class HomeActivity extends ActivityBase
     }
 
     @Override
-    public void updateUI(FirebaseUser user) {
-        if (user == null) {
-            startActivity(new Intent(this, FbLoginActivity.class));
+    public void updateUI(String userId) {
+        if (userId == null) {
+            startActivity(new Intent(this, LoginActivity.class));
             finish();
-        } else {
-            String currentUserId = user.getUid();
+        } else if (channelPresenter == null || !channelPresenter.getCurrentUserId().equalsIgnoreCase(userId)) {
+            navigationTabBarHelper.initializeViewPager(userId, viewPager);
+            navigationTabBarHelper.setOnViewPagerTabSelectedListener(this);
 
-            if (channelPresenter == null || !channelPresenter.getCurrentUserId().equalsIgnoreCase(currentUserId)) {
-                navigationTabBarHelper.initializeViewPager(currentUserId, viewPager);
-                navigationTabBarHelper.setOnViewPagerTabSelectedListener(this);
+            homePresenter.switchCurrentUserId(userId);
+            channelPresenter = new ChannelPresenterImpl(this, userId);
 
-                homePresenter.switchCurrentUserId(currentUserId);
-                channelPresenter = new ChannelPresenterImpl(this, currentUserId);
-
-                channelPresenter.updateChannelsIfNecessary();
-            }
+            channelPresenter.updateChannelsIfNecessary();
         }
     }
 
@@ -138,7 +133,7 @@ public class HomeActivity extends ActivityBase
     @Override
     public void logoutClick() {
         loginPresenter.logout();
-        startActivity(new Intent(this, FbLoginActivity.class));
+        startActivity(new Intent(this, LoginActivity.class));
     }
 
     @Override
