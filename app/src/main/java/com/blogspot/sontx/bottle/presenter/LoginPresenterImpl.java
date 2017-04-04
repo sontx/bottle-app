@@ -90,6 +90,7 @@ public class LoginPresenterImpl extends PresenterBase implements LoginPresenter 
                         @Override
                         public void onError(Throwable what) {
                             loginView.showErrorMessage(what.getMessage());
+                            loginView.updateUI(null);
                         }
                     });
                 } else {

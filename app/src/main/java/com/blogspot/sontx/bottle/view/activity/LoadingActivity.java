@@ -37,8 +37,7 @@ public class LoadingActivity extends ActivityBase implements LoginView, LoadingV
             loadingPresenter.setCurrentUserId(userId);
             loadingPresenter.loadIfNecessaryAsync();
         } else {
-            startActivity(new Intent(this, LoginActivity.class));
-            finish();
+            navigateToErrorActivity(null);
         }
     }
 
@@ -55,6 +54,9 @@ public class LoadingActivity extends ActivityBase implements LoginView, LoadingV
 
     @Override
     public void navigateToErrorActivity(String message) {
-        
+        Intent intent = new Intent(this, ErrorActivity.class);
+        intent.putExtra(ErrorActivity.MESSAGE_KEY, message);
+        startActivity(intent);
+        finish();
     }
 }

@@ -26,4 +26,10 @@
     <string name="title_activity_welcome">WelcomeActivity</string>
     <string name="welcome_to_bottle">BOTTLE</string>
     <string name="facebook_login_error">Can\'t login with facebook</string>
+
+    <string name="title_activity_error">ErrorActivity</string>
+    <string name="oops_message">OOPS @_@</string>
+    <string name="something_wrong_message">Something wrong!</string>
+    <string name="try_again">Try again</string>
+    <string name="login_with_another">Another Account?</string>
 </resources>
