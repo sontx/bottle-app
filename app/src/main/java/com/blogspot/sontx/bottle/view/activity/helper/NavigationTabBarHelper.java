@@ -23,13 +23,7 @@ public class NavigationTabBarHelper extends ActivityHelperBase implements ViewPa
         super(appCompatActivity);
     }
 
-    public void initializeViewPager(String currentUserId, final ViewPager viewPager) {
-        this.viewPager = viewPager;
-
-        HomeFragmentPagerAdapter homeFragmentPagerAdapter = new HomeFragmentPagerAdapter(getSupportFragmentManager());
-        homeFragmentPagerAdapter.setCurrentUserId(currentUserId);
-        viewPager.setAdapter(homeFragmentPagerAdapter);
-
+    public void initializeButtons() {
         final String[] colors = getResources().getStringArray(R.array.default_preview);
 
         final NavigationTabBar navigationTabBar = (NavigationTabBar) findViewById(R.id.ntb_horizontal);
@@ -63,6 +57,14 @@ public class NavigationTabBarHelper extends ActivityHelperBase implements ViewPa
                 model.hideBadge();
             }
         });
+    }
+
+    public void initializeViewPager(String currentUserId, final ViewPager viewPager) {
+        this.viewPager = viewPager;
+
+        HomeFragmentPagerAdapter homeFragmentPagerAdapter = new HomeFragmentPagerAdapter(getSupportFragmentManager());
+        homeFragmentPagerAdapter.setCurrentUserId(currentUserId);
+        viewPager.setAdapter(homeFragmentPagerAdapter);
 
         viewPager.addOnPageChangeListener(this);
     }

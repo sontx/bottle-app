@@ -10,15 +10,16 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 class FirebasePrivateProfileService extends FirebaseServiceBase implements PrivateProfileService {
-    private FirebaseUser firebaseUser;
 
     FirebasePrivateProfileService(Context context) {
         super(context);
-        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     }
 
     @Override
     public PublicProfile getDefaultPublicProfile() {
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (firebaseUser == null)
+            return null;
         PublicProfile publicProfile = new PublicProfile();
         publicProfile.setDisplayName(firebaseUser.getDisplayName());
         Uri photoUrl = firebaseUser.getPhotoUrl();
@@ -29,6 +30,9 @@ class FirebasePrivateProfileService extends FirebaseServiceBase implements Priva
 
     @Override
     public String getCurrentUserId() {
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (firebaseUser == null)
+            return null;
         return firebaseUser.getUid();
     }
 }

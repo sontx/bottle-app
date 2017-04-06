@@ -8,6 +8,6 @@ import retrofit2.http.Body;
 import retrofit2.http.POST;
 
 public interface ApiLogin {
-    @POST("login")
+    @POST("auth")
     Call<BottleUser> login(@Body LoginData loginData);
 }

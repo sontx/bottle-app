@@ -37,7 +37,7 @@ public class ChannelPresenterImpl extends PresenterBase implements ChannelPresen
 
     @Override
     public void updateChannelsIfNecessary() {
-        if (isUpdatedChannels)
+        if (isUpdatedChannels && channels != null)
             return;
 
         channelView.clearChannels();

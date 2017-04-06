@@ -44,6 +44,8 @@ public class HomeActivity extends ActivityBase
 
         homePresenter = new HomePresenterImpl(this);
         loginPresenter = new LoginPresenterImpl(this);
+
+        navigationTabBarHelper.initializeButtons();
     }
 
     @Override

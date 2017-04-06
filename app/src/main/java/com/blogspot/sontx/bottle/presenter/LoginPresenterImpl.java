@@ -84,7 +84,10 @@ public class LoginPresenterImpl extends PresenterBase implements LoginPresenter 
                     bottleServerAuthService.loginWithTokenAsync(value, new Callback<BottleUser>() {
                         @Override
                         public void onSuccess(BottleUser result) {
-                            loginView.updateUI(result.getUid());
+                            if (result != null)
+                                loginView.updateUI(result.getUid());
+                            else
+                                loginView.updateUI(null);
                         }
 
                         @Override
