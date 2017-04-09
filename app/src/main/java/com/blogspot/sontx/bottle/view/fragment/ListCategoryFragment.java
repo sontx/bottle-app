@@ -18,15 +18,15 @@ import java.util.List;
 
 import lombok.Setter;
 
-public class CategoryFragment extends FragmentBase {
+public class ListCategoryFragment extends FragmentBase {
 
     private static final String ARG_COLUMN_COUNT = "column-count";
-    private int mColumnCount = 1;
     @Setter
-    private List<Category> tempList;
+    private static List<Category> tempList;
+    private int mColumnCount = 1;
     private CategoryRecyclerViewAdapter categoryRecyclerViewAdapter;
 
-    public CategoryFragment() {
+    public ListCategoryFragment() {
         if (tempList != null) {
             categoryRecyclerViewAdapter = new CategoryRecyclerViewAdapter(tempList);
             tempList = null;
@@ -35,8 +35,8 @@ public class CategoryFragment extends FragmentBase {
         }
     }
 
-    public static CategoryFragment newInstance(int columnCount) {
-        CategoryFragment fragment = new CategoryFragment();
+    public static ListCategoryFragment newInstance(int columnCount) {
+        ListCategoryFragment fragment = new ListCategoryFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_COLUMN_COUNT, columnCount);
         fragment.setArguments(args);

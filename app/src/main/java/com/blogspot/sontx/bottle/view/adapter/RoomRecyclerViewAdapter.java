@@ -7,8 +7,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.blogspot.sontx.bottle.R;
-import com.blogspot.sontx.bottle.model.bean.Category;
-import com.blogspot.sontx.bottle.view.fragment.ListCategoryFragment;
+import com.blogspot.sontx.bottle.model.bean.Room;
+import com.blogspot.sontx.bottle.view.fragment.ListRoomFragment;
 
 import java.util.List;
 
@@ -17,21 +17,21 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import lombok.Getter;
 import lombok.Setter;
 
-public class CategoryRecyclerViewAdapter extends RecyclerView.Adapter<CategoryRecyclerViewAdapter.ViewHolder> {
+public class RoomRecyclerViewAdapter extends RecyclerView.Adapter<RoomRecyclerViewAdapter.ViewHolder> {
 
     @Getter
-    private List<Category> values;
+    private List<Room> values;
     @Setter
-    private ListCategoryFragment.OnListCategoryInteractionListener listener;
+    private ListRoomFragment.OnListRoomInteractionListener listener;
 
-    public CategoryRecyclerViewAdapter(List<Category> items) {
+    public RoomRecyclerViewAdapter(List<Room> items) {
         values = items;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_category, parent, false);
+                .inflate(R.layout.fragment_room, parent, false);
         return new ViewHolder(view);
     }
 
@@ -45,7 +45,7 @@ public class CategoryRecyclerViewAdapter extends RecyclerView.Adapter<CategoryRe
             @Override
             public void onClick(View v) {
                 if (null != listener) {
-                    listener.onListCategoryInteraction(holder.item);
+                    listener.onListRoomInteraction(holder.item);
                 }
             }
         });
@@ -62,7 +62,7 @@ public class CategoryRecyclerViewAdapter extends RecyclerView.Adapter<CategoryRe
         final TextView titleView;
         final TextView descriptionView;
 
-        Category item;
+        Room item;
 
         ViewHolder(View view) {
             super(view);

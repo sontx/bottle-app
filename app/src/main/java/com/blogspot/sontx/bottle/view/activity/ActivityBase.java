@@ -33,6 +33,13 @@ abstract class ActivityBase extends AppCompatActivity implements ViewBase {
         fragmentTransaction.commitAllowingStateLoss();
     }
 
+    protected void addFragment(int placeId, Fragment fragment) {
+        FragmentManager fm = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fm.beginTransaction();
+        fragmentTransaction.add(placeId, fragment);
+        fragmentTransaction.commitAllowingStateLoss();
+    }
+
     @Override
     public void showProcess() {
         runOnUiThread(new Runnable() {

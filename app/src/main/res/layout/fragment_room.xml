@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?android:attr/selectableItemBackground"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="@dimen/half_item_padding"
+        android:paddingLeft="@dimen/half_item_padding"
+        android:paddingRight="@dimen/half_item_padding"
+        android:paddingTop="@dimen/half_item_padding">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/image_view"
+            android:layout_width="54dp"
+            android:layout_height="54dp"
+            android:layout_marginRight="@dimen/sheet_spacing"
+            android:src="@drawable/ic_account_circle_black_36dp"
+            android:tint="@color/accent" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/title_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:text="Title"
+                android:textColor="@color/primary"
+                android:textSize="16dp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/description_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/title_view"
+                android:layout_below="@+id/title_view"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="subtitle"
+                android:textColor="@color/secondary_text"
+                android:textSize="12dp" />
+        </RelativeLayout>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_alignParentTop="true"
+        android:background="@color/divider" />
+</LinearLayout>

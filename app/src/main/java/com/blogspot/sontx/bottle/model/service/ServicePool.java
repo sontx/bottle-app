@@ -2,8 +2,9 @@ package com.blogspot.sontx.bottle.model.service;
 
 import android.content.Context;
 
-import com.blogspot.sontx.bottle.model.service.interfaces.BottleCategoryService;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerAuthService;
+import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerCategoryService;
+import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerRoomService;
 import com.blogspot.sontx.bottle.model.service.interfaces.ChannelService;
 import com.blogspot.sontx.bottle.model.service.interfaces.ChatService;
 import com.blogspot.sontx.bottle.model.service.interfaces.LoginService;
@@ -15,7 +16,9 @@ public interface ServicePool {
 
     BottleServerAuthService getBottleServerAuthService();
 
-    BottleCategoryService getBottleCategoryService();
+    BottleServerCategoryService getBottleServerCategoryService();
+
+    BottleServerRoomService getBottleServerRoomService();
 
     LoginService getLoginService();
 

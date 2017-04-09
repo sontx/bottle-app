@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.blogspot.sontx.bottle.view.activity.CategoryActivity">
+    tools:context="com.blogspot.sontx.bottle.view.activity.ListCategoryActivity">
 
     <FrameLayout
         android:id="@+id/content_fragment"

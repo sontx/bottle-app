@@ -5,6 +5,6 @@ import com.blogspot.sontx.bottle.model.service.Callback;
 
 import java.util.List;
 
-public interface BottleCategoryService extends ServiceBase {
+public interface BottleServerCategoryService extends ServiceBase {
     void getCategoriesAsync(Callback<List<Category>> callback);
 }
