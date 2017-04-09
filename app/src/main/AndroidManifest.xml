@@ -69,7 +69,8 @@
             android:name=".view.activity.ErrorActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_error"
-            android:theme="@style/FullscreenTheme"></activity>
+            android:theme="@style/FullscreenTheme" />
+        <activity android:name=".view.activity.CategoryActivity"></activity>
     </application>
 
 </manifest>

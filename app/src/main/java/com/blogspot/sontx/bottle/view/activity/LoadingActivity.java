@@ -46,7 +46,7 @@ public class LoadingActivity extends ActivityBase implements LoginView, LoadingV
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                startActivity(new Intent(LoadingActivity.this, HomeActivity.class));
+                startActivity(new Intent(LoadingActivity.this, CategoryActivity.class));
                 finish();
             }
         });
