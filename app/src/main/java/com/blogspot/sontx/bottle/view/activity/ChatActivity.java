@@ -4,6 +4,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.blogspot.sontx.bottle.App;
 import com.blogspot.sontx.bottle.R;
 import com.blogspot.sontx.bottle.model.bean.PublicProfile;
 import com.blogspot.sontx.bottle.model.bean.chat.Channel;
@@ -20,7 +21,6 @@ import it.slyce.messaging.message.Message;
 
 public class ChatActivity extends ActivityBase implements ChatView, UserSendsMessageListener, LoadMoreMessagesListener {
     static final String CHANNEL_KEY = "channel";
-    static final String CURRENT_USER_ID_KEY = "current_user_id";
 
     private ChatPresenter chatPresenter;
     private SlyceMessagingFragment slyceMessagingFragment;
@@ -34,7 +34,7 @@ public class ChatActivity extends ActivityBase implements ChatView, UserSendsMes
 
         if (getIntent() != null) {
             Channel channel = (Channel) getIntent().getSerializableExtra(CHANNEL_KEY);
-            String currentUserId = getIntent().getStringExtra(CURRENT_USER_ID_KEY);
+            String currentUserId = App.getInstance().getBottleContext().getCurrentBottleUser().getUid();
 
             chatPresenter = new ChatPresenterImpl(this, currentUserId);
             chatPresenter.setChannel(channel);
@@ -48,13 +48,14 @@ public class ChatActivity extends ActivityBase implements ChatView, UserSendsMes
     @Override
     protected void onStart() {
         super.onStart();
-        chatPresenter.onStart();
+        chatPresenter.registerListeners();
+        chatPresenter.fetchChatMessages();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        chatPresenter.onStop();
+        chatPresenter.unregisterListeners();
     }
 
     @Override

@@ -302,6 +302,6 @@ public class WriteMessageActivity extends ActivityBase implements OnBackPressedL
     }
     private enum InputType {
         WORD,
-        EMOJI;
+        EMOJI
     }
 }

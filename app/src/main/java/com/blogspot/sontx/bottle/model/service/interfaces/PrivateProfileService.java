@@ -4,6 +4,4 @@ import com.blogspot.sontx.bottle.model.bean.PublicProfile;
 
 public interface PrivateProfileService extends ServiceBase {
     PublicProfile getDefaultPublicProfile();
-
-    String getCurrentUserId();
 }

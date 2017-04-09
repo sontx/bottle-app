@@ -21,7 +21,5 @@ public interface ChatService extends ServiceBase {
 
     void setOnChatMessageChanged(SimpleCallback<ChatMessage> callback);
 
-    void setCurrentUserId(String currentUserId);
-
     void updateChatMessageStateAsync(String channelId, String id, String newState);
 }

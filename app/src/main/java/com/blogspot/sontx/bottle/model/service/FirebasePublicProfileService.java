@@ -53,6 +53,9 @@ class FirebasePublicProfileService extends FirebaseServiceBase implements Public
                 if (dataSnapshot == null || !dataSnapshot.exists()) {
                     Log.d(TAG, "updatePublicProfileIfEmptyAsync: need updating");
                     updatePublicProfileAsync(publicProfile, callback);
+                } else {
+                    if (callback != null)
+                        callback.onSuccess(publicProfile);
                 }
             }
 

@@ -3,11 +3,13 @@ package com.blogspot.sontx.bottle.system.provider;
 import android.content.Intent;
 import android.util.Log;
 
+import com.blogspot.sontx.bottle.App;
 import com.blogspot.sontx.bottle.model.bean.LoginData;
 import com.blogspot.sontx.bottle.model.service.SimpleCallback;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
@@ -35,6 +37,7 @@ public final class FacebookAuth2Provider extends Auth2ProviderBase implements Fa
     }
 
     private void setupFacebookLogin(LoginButton loginButton) {
+        FacebookSdk.sdkInitialize(loginButton.getContext());
         callbackManager = CallbackManager.Factory.create();
         loginButton.setReadPermissions(FACEBOOK_PERMISSIONS);
         loginButton.registerCallback(callbackManager, this);
@@ -49,8 +52,8 @@ public final class FacebookAuth2Provider extends Auth2ProviderBase implements Fa
 
             onAuthCompleted.onCallback(loginData);
         }
+        App.getInstance().getBottleContextWrapper().setCurrentAuth2Provider(this);
         Log.d(TAG, "Login with facebook is successful: " + loginResult.getAccessToken().getUserId());
-        currentProvider = this;
     }
 
     @Override

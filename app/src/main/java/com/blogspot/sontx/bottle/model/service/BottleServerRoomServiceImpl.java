@@ -2,9 +2,9 @@ package com.blogspot.sontx.bottle.model.service;
 
 import android.util.Log;
 
+import com.blogspot.sontx.bottle.App;
 import com.blogspot.sontx.bottle.model.bean.BottleUser;
 import com.blogspot.sontx.bottle.model.bean.Room;
-import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerAuthService;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerRoomService;
 import com.blogspot.sontx.bottle.model.service.rest.ApiClient;
 import com.blogspot.sontx.bottle.model.service.rest.ApiRoom;
@@ -15,19 +15,15 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 class BottleServerRoomServiceImpl extends BottleServerServiceBase implements BottleServerRoomService {
-    private final BottleServerAuthService bottleServerAuthService;
-
-    BottleServerRoomServiceImpl(BottleServerAuthService bottleServerAuthService) {
-        this.bottleServerAuthService = bottleServerAuthService;
-    }
 
     @Override
     public void getRoomsAsync(int categoryId, final Callback<List<Room>> callback) {
-        BottleUser bottleUser = bottleServerAuthService.getCurrentBottleUser();
-        if (bottleUser == null || bottleUser.getToken() == null) {
+        if (!App.getInstance().getBottleContext().isLogged()) {
             callback.onError(new Exception("Unauthenticated"));
             return;
         }
+
+        BottleUser bottleUser = App.getInstance().getBottleContext().getCurrentBottleUser();
 
         ApiRoom apiRoom = ApiClient.getClient(bottleUser.getToken()).create(ApiRoom.class);
 

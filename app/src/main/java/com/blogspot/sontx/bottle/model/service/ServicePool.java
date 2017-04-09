@@ -4,10 +4,12 @@ import android.content.Context;
 
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerAuthService;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerCategoryService;
+import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerMessageService;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerRoomService;
+import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerUserSettingService;
 import com.blogspot.sontx.bottle.model.service.interfaces.ChannelService;
+import com.blogspot.sontx.bottle.model.service.interfaces.ChatServerLoginService;
 import com.blogspot.sontx.bottle.model.service.interfaces.ChatService;
-import com.blogspot.sontx.bottle.model.service.interfaces.LoginService;
 import com.blogspot.sontx.bottle.model.service.interfaces.PrivateProfileService;
 import com.blogspot.sontx.bottle.model.service.interfaces.PublicProfileService;
 
@@ -20,7 +22,11 @@ public interface ServicePool {
 
     BottleServerRoomService getBottleServerRoomService();
 
-    LoginService getLoginService();
+    BottleServerMessageService getBottleServerMessageService();
+
+    BottleServerUserSettingService getBottleServerUserSettingService();
+
+    ChatServerLoginService getChatServerLoginService();
 
     ChannelService getChannelService();
 

@@ -28,11 +28,4 @@ class FirebasePrivateProfileService extends FirebaseServiceBase implements Priva
         return publicProfile;
     }
 
-    @Override
-    public String getCurrentUserId() {
-        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (firebaseUser == null)
-            return null;
-        return firebaseUser.getUid();
-    }
 }

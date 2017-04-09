@@ -43,7 +43,6 @@
             android:theme="@style/FullscreenTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -54,23 +53,26 @@
             android:theme="@style/FullscreenTheme" />
         <activity
             android:name=".view.activity.HomeActivity"
-            android:label="@string/title_activity_home" />
+            android:label="@string/title_activity_home"
+            android:theme="@style/FullscreenTheme"></activity>
         <activity android:name=".view.activity.ChatActivity" />
         <activity
             android:name=".view.activity.WriteMessageActivity"
             android:label="@string/title_activity_write_message"
-            android:theme="@style/AppTheme" />
-
-        <service
-            android:name=".system.service.MessagingService"
-            android:enabled="true" />
-
+            android:theme="@style/FullscreenTheme" />
         <activity
             android:name=".view.activity.ErrorActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_error"
             android:theme="@style/FullscreenTheme" />
-        <activity android:name=".view.activity.ListCategoryActivity" />
+        <activity
+            android:name=".view.activity.ListCategoryActivity"
+            android:theme="@style/FullscreenTheme" />
+
+        <service
+            android:name=".system.service.MessagingService"
+            android:enabled="true" />
+
     </application>
 
 </manifest>

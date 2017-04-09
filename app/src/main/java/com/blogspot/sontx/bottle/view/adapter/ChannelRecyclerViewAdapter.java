@@ -6,13 +6,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.blogspot.sontx.bottle.Constants;
 import com.blogspot.sontx.bottle.R;
 import com.blogspot.sontx.bottle.model.bean.PublicProfile;
 import com.blogspot.sontx.bottle.model.bean.chat.Channel;
 import com.blogspot.sontx.bottle.model.bean.chat.ChannelDetail;
-import com.blogspot.sontx.bottle.model.bean.chat.ChannelMember;
 import com.blogspot.sontx.bottle.utils.DateTimeUtils;
-import com.blogspot.sontx.bottle.view.fragment.ChannelFragment.OnChannelInteractionListener;
+import com.blogspot.sontx.bottle.view.fragment.ListChannelFragment.OnChannelInteractionListener;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -27,13 +27,11 @@ public class ChannelRecyclerViewAdapter extends RecyclerView.Adapter<ChannelRecy
     @Getter
     @Setter
     private List<Channel> values;
-    @Setter
-    private String currentUserId;
-    @Setter
     private OnChannelInteractionListener listener;
 
-    public ChannelRecyclerViewAdapter(List<Channel> items) {
-        values = items;
+    public ChannelRecyclerViewAdapter(List<Channel> items, OnChannelInteractionListener listener) {
+        this.values = items;
+        this.listener = listener;
     }
 
     @Override
@@ -48,32 +46,23 @@ public class ChannelRecyclerViewAdapter extends RecyclerView.Adapter<ChannelRecy
         Channel channel = values.get(position);
         holder.item = channel;
 
-        PublicProfile anotherGuy = getAnotherGuy(channel);
+        PublicProfile anotherGuy = channel.getAnotherGuy().getPublicProfile();
         ChannelDetail detail = channel.getDetail();
 
-        holder.titleView.setText(anotherGuy.getDisplayName());
+        holder.titleView.setText(anotherGuy != null ? anotherGuy.getDisplayName() : null);
         holder.subtitleView.setText(detail.getLastMessage());
         holder.timestampView.setText(DateTimeUtils.getTimestamp(detail.getTimestamp()));
 
-        String avatarUrl = anotherGuy.getAvatarUrl();
+        String avatarUrl = anotherGuy != null ? anotherGuy.getAvatarUrl() : System.getProperty(Constants.UI_DEFAULT_AVATAR_URL_KEY);
         Picasso.with(holder.root.getContext()).load(avatarUrl).into(holder.avatarView);
 
         holder.root.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (null != listener)
-                    listener.onChannelInteraction(holder.item);
+                    listener.onListChannelInteraction(holder.item);
             }
         });
-    }
-
-    private PublicProfile getAnotherGuy(Channel channel) {
-        List<ChannelMember> memberList = channel.getMemberList();
-        if (memberList == null || memberList.size() < 2)
-            return null;
-        if (memberList.get(0).getId().equals(currentUserId))
-            return memberList.get(1).getPublicProfile();
-        return memberList.get(0).getPublicProfile();
     }
 
     @Override

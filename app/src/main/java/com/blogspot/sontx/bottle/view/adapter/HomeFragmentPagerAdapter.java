@@ -6,16 +6,11 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.util.SparseArray;
 import android.view.ViewGroup;
 
-import com.blogspot.sontx.bottle.view.fragment.ChannelFragment;
-import com.blogspot.sontx.bottle.view.fragment.SettingFragment;
-
-import lombok.Setter;
+import com.blogspot.sontx.bottle.view.fragment.ListChannelFragment;
+import com.blogspot.sontx.bottle.view.fragment.ListRoomMessageFragment;
 
 public class HomeFragmentPagerAdapter extends FragmentPagerAdapter {
     private SparseArray<Fragment> fragmentSparseArray;
-
-    @Setter
-    private String currentUserId;
 
     public HomeFragmentPagerAdapter(FragmentManager fm) {
         super(fm);
@@ -34,9 +29,8 @@ public class HomeFragmentPagerAdapter extends FragmentPagerAdapter {
     @Override
     public Fragment getItem(int position) {
         if (position == 0)
-            return ChannelFragment.newInstance(currentUserId);
-
-        return SettingFragment.newInstance();
+            return ListChannelFragment.newInstance();
+        return ListRoomMessageFragment.newInstance(1);
     }
 
     @Override

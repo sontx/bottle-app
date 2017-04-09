@@ -8,10 +8,8 @@ import android.widget.VideoView;
 
 import com.blogspot.sontx.bottle.R;
 
-import butterknife.BindView;
-
 public class VideoPreviewFragment extends PreviewFragmentBase {
-    @BindView(R.id.video_preview)
+    //@BindView(R.id.video_preview)
     VideoView previewImage;
 
     private String videoPath;

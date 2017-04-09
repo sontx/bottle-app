@@ -2,8 +2,10 @@ package com.blogspot.sontx.bottle.view.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.UiThread;
 
 import com.blogspot.sontx.bottle.R;
+import com.blogspot.sontx.bottle.model.bean.LoginData;
 import com.blogspot.sontx.bottle.presenter.LoadingPresenterImpl;
 import com.blogspot.sontx.bottle.presenter.LoginPresenterImpl;
 import com.blogspot.sontx.bottle.presenter.interfaces.LoadingPresenter;
@@ -12,6 +14,8 @@ import com.blogspot.sontx.bottle.view.interfaces.LoadingView;
 import com.blogspot.sontx.bottle.view.interfaces.LoginView;
 
 public class LoadingActivity extends ActivityBase implements LoginView, LoadingView {
+    static final String LOGIN_DATA = "login_data";
+
     private LoginPresenter loginPresenter;
     private LoadingPresenter loadingPresenter;
 
@@ -22,41 +26,50 @@ public class LoadingActivity extends ActivityBase implements LoginView, LoadingV
         setContentView(R.layout.activity_loading);
 
         loginPresenter = new LoginPresenterImpl(this);
+
         loadingPresenter = new LoadingPresenterImpl(this);
-    }
+        loadingPresenter.registerListener();
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        loginPresenter.onResume();
-    }
-
-    @Override
-    public void updateUI(String userId) {
-        if (userId != null) {
-            loadingPresenter.setCurrentUserId(userId);
-            loadingPresenter.loadIfNecessaryAsync();
+        Intent intent = getIntent();
+        if (intent != null && intent.hasExtra(LOGIN_DATA)) {
+            LoginData loginData = (LoginData) intent.getSerializableExtra(LOGIN_DATA);
+            loginPresenter.facebookLoginAsync(loginData);
         } else {
-            navigateToErrorActivity(null);
+            loginPresenter.checkLoginWithChatServer();
         }
     }
 
     @Override
-    public void onLoadSuccess() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                startActivity(new Intent(LoadingActivity.this, ListCategoryActivity.class));
-                finish();
-            }
-        });
+    protected void onStop() {
+        super.onStop();
+        loadingPresenter.unregisterListener();
     }
 
+    @UiThread
+    @Override
+    public void onLoginStateChanged(boolean logged) {
+        if (logged) {
+            loadingPresenter.loadIfNecessaryAsync();
+        } else {
+            loginPresenter.logout();
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+        }
+    }
+
+    @UiThread
     @Override
     public void navigateToErrorActivity(String message) {
         Intent intent = new Intent(this, ErrorActivity.class);
         intent.putExtra(ErrorActivity.MESSAGE_KEY, message);
         startActivity(intent);
+        finish();
+    }
+
+    @UiThread
+    @Override
+    public void onLoadSuccess() {
+        startActivity(new Intent(LoadingActivity.this, HomeActivity.class));
         finish();
     }
 }

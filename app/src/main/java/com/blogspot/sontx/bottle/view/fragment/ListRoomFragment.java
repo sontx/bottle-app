@@ -11,34 +11,32 @@ import android.view.ViewGroup;
 
 import com.blogspot.sontx.bottle.R;
 import com.blogspot.sontx.bottle.model.bean.Room;
+import com.blogspot.sontx.bottle.presenter.RoomPresenterImpl;
+import com.blogspot.sontx.bottle.presenter.interfaces.RoomPresenter;
 import com.blogspot.sontx.bottle.view.adapter.RoomRecyclerViewAdapter;
+import com.blogspot.sontx.bottle.view.interfaces.ListRoomView;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import lombok.Setter;
-
-public class ListRoomFragment extends FragmentBase {
+public class ListRoomFragment extends FragmentBase implements ListRoomView {
 
     private static final String ARG_COLUMN_COUNT = "column-count";
-    @Setter
-    private static List<Room> tempList;
+    private static final String ARG_CATEGORY_ID = "category-id";
+
     private int mColumnCount = 1;
     private RoomRecyclerViewAdapter roomRecyclerViewAdapter;
+    private RoomPresenter roomPresenter;
+    private OnListRoomInteractionListener listener;
 
     public ListRoomFragment() {
-        if (tempList != null) {
-            roomRecyclerViewAdapter = new RoomRecyclerViewAdapter(tempList);
-            tempList = null;
-        } else {
-            roomRecyclerViewAdapter = new RoomRecyclerViewAdapter(new ArrayList<Room>());
-        }
     }
 
-    public static ListRoomFragment newInstance(int columnCount) {
+    public static ListRoomFragment newInstance(int columnCount, int categoryId) {
         ListRoomFragment fragment = new ListRoomFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_COLUMN_COUNT, columnCount);
+        args.putInt(ARG_CATEGORY_ID, categoryId);
         fragment.setArguments(args);
         return fragment;
     }
@@ -49,6 +47,12 @@ public class ListRoomFragment extends FragmentBase {
 
         if (getArguments() != null) {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
+            int categoryId = getArguments().getInt(ARG_CATEGORY_ID);
+
+            roomRecyclerViewAdapter = new RoomRecyclerViewAdapter(new ArrayList<Room>(), listener);
+
+            roomPresenter = new RoomPresenterImpl(this);
+            roomPresenter.getRoomsAsync(categoryId);
         }
     }
 
@@ -76,8 +80,7 @@ public class ListRoomFragment extends FragmentBase {
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof OnListRoomInteractionListener) {
-            OnListRoomInteractionListener listener = (OnListRoomInteractionListener) context;
-            roomRecyclerViewAdapter.setListener(listener);
+            listener = (OnListRoomInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString() + " must implement OnListRoomInteractionListener");
         }
@@ -86,16 +89,10 @@ public class ListRoomFragment extends FragmentBase {
     @Override
     public void onDetach() {
         super.onDetach();
-        roomRecyclerViewAdapter.setListener(null);
+        listener = null;
     }
 
-    public void clearRooms() {
-        if (roomRecyclerViewAdapter != null) {
-            roomRecyclerViewAdapter.getValues().clear();
-            roomRecyclerViewAdapter.notifyDataSetChanged();
-        }
-    }
-
+    @Override
     public void showRooms(List<Room> rooms) {
         if (roomRecyclerViewAdapter != null) {
             roomRecyclerViewAdapter.getValues().addAll(rooms);

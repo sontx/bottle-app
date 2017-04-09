@@ -2,6 +2,7 @@ package com.blogspot.sontx.bottle.view.fragment;
 
 import android.content.Context;
 import android.support.annotation.Nullable;
+import android.support.annotation.UiThread;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.widget.Toast;
@@ -14,31 +15,15 @@ abstract class FragmentBase extends Fragment implements ViewBase {
 
     private ProcessDialog processDialog;
 
-    protected void runOnUiThread(final Runnable runnable) {
-        final FragmentActivity activity = getActivity();
-        if (activity != null) {
-            activity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    runnable.run();
-                }
-            });
-        }
-    }
-
+    @UiThread
     @Override
     public void showProcess() {
         final FragmentActivity activity = getActivity();
         if (activity != null) {
-            activity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (processDialog == null)
-                        processDialog = new ProcessDialog(activity);
-                    if (!processDialog.isShowing())
-                        processDialog.show();
-                }
-            });
+            if (processDialog == null)
+                processDialog = new ProcessDialog(activity);
+            if (!processDialog.isShowing())
+                processDialog.show();
         }
     }
 
@@ -48,43 +33,33 @@ abstract class FragmentBase extends Fragment implements ViewBase {
         hideProcess();
     }
 
+    @UiThread
     @Override
     public void hideProcess() {
         final FragmentActivity activity = getActivity();
         if (activity != null) {
-           activity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (processDialog != null)
-                        processDialog.hide();
-                }
-            });
+            if (processDialog != null) {
+                processDialog.hide();
+                processDialog = null;
+            }
         }
     }
 
+    @UiThread
     @Override
     public void showErrorMessage(final String message) {
         final FragmentActivity activity = getActivity();
         if (activity != null) {
-            activity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
-                }
-            });
+            Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
         }
     }
 
+    @UiThread
     @Override
     public void showSuccessMessage(final String message) {
         final FragmentActivity activity = getActivity();
         if (activity != null) {
-            activity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(activity, message, Toast.LENGTH_SHORT).show();
-                }
-            });
+            Toast.makeText(activity, message, Toast.LENGTH_SHORT).show();
         }
     }
 

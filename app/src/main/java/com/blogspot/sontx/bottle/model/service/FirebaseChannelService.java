@@ -4,7 +4,9 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.blogspot.sontx.bottle.App;
 import com.blogspot.sontx.bottle.Constants;
+import com.blogspot.sontx.bottle.model.bean.BottleUser;
 import com.blogspot.sontx.bottle.model.bean.PublicProfile;
 import com.blogspot.sontx.bottle.model.bean.chat.Channel;
 import com.blogspot.sontx.bottle.model.bean.chat.ChannelDetail;
@@ -48,11 +50,19 @@ class FirebaseChannelService extends FirebaseServiceBase implements ChannelServi
     }
 
     @Override
-    public void getCurrentChannelsAsync(String currentUserId, final Callback<List<Channel>> callback) {
+    public void getCurrentChannelsAsync(final Callback<List<Channel>> callback) {
         if (cachedChannels != null) {
             callback.onSuccess(cachedChannels);
             return;
         }
+
+        if (!App.getInstance().getBottleContext().isLogged()) {
+            callback.onError(new Exception("Unauthenticated"));
+            return;
+        }
+
+        BottleUser bottleUser = App.getInstance().getBottleContext().getCurrentBottleUser();
+        String currentUserId = bottleUser.getUid();
 
         userChannelRef.child(currentUserId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -115,7 +125,10 @@ class FirebaseChannelService extends FirebaseServiceBase implements ChannelServi
     }
 
     @Override
-    public Channel createChannel(String currentUserId, String anotherMemberId) {
+    public Channel createChannel(String anotherMemberId) {
+        BottleUser bottleUser = App.getInstance().getBottleContext().getCurrentBottleUser();
+        String currentUserId = bottleUser.getUid();
+
         Channel channel = createUserChannel(currentUserId);
 
         ChannelDetail detail = createChannelDetail(channel);
@@ -128,7 +141,10 @@ class FirebaseChannelService extends FirebaseServiceBase implements ChannelServi
     }
 
     @Override
-    public void cacheChannelsAsync(final String currentUserId, final Callback<Void> callback) {
+    public void cacheChannelsAsync(final Callback<List<Channel>> callback) {
+        BottleUser bottleUser = App.getInstance().getBottleContext().getCurrentBottleUser();
+        final String currentUserId = bottleUser.getUid();
+
         userChannelRef.child(currentUserId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(final DataSnapshot dataSnapshot) {
@@ -145,7 +161,7 @@ class FirebaseChannelService extends FirebaseServiceBase implements ChannelServi
                                 public void run() {
                                     collectChannelInfo(dataSnapshot, childThreadResults, result);
                                     if (childThreadResults[0])
-                                        callback.onSuccess(null);
+                                        callback.onSuccess(cachedChannels);
                                 }
                             });
                         }
@@ -157,7 +173,7 @@ class FirebaseChannelService extends FirebaseServiceBase implements ChannelServi
                     });
 
                 } else {
-                    callback.onSuccess(null);
+                    callback.onSuccess(cachedChannels = new ArrayList<>());
                 }
             }
 

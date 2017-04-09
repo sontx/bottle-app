@@ -1,6 +1,5 @@
 package com.blogspot.sontx.bottle.view.fragment;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -11,8 +10,6 @@ import android.widget.ImageView;
 import com.blogspot.sontx.bottle.R;
 
 import butterknife.BindView;
-import lombok.Getter;
-import lombok.Setter;
 
 public class PhotoPreviewFragment extends PreviewFragmentBase {
     @BindView(R.id.photo_preview)

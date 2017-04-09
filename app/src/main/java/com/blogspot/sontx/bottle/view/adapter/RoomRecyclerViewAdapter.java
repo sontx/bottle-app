@@ -15,17 +15,16 @@ import java.util.List;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 import lombok.Getter;
-import lombok.Setter;
 
 public class RoomRecyclerViewAdapter extends RecyclerView.Adapter<RoomRecyclerViewAdapter.ViewHolder> {
 
+    private final ListRoomFragment.OnListRoomInteractionListener listener;
     @Getter
     private List<Room> values;
-    @Setter
-    private ListRoomFragment.OnListRoomInteractionListener listener;
 
-    public RoomRecyclerViewAdapter(List<Room> items) {
+    public RoomRecyclerViewAdapter(List<Room> items, ListRoomFragment.OnListRoomInteractionListener listener) {
         values = items;
+        this.listener = listener;
     }
 
     @Override

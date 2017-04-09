@@ -2,7 +2,9 @@ package com.blogspot.sontx.bottle.model.service;
 
 import android.content.Context;
 
+import com.blogspot.sontx.bottle.App;
 import com.blogspot.sontx.bottle.Constants;
+import com.blogspot.sontx.bottle.model.bean.BottleUser;
 import com.blogspot.sontx.bottle.model.bean.chat.ChannelDetail;
 import com.blogspot.sontx.bottle.model.bean.chat.ChatMessage;
 import com.blogspot.sontx.bottle.model.service.interfaces.ChatService;
@@ -29,8 +31,6 @@ class FirebaseChatService extends FirebaseServiceBase implements ChatService {
     private DatabaseReference detailsRef;
     private Hashtable<String, DatabaseRefWrapper> registerChannelsRef;
 
-    @Setter
-    private String currentUserId;
     @Setter
     private SimpleCallback<ChatMessage> onNewChatMessage;
     @Setter
@@ -144,6 +144,14 @@ class FirebaseChatService extends FirebaseServiceBase implements ChatService {
     private void sendAsync(final String channelId, String content, String type, final Callback<ChatMessage> callback) {
         final ChatMessage chatMessage = new ChatMessage();
 
+        if (!App.getInstance().getBottleContext().isLogged()) {
+            callback.onError(new Exception("Unauthenticated"));
+            return;
+        }
+
+        BottleUser bottleUser = App.getInstance().getBottleContext().getCurrentBottleUser();
+        String currentUserId = bottleUser.getUid();
+
         chatMessage.setMessage(content);
         //chatMessage.setTimestamp(DateTimeUtils.utc());
         chatMessage.setSenderId(currentUserId);
@@ -185,6 +193,9 @@ class FirebaseChatService extends FirebaseServiceBase implements ChatService {
     }
 
     private void updateReceivedMessageStateIfNecessary(DatabaseReference databaseReference, ChatMessage chatMessage) {
+        BottleUser bottleUser = App.getInstance().getBottleContext().getCurrentBottleUser();
+        String currentUserId = bottleUser.getUid();
+        
         if (!chatMessage.getSenderId().equalsIgnoreCase(currentUserId))
             databaseReference.child("state").setValue(ChatMessage.STATE_RECEIVED);
     }

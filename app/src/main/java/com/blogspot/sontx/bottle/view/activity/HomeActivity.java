@@ -1,165 +1,104 @@
 package com.blogspot.sontx.bottle.view.activity;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.support.annotation.IdRes;
 import android.support.v4.view.ViewPager;
+import android.view.Window;
+import android.view.WindowManager;
 
 import com.blogspot.sontx.bottle.R;
+import com.blogspot.sontx.bottle.model.bean.RoomMessage;
 import com.blogspot.sontx.bottle.model.bean.chat.Channel;
-import com.blogspot.sontx.bottle.presenter.ChannelPresenterImpl;
 import com.blogspot.sontx.bottle.presenter.HomePresenterImpl;
-import com.blogspot.sontx.bottle.presenter.LoginPresenterImpl;
-import com.blogspot.sontx.bottle.presenter.interfaces.ChannelPresenter;
 import com.blogspot.sontx.bottle.presenter.interfaces.HomePresenter;
-import com.blogspot.sontx.bottle.presenter.interfaces.LoginPresenter;
-import com.blogspot.sontx.bottle.view.activity.helper.NavigationTabBarHelper;
-import com.blogspot.sontx.bottle.view.fragment.ChannelFragment;
-import com.blogspot.sontx.bottle.view.fragment.SettingFragment;
-import com.blogspot.sontx.bottle.view.interfaces.ChannelView;
+import com.blogspot.sontx.bottle.view.adapter.HomeFragmentPagerAdapter;
+import com.blogspot.sontx.bottle.view.fragment.ListChannelFragment;
+import com.blogspot.sontx.bottle.view.fragment.ListRoomMessageFragment;
 import com.blogspot.sontx.bottle.view.interfaces.HomeView;
-import com.blogspot.sontx.bottle.view.interfaces.LoginView;
-
-import java.util.List;
+import com.roughike.bottombar.BottomBar;
+import com.roughike.bottombar.OnTabSelectListener;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class HomeActivity extends ActivityBase
-        implements SettingFragment.OnSettingFragmentInteractionListener, NavigationTabBarHelper.OnViewPagerTabSelectedListener,
-        ChannelFragment.OnChannelInteractionListener, LoginView, ChannelView, HomeView {
+        implements ListRoomMessageFragment.OnListRoomMessageInteractionListener,
+        ListChannelFragment.OnChannelInteractionListener, HomeView, OnTabSelectListener {
 
-    private final NavigationTabBarHelper navigationTabBarHelper = new NavigationTabBarHelper(this);
     @BindView(R.id.vp_horizontal_ntb)
     ViewPager viewPager;
-    private LoginPresenter loginPresenter;
-    private ChannelPresenter channelPresenter;
+    @BindView(R.id.bottom_bar)
+    BottomBar bottomBar;
+
     private HomePresenter homePresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_home);
         ButterKnife.bind(this);
 
+        viewPager.setAdapter(new HomeFragmentPagerAdapter(getSupportFragmentManager()));
+
+        bottomBar.setOnTabSelectListener(this);
+
         homePresenter = new HomePresenterImpl(this);
-        loginPresenter = new LoginPresenterImpl(this);
-
-        navigationTabBarHelper.initializeButtons();
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        homePresenter.onStart();
-        loginPresenter.onStart();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        homePresenter.onResume();
-        loginPresenter.onResume();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        homePresenter.onStop();
-        loginPresenter.onStop();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        homePresenter.onDestroy();
-    }
-
-    @Override
-    public void updateUI(String userId) {
-        if (userId == null) {
-            startActivity(new Intent(this, LoginActivity.class));
-            finish();
-        } else if (channelPresenter == null || !channelPresenter.getCurrentUserId().equalsIgnoreCase(userId)) {
-            navigationTabBarHelper.initializeViewPager(userId, viewPager);
-            navigationTabBarHelper.setOnViewPagerTabSelectedListener(this);
-
-            homePresenter.switchCurrentUserId(userId);
-            channelPresenter = new ChannelPresenterImpl(this, userId);
-
-            channelPresenter.updateChannelsIfNecessary();
-        }
-    }
-
-    @Override
-    public void clearChannels() {
-        final Fragment fragment = navigationTabBarHelper.getFragment(0);
-        if (fragment instanceof ChannelFragment) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    ((ChannelFragment) fragment).clearChannels();
-                }
-            });
-        }
-    }
-
-    @Override
-    public void showChannel(final Channel channel) {
-        final Fragment fragment = navigationTabBarHelper.getFragment(0);
-        if (fragment instanceof ChannelFragment) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    ((ChannelFragment) fragment).showChannel(channel);
-                }
-            });
-        }
-    }
-
-    @Override
-    public void showChannels(final List<Channel> channels) {
-        final Fragment fragment = navigationTabBarHelper.getFragment(0);
-        if (fragment instanceof ChannelFragment) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    ((ChannelFragment) fragment).showChannels(channels);
-                }
-            });
-        } else {
-            ChannelFragment.setTempList(channels);
-        }
-    }
-
-    @Override
-    public void logoutClick() {
-        loginPresenter.logout();
-        startActivity(new Intent(this, LoginActivity.class));
-    }
-
-    @Override
-    public void chatClick(String anotherGuyId) {
-        if (channelPresenter != null)
-            channelPresenter.createChannelAsync(anotherGuyId);
-    }
-
-    @Override
-    public void onChannelInteraction(Channel channel) {
+    public void onListChannelInteraction(Channel channel) {
         homePresenter.startChat(channel);
     }
 
     @Override
-    public void startChat(Channel channel, String currentUserId) {
+    public void onListRoomMessageInteraction(RoomMessage item) {
+
+    }
+
+    @Override
+    public void onJumpToAnotherRoomInteraction() {
+
+    }
+
+    @Override
+    public void onNewRoomMessageInteraction() {
+
+    }
+
+    @Override
+    public void startChat(Channel channel) {
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra(ChatActivity.CHANNEL_KEY, channel);
-        intent.putExtra(ChatActivity.CURRENT_USER_ID_KEY, currentUserId);
         startActivity(intent);
     }
 
     @Override
-    public void onViewPagerTabSelected(Fragment fragment) {
-        //if (fragment instanceof ChannelFragment && channelPresenter != null)
-        //channelPresenter.updateChannelsIfNecessary();
+    public void onTabSelected(@IdRes int tabId) {
+
+        if (tabId == R.id.tab_chat) {
+            changeStatusBarColor(R.color.tab_chat_color);
+            viewPager.setCurrentItem(0);
+        } else if (tabId == R.id.tab_room) {
+            changeStatusBarColor(R.color.tab_room_color);
+            viewPager.setCurrentItem(1);
+        } else if (tabId == R.id.tab_map) {
+            changeStatusBarColor(R.color.tab_map_color);
+            viewPager.setCurrentItem(2);
+        } else if (tabId == R.id.tab_setting) {
+            changeStatusBarColor(R.color.tab_setting_color);
+            viewPager.setCurrentItem(2);
+        }
+    }
+
+    private void changeStatusBarColor(int colorId) {
+        Window window = getWindow();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(getResources().getColor(colorId));
+        }
     }
 }

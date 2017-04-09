@@ -2,9 +2,9 @@ package com.blogspot.sontx.bottle.model.service;
 
 import android.util.Log;
 
+import com.blogspot.sontx.bottle.App;
 import com.blogspot.sontx.bottle.model.bean.BottleUser;
 import com.blogspot.sontx.bottle.model.bean.Category;
-import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerAuthService;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerCategoryService;
 import com.blogspot.sontx.bottle.model.service.rest.ApiCategory;
 import com.blogspot.sontx.bottle.model.service.rest.ApiClient;
@@ -16,19 +16,14 @@ import retrofit2.Response;
 
 class BottleServerCategoryServiceImpl extends BottleServerServiceBase implements BottleServerCategoryService {
 
-    private final BottleServerAuthService bottleServerAuthService;
-
-    BottleServerCategoryServiceImpl(BottleServerAuthService bottleServerAuthService) {
-        this.bottleServerAuthService = bottleServerAuthService;
-    }
-
     @Override
     public void getCategoriesAsync(final Callback<List<Category>> callback) {
-        BottleUser bottleUser = bottleServerAuthService.getCurrentBottleUser();
-        if (bottleUser == null || bottleUser.getToken() == null) {
+        if (!App.getInstance().getBottleContext().isLogged()) {
             callback.onError(new Exception("Unauthenticated"));
             return;
         }
+
+        BottleUser bottleUser = App.getInstance().getBottleContext().getCurrentBottleUser();
 
         ApiCategory apiCategory = ApiClient.getClient(bottleUser.getToken()).create(ApiCategory.class);
 

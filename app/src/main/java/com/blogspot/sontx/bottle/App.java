@@ -5,8 +5,25 @@ import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
 
 import com.blogspot.sontx.bottle.model.service.FirebaseServicePool;
+import com.blogspot.sontx.bottle.system.BottleContext;
+import com.blogspot.sontx.bottle.system.BottleContextWrapper;
+
+import lombok.Getter;
 
 public class App extends MultiDexApplication {
+    @Getter
+    private static App instance;
+
+    @Getter
+    private BottleContextWrapper bottleContextWrapper = new BottleContextWrapper();
+
+    public App() {
+        instance = this;
+    }
+
+    public BottleContext getBottleContext() {
+        return bottleContextWrapper.getBottleContext();
+    }
 
     @Override
     protected void attachBaseContext(Context base) {

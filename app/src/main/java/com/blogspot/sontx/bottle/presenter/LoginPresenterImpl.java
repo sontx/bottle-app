@@ -1,34 +1,32 @@
 package com.blogspot.sontx.bottle.presenter;
 
+import android.util.Log;
+
+import com.blogspot.sontx.bottle.App;
 import com.blogspot.sontx.bottle.R;
-import com.blogspot.sontx.bottle.model.bean.BottleUser;
 import com.blogspot.sontx.bottle.model.bean.LoginData;
 import com.blogspot.sontx.bottle.model.bean.PublicProfile;
 import com.blogspot.sontx.bottle.model.service.Callback;
 import com.blogspot.sontx.bottle.model.service.FirebaseServicePool;
 import com.blogspot.sontx.bottle.model.service.SimpleCallback;
-import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerAuthService;
-import com.blogspot.sontx.bottle.model.service.interfaces.LoginService;
+import com.blogspot.sontx.bottle.model.service.interfaces.ChatServerLoginService;
 import com.blogspot.sontx.bottle.model.service.interfaces.PrivateProfileService;
 import com.blogspot.sontx.bottle.model.service.interfaces.PublicProfileService;
 import com.blogspot.sontx.bottle.presenter.interfaces.LoginPresenter;
 import com.blogspot.sontx.bottle.system.provider.Auth2Provider;
-import com.blogspot.sontx.bottle.system.provider.Auth2ProviderBase;
 import com.blogspot.sontx.bottle.view.interfaces.LoginView;
 
 public class LoginPresenterImpl extends PresenterBase implements LoginPresenter {
     private final LoginView loginView;
     private final PublicProfileService publicProfileService;
     private final PrivateProfileService privateProfileService;
-    private final LoginService loginService;
-    private final BottleServerAuthService bottleServerAuthService;
+    private final ChatServerLoginService chatServerLoginService;
 
     public LoginPresenterImpl(@lombok.NonNull LoginView loginView) {
         this.loginView = loginView;
         publicProfileService = FirebaseServicePool.getInstance().getPublicProfileService();
         privateProfileService = FirebaseServicePool.getInstance().getPrivateProfileService();
-        loginService = FirebaseServicePool.getInstance().getLoginService();
-        bottleServerAuthService = FirebaseServicePool.getInstance().getBottleServerAuthService();
+        chatServerLoginService = FirebaseServicePool.getInstance().getChatServerLoginService();
     }
 
     @Override
@@ -37,16 +35,13 @@ public class LoginPresenterImpl extends PresenterBase implements LoginPresenter 
             if (loginData.getState() == LoginData.STATE_ERROR)
                 loginView.showErrorMessage(loginView.getContext().getString(R.string.facebook_login_error));
         } else {
-            loginView.showProcess();
-            loginService.facebookLoginAsync(loginData, new SimpleCallback<String>() {
+            chatServerLoginService.facebookLoginAsync(loginData, new SimpleCallback<String>() {
                 @Override
                 public void onCallback(String value) {
-                    loginView.hideProcess();
                     if (value == null) {
                         loginView.showErrorMessage("Authentication failed.");
-                        loginView.updateUI(null);
+                        loginView.onLoginStateChanged(false);
                     } else {
-                        verifyWithBottleServerAsync();
                         updatePublicProfileIfEmptyAsync();
                     }
                 }
@@ -56,51 +51,25 @@ public class LoginPresenterImpl extends PresenterBase implements LoginPresenter 
 
     @Override
     public void logout() {
-        loginView.showProcess();
-
-        Auth2Provider currentProvider = Auth2ProviderBase.getCurrentProvider();
+        Auth2Provider currentProvider = App.getInstance().getBottleContext().getCurrentAuth2Provider();
         if (currentProvider != null)
             currentProvider.logout();
 
-        loginService.signOut(new SimpleCallback<String>() {
+        chatServerLoginService.signOut(new SimpleCallback<String>() {
             @Override
             public void onCallback(String value) {
-                loginView.hideProcess();
-                loginView.updateUI(null);
+                Log.d(TAG, "logout");
             }
         });
     }
 
     @Override
-    public void onResume() {
-        checkLoginState();
-    }
-
-    private void verifyWithBottleServerAsync() {
-        loginService.getCurrentUserTokenAsync(new SimpleCallback<String>() {
-            @Override
-            public void onCallback(String value) {
-                if (value != null) {
-                    bottleServerAuthService.loginWithTokenAsync(value, new Callback<BottleUser>() {
-                        @Override
-                        public void onSuccess(BottleUser result) {
-                            if (result != null)
-                                loginView.updateUI(result.getUid());
-                            else
-                                loginView.updateUI(null);
-                        }
-
-                        @Override
-                        public void onError(Throwable what) {
-                            loginView.showErrorMessage(what.getMessage());
-                            loginView.updateUI(null);
-                        }
-                    });
-                } else {
-                    loginView.updateUI(null);
-                }
-            }
-        });
+    public void checkLoginWithChatServer() {
+        if (chatServerLoginService.isLoggedIn()) {
+            updatePublicProfileIfEmptyAsync();
+        } else {
+            loginView.onLoginStateChanged(false);
+        }
     }
 
     private void updatePublicProfileIfEmptyAsync() {
@@ -108,22 +77,14 @@ public class LoginPresenterImpl extends PresenterBase implements LoginPresenter 
         publicProfileService.updatePublicProfileIfEmptyAsync(defaultPublicProfile, new Callback<PublicProfile>() {
             @Override
             public void onSuccess(PublicProfile result) {
+                loginView.onLoginStateChanged(true);
             }
 
             @Override
             public void onError(Throwable what) {
                 loginView.showErrorMessage(what.getMessage());
+                loginView.onLoginStateChanged(false);
             }
         });
-    }
-
-    private void checkLoginState() {
-        String currentUserId = loginService.getCurrentUserId();
-        if (currentUserId != null) {
-            verifyWithBottleServerAsync();
-            updatePublicProfileIfEmptyAsync();
-        } else {
-            loginView.updateUI(null);
-        }
     }
 }

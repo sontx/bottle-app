@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<tabs>
+    <tab
+        icon="@drawable/ic_open_in_new"
+        id="@+id/tab_jump"
+        title="Jump" />
+    <tab
+        icon="@drawable/ic_add_circle"
+        id="@+id/tab_new"
+        title="New" />
+</tabs>

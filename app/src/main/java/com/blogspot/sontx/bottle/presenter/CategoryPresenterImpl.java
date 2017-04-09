@@ -19,11 +19,7 @@ public class CategoryPresenterImpl extends PresenterBase implements CategoryPres
     }
 
     @Override
-    public void onCreate() {
-        getCategoriesAsync();
-    }
-
-    private void getCategoriesAsync() {
+    public void getCategoriesAsync() {
         bottleServerCategoryService.getCategoriesAsync(new Callback<List<Category>>() {
             @Override
             public void onSuccess(List<Category> result) {

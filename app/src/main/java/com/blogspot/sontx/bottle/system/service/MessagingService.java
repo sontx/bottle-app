@@ -90,7 +90,7 @@ public class MessagingService extends ServiceBase {
 
     @Subscribe
     public void onChangeCurrentUserEvent(ChangeCurrentUserEvent changeCurrentUserEvent) {
-        chatService.setCurrentUserId(changeCurrentUserEvent.getNewCurrentUserId());
+
     }
 
     @Subscribe(threadMode = ThreadMode.BACKGROUND)

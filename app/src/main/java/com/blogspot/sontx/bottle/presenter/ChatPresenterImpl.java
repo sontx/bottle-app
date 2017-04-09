@@ -48,30 +48,22 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
     }
 
     @Override
-    public void onStart() {
+    public void registerListeners() {
         registerEventBusIfNecessary();
-
         if (MessagingService.isRunning())
             registerToService();
+    }
 
+    @Override
+    public void fetchChatMessages() {
         if (!isFirstLoadChatMessagesHistory) {
             isFirstLoadChatMessagesHistory = true;
             requestChatMessagesHistory(MAX_INITIAL_MESSAGES);
         }
     }
 
-    private void requestChatMessagesHistory(int count) {
-        long startAt = oldestMessageTimestamp <= 0 ? DateTimeUtils.utc() : oldestMessageTimestamp - 1;
-
-        RequestChatMessagesEvent requestChatMessagesEvent = new RequestChatMessagesEvent();
-        requestChatMessagesEvent.setChannelId(channel.getId());
-        requestChatMessagesEvent.setLimit(count);
-        requestChatMessagesEvent.setStartAtTimestamp(startAt);
-        EventBus.getDefault().post(requestChatMessagesEvent);
-    }
-
     @Override
-    public void onStop() {
+    public void unregisterListeners() {
         EventBus.getDefault().unregister(this);
         unregisterToService();
     }
@@ -189,6 +181,16 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
         updateChatMessageStateEvent.setChatMessageList(chatMessageList);
         updateChatMessageStateEvent.setNewState(ChatMessage.STATE_SEEN);
         EventBus.getDefault().post(updateChatMessageStateEvent);
+    }
+
+    private void requestChatMessagesHistory(int count) {
+        long startAt = oldestMessageTimestamp <= 0 ? DateTimeUtils.utc() : oldestMessageTimestamp - 1;
+
+        RequestChatMessagesEvent requestChatMessagesEvent = new RequestChatMessagesEvent();
+        requestChatMessagesEvent.setChannelId(channel.getId());
+        requestChatMessagesEvent.setLimit(count);
+        requestChatMessagesEvent.setStartAtTimestamp(startAt);
+        EventBus.getDefault().post(requestChatMessagesEvent);
     }
 
     private void registerEventBusIfNecessary() {

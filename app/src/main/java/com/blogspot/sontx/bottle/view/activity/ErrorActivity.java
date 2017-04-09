@@ -48,7 +48,6 @@ public class ErrorActivity extends ActivityBase implements LoginView {
     }
 
     @Override
-    public void updateUI(String userIdo) {
-
+    public void onLoginStateChanged(boolean logged) {
     }
 }

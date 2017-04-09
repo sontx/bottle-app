@@ -3,8 +3,8 @@ package com.blogspot.sontx.bottle.model.service;
 import android.content.Context;
 
 import com.blogspot.sontx.bottle.model.service.interfaces.ChannelService;
+import com.blogspot.sontx.bottle.model.service.interfaces.ChatServerLoginService;
 import com.blogspot.sontx.bottle.model.service.interfaces.ChatService;
-import com.blogspot.sontx.bottle.model.service.interfaces.LoginService;
 import com.blogspot.sontx.bottle.model.service.interfaces.PrivateProfileService;
 import com.blogspot.sontx.bottle.model.service.interfaces.PublicProfileService;
 import com.google.firebase.database.FirebaseDatabase;
@@ -14,7 +14,7 @@ import lombok.Getter;
 public final class FirebaseServicePool extends ServicePoolBase {
     private static ServicePool instance = null;
     @Getter
-    private LoginService loginService;
+    private ChatServerLoginService chatServerLoginService;
     @Getter
     private ChannelService channelService;
     @Getter
@@ -39,7 +39,7 @@ public final class FirebaseServicePool extends ServicePoolBase {
 
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 
-        loginService = new FirebaseLoginService(context);
+        chatServerLoginService = new FirebaseChatServerLoginService(context);
         privateProfileService = new FirebasePrivateProfileService(context);
         publicProfileService = new FirebasePublicProfileService(context);
         chatService = new FirebaseChatService(context);

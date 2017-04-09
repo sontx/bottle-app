@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<tabs>
+    <tab
+        barColorWhenSelected="@color/tab_chat_color"
+        icon="@drawable/ic_chat"
+        id="@+id/tab_chat"
+        title="Chat" />
+    <tab
+        barColorWhenSelected="@color/tab_room_color"
+        icon="@drawable/ic_people"
+        id="@+id/tab_room"
+        title="Room" />
+    <tab
+        barColorWhenSelected="@color/tab_map_color"
+        icon="@drawable/ic_room"
+        id="@+id/tab_map"
+        title="Map" />
+    <tab
+        barColorWhenSelected="@color/tab_setting_color"
+        icon="@drawable/ic_settings"
+        id="@+id/tab_setting"
+        title="Setting" />
+</tabs>

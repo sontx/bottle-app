@@ -11,28 +11,23 @@ import android.view.ViewGroup;
 
 import com.blogspot.sontx.bottle.R;
 import com.blogspot.sontx.bottle.model.bean.Category;
+import com.blogspot.sontx.bottle.presenter.CategoryPresenterImpl;
+import com.blogspot.sontx.bottle.presenter.interfaces.CategoryPresenter;
 import com.blogspot.sontx.bottle.view.adapter.CategoryRecyclerViewAdapter;
+import com.blogspot.sontx.bottle.view.interfaces.ListCategoryView;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import lombok.Setter;
-
-public class ListCategoryFragment extends FragmentBase {
+public class ListCategoryFragment extends FragmentBase implements ListCategoryView {
 
     private static final String ARG_COLUMN_COUNT = "column-count";
-    @Setter
-    private static List<Category> tempList;
     private int mColumnCount = 1;
+    private OnListCategoryInteractionListener listener;
     private CategoryRecyclerViewAdapter categoryRecyclerViewAdapter;
+    private CategoryPresenter categoryPresenter;
 
     public ListCategoryFragment() {
-        if (tempList != null) {
-            categoryRecyclerViewAdapter = new CategoryRecyclerViewAdapter(tempList);
-            tempList = null;
-        } else {
-            categoryRecyclerViewAdapter = new CategoryRecyclerViewAdapter(new ArrayList<Category>());
-        }
     }
 
     public static ListCategoryFragment newInstance(int columnCount) {
@@ -50,6 +45,11 @@ public class ListCategoryFragment extends FragmentBase {
         if (getArguments() != null) {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
         }
+
+        categoryRecyclerViewAdapter = new CategoryRecyclerViewAdapter(new ArrayList<Category>(), listener);
+
+        categoryPresenter = new CategoryPresenterImpl(this);
+        categoryPresenter.getCategoriesAsync();
     }
 
     @Override
@@ -76,8 +76,7 @@ public class ListCategoryFragment extends FragmentBase {
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof OnListCategoryInteractionListener) {
-            OnListCategoryInteractionListener listener = (OnListCategoryInteractionListener) context;
-            categoryRecyclerViewAdapter.setListener(listener);
+            listener = (OnListCategoryInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString() + " must implement OnListCategoryInteractionListener");
         }
@@ -86,16 +85,10 @@ public class ListCategoryFragment extends FragmentBase {
     @Override
     public void onDetach() {
         super.onDetach();
-        categoryRecyclerViewAdapter.setListener(null);
+        listener = null;
     }
 
-    public void clearCategories() {
-        if (categoryRecyclerViewAdapter != null) {
-            categoryRecyclerViewAdapter.getValues().clear();
-            categoryRecyclerViewAdapter.notifyDataSetChanged();
-        }
-    }
-
+    @Override
     public void showCategories(List<Category> categories) {
         if (categoryRecyclerViewAdapter != null) {
             categoryRecyclerViewAdapter.getValues().addAll(categories);

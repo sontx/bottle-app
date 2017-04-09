@@ -1,7 +1,9 @@
 package com.blogspot.sontx.bottle.presenter.interfaces;
 
-public interface LoadingPresenter extends ViewLifecyclePresenter {
-    void loadIfNecessaryAsync();
+public interface LoadingPresenter {
+    void registerListener();
 
-    void setCurrentUserId(String currentUserId);
+    void unregisterListener();
+
+    void loadIfNecessaryAsync();
 }
