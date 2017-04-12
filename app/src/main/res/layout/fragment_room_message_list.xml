@@ -6,24 +6,24 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background_primary1"
-    android:paddingLeft="@dimen/item_margin"
-    android:paddingRight="@dimen/item_margin"
     tools:context="com.blogspot.sontx.bottle.view.fragment.ListRoomMessageFragment">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:paddingLeft="@dimen/item_margin"
+        android:paddingRight="@dimen/item_margin"
         app:layoutManager="LinearLayoutManager"
         tools:listitem="@layout/fragment_room_message" />
 
     <com.roughike.bottombar.BottomBar
         android:id="@+id/bottom_bar"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="45dp"
         android:layout_gravity="bottom"
         app:bb_activeTabColor="@color/primary_dark"
-        app:bb_behavior="shy"
-        app:bb_inActiveTabColor="@color/background_gray"
+        app:bb_behavior="shy|iconsOnly"
+        app:bb_inActiveTabColor="@color/primary_dark"
         app:bb_tabXmlResource="@xml/room_bottombar_tabs" />
 </android.support.design.widget.CoordinatorLayout>
