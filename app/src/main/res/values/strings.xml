@@ -25,4 +25,11 @@
     <string name="something_wrong_message">Something wrong!</string>
     <string name="try_again">Try again</string>
     <string name="login_with_another">Another Account?</string>
+    <string name="take_a_photo">Photo</string>
+    <string name="record_a_video">Video</string>
+    <string name="recording_your_voice">Recording</string>
+    <string name="draw_a_image">Drawing</string>
+    <string name="paste_a_link">Link</string>
+    <string name="input_type_typing">Typing</string>
+    <string name="input_type_emoji">Emoji</string>
 </resources>

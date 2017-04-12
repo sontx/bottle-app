@@ -44,10 +44,10 @@ public abstract class PreviewFragmentBase extends FragmentBase {
     @OnClick(R.id.remove_button)
     void onRemoveExtraClick() {
         if (listener != null)
-            listener.onRemoveExtra();
+            listener.onRemovePreview();
     }
 
     public interface OnRemoveExtraListener {
-        void onRemoveExtra();
+        void onRemovePreview();
     }
 }

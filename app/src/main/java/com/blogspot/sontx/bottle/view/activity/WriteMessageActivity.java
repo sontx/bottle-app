@@ -11,7 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ImageButton;
+import android.widget.ImageView;
 
 import com.blogspot.sontx.bottle.Constants;
 import com.blogspot.sontx.bottle.R;
@@ -20,12 +20,10 @@ import com.blogspot.sontx.bottle.presenter.interfaces.WriteMessagePresenter;
 import com.blogspot.sontx.bottle.utils.DelayJobUtils;
 import com.blogspot.sontx.bottle.view.custom.OnBackPressedListener;
 import com.blogspot.sontx.bottle.view.custom.RichEmojiEditText;
-import com.blogspot.sontx.bottle.view.custom.RichFloatingActionButton;
 import com.blogspot.sontx.bottle.view.fragment.PhotoPreviewFragment;
 import com.blogspot.sontx.bottle.view.fragment.PreviewFragmentBase;
 import com.blogspot.sontx.bottle.view.fragment.VideoPreviewFragment;
 import com.blogspot.sontx.bottle.view.interfaces.WriteMessageView;
-import com.gordonwong.materialsheetfab.MaterialSheetFab;
 import com.mvc.imagepicker.ImagePicker;
 import com.vanniktech.emoji.EmojiManager;
 import com.vanniktech.emoji.EmojiPopup;
@@ -35,31 +33,27 @@ import net.alhazmy13.mediapicker.Video.VideoPicker;
 
 import java.util.List;
 
-import butterknife.BindColor;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnTouch;
 
 public class WriteMessageActivity extends ActivityBase implements OnBackPressedListener, WriteMessageView, PreviewFragmentBase.OnRemoveExtraListener {
-    @BindView(R.id.input_type_button)
-    ImageButton inputTypeButton;
+    @BindView(R.id.type_view)
+    ImageView typeView;
     @BindView(R.id.message_text)
     RichEmojiEditText messageText;
-    @BindView(R.id.root_view)
-    ViewGroup rootView;
-    @BindView(R.id.extra_layout)
-    ViewGroup rootExtraView;
-    @BindColor(R.color.background_card)
-    int cardColor;
-    @BindColor(R.color.accent)
-    int accentColor;
-
+    @BindView(R.id.preview_container)
+    ViewGroup previewContainerView;
+    @BindView(R.id.input_type_layout)
+    ViewGroup fullInputTypeLayout;
+    @BindView(R.id.input_type_layout1)
+    ViewGroup miniInputTypeLayout;
     private InputType inputType;
     private EmojiPopup emojiPopup;
-    private MaterialSheetFab materialSheetFab;
     private WriteMessagePresenter writeMessagePresenter;
     private boolean firstTime = true;
+    private boolean minimized = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,9 +64,9 @@ public class WriteMessageActivity extends ActivityBase implements OnBackPressedL
         setContentView(R.layout.activity_write_message);
         ButterKnife.bind(this);
 
-        setupToolbar();
+        writeMessagePresenter = new WriteMessagePresenterImpl(this);
 
-        setupFloatingActionButton();
+        setupToolbar();
 
         setupEmoji();
 
@@ -83,18 +77,11 @@ public class WriteMessageActivity extends ActivityBase implements OnBackPressedL
                 Integer.parseInt(System.getProperty(Constants.OPTIMIZE_IMAGE_MIN_HEIGHT_KEY)));
 
         registerEvents();
-
-        writeMessagePresenter = new WriteMessagePresenterImpl(this);
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         //No call for super(). Bug on API Level > 11.
-    }
-
-    private void setupToolbar() {
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
     }
 
     @Override
@@ -105,13 +92,10 @@ public class WriteMessageActivity extends ActivityBase implements OnBackPressedL
 
     @Override
     public void onBackPressed() {
-        if (materialSheetFab.isSheetVisible()) {
-            materialSheetFab.hideSheet();
-        } else if (emojiPopup.isShowing()) {
+        if (emojiPopup.isShowing())
             emojiPopup.dismiss();
-        } else {
+        else
             super.onBackPressed();
-        }
     }
 
     @Override
@@ -143,26 +127,24 @@ public class WriteMessageActivity extends ActivityBase implements OnBackPressedL
         Bitmap bitmap = ImagePicker.getImageFromResult(this, requestCode, resultCode, data);
         if (bitmap != null) {
             writeMessagePresenter.setExtraAsPhoto(bitmap);
-            displayImagePreview(bitmap);
+            displayPhotoPreview(bitmap);
         } else if (requestCode == VideoPicker.VIDEO_PICKER_REQUEST_CODE && resultCode == RESULT_OK) {
             List<String> paths = (List<String>) data.getSerializableExtra(VideoPicker.EXTRA_VIDEO_PATH);
             String videoPath = paths.get(0);
             writeMessagePresenter.setExtraAsVideo(videoPath);
             displayVideoPreview(videoPath);
-        }else {
+        } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
     }
 
-    @OnClick(R.id.fab_sheet_item_photo)
+    @OnClick(R.id.photo_button)
     void onPhotoClick() {
-        materialSheetFab.hideSheet();
         ImagePicker.pickImage(this, getResources().getString(R.string.photo_picker_title));
     }
 
-    @OnClick(R.id.fab_sheet_item_video)
+    @OnClick(R.id.video_button)
     void onVideoClick() {
-        materialSheetFab.hideSheet();
         new VideoPicker.Builder(this)
                 .mode(VideoPicker.Mode.CAMERA_AND_GALLERY)
                 .directory(VideoPicker.Directory.DEFAULT)
@@ -171,22 +153,22 @@ public class WriteMessageActivity extends ActivityBase implements OnBackPressedL
                 .build();
     }
 
-    @OnClick(R.id.fab_sheet_item_recording)
+    @OnClick(R.id.recording_button)
     void onRecordingClick() {
 
     }
 
-    @OnClick(R.id.fab_sheet_item_drawing)
+    @OnClick(R.id.drawing_button)
     void onDrawingClick() {
 
     }
 
-    @OnClick(R.id.fab_sheet_item_link)
+    @OnClick(R.id.link_button)
     void onLinkClick() {
 
     }
 
-    @OnClick(R.id.input_type_button)
+    @OnClick(R.id.type_button)
     void onInputTypeClick() {
         if (inputType == InputType.WORD)
             setInputType(InputType.EMOJI);
@@ -201,12 +183,18 @@ public class WriteMessageActivity extends ActivityBase implements OnBackPressedL
     }
 
     @Override
-    public void onRemoveExtra() {
+    public void onRemovePreview() {
         writeMessagePresenter.removeExtra();
-        showExtraLayout(false);
+        showPreviewLayoutIfNecessary(false);
+    }
+
+    private void setupToolbar() {
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
     }
 
     private void setupEmoji() {
+        View rootView = ButterKnife.findById(this, R.id.root_view);
         emojiPopup = EmojiPopup.Builder.fromRootView(rootView).build(messageText);
     }
 
@@ -223,49 +211,56 @@ public class WriteMessageActivity extends ActivityBase implements OnBackPressedL
                 int keypadHeight = screenHeight - rect.bottom;
 
                 if (keypadHeight > screenHeight * 0.15) { // 0.15 ratio is perhaps enough to determine keypad height.
-                    showExtraLayout(false);
+                    showInputTypeAsMinimizeMode(true);
                 } else {
-                    if (writeMessagePresenter.isContainsExtra()) {
-                        DelayJobUtils.delay(new Runnable() {
-                            @Override
-                            public void run() {
-                                showExtraLayout(true);
-                            }
-                        }, 600);
-                    }
+                    showInputTypeAsMinimizeMode(false);
                 }
             }
         });
     }
 
-    private void setupFloatingActionButton() {
-        RichFloatingActionButton floatingActionButton = ButterKnife.findById(this, R.id.fab);
-        View sheetView = ButterKnife.findById(this, R.id.fab_sheet);
-        View overlayView = ButterKnife.findById(this, R.id.overlay);
-        materialSheetFab = new MaterialSheetFab<>(floatingActionButton, sheetView, overlayView, cardColor, accentColor);
-    }
-
     private void setInputType(InputType inputType) {
         this.inputType = inputType;
+
         if (inputType == InputType.WORD) {
-            inputTypeButton.setImageResource(R.drawable.ic_pets_black_24dp);
+            typeView.setImageResource(R.drawable.ic_pets_black_24dp);
             emojiPopup.dismiss();
             showSoftKeyboard();
         } else if (inputType == InputType.EMOJI) {
-            inputTypeButton.setImageResource(R.drawable.ic_keyboard_black_24dp);
+            typeView.setImageResource(R.drawable.ic_keyboard_black_24dp);
             showSoftKeyboard();
             emojiPopup.toggle();
         }
     }
 
-    private void showExtraLayout(boolean show) {
-        rootExtraView.setVisibility(show ? View.VISIBLE : View.GONE);
+    private void showInputTypeAsMinimizeMode(boolean minimized) {
+        if (this.minimized == minimized)
+            return;
+
+        this.minimized = minimized;
+
+        if (minimized) {
+            fullInputTypeLayout.setVisibility(View.GONE);
+            miniInputTypeLayout.setVisibility(View.VISIBLE);
+            showPreviewLayoutIfNecessary(false);
+        } else {
+            miniInputTypeLayout.setVisibility(View.GONE);
+            fullInputTypeLayout.setVisibility(View.VISIBLE);
+            showPreviewLayoutIfNecessary(true);
+        }
+    }
+
+    private void showPreviewLayoutIfNecessary(boolean show) {
+        if (writeMessagePresenter.isContainsExtra())
+            previewContainerView.setVisibility(show ? View.VISIBLE : View.GONE);
+        else
+            previewContainerView.setVisibility(View.GONE);
     }
 
     private void displayVideoPreview(final String videoPath) {
-        showExtraLayout(true);
+        showPreviewLayoutIfNecessary(true);
         VideoPreviewFragment videoPreviewFragment = VideoPreviewFragment.newInstance();
-        replaceFragment(R.id.extra_layout, videoPreviewFragment);
+        replaceFragment(R.id.preview_container, videoPreviewFragment);
         videoPreviewFragment.setVideoPath(videoPath);
         if (firstTime) {
             firstTime = false;
@@ -278,28 +273,27 @@ public class WriteMessageActivity extends ActivityBase implements OnBackPressedL
         }
     }
 
-    private void displayImagePreview(final Bitmap bitmap) {
-        showExtraLayout(true);
+    private void displayPhotoPreview(final Bitmap bitmap) {
+        showPreviewLayoutIfNecessary(true);
         PhotoPreviewFragment photoPreviewFragment = PhotoPreviewFragment.newInstance();
-        replaceFragment(R.id.extra_layout, photoPreviewFragment);
+        replaceFragment(R.id.preview_container, photoPreviewFragment);
         photoPreviewFragment.setBitmap(bitmap);
         if (firstTime) {
             firstTime = false;
             DelayJobUtils.delay(new Runnable() {
                 @Override
                 public void run() {
-                    displayImagePreview(bitmap);
+                    displayPhotoPreview(bitmap);
                 }
             }, 600);
         }
     }
 
-
-
     private void showSoftKeyboard() {
         InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
         inputMethodManager.showSoftInput(messageText, InputMethodManager.SHOW_IMPLICIT);
     }
+
     private enum InputType {
         WORD,
         EMOJI

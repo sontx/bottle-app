@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/root_view"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:background="@color/background_primary"
+    android:orientation="vertical"
     tools:context="com.blogspot.sontx.bottle.view.activity.WriteMessageActivity">
 
     <android.support.design.widget.AppBarLayout
@@ -19,19 +20,21 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
+            android:elevation="1dp"
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
     </android.support.design.widget.AppBarLayout>
 
     <RelativeLayout
+        android:id="@+id/root_content"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/root_toolbar">
+        android:layout_height="match_parent">
 
         <ScrollView
+            android:id="@+id/root_text"
+            android:layout_above="@+id/root_input"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@+id/extra_layout"
             android:layout_alignParentTop="true"
             android:fillViewport="true">
 
@@ -55,125 +58,284 @@
             </LinearLayout>
         </ScrollView>
 
-        <com.blogspot.sontx.bottle.view.custom.FrameLayout169
-            android:id="@+id/extra_layout"
-            android:layout_margin="@dimen/preview_margin"
-            android:padding="@dimen/preview_padding"
-            android:background="@drawable/around_background"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_above="@+id/input_type_layout"
-            android:visibility="gone" />
-
-        <RelativeLayout
-            android:id="@+id/input_type_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true">
-
-            <View
-                android:layout_width="fill_parent"
-                android:layout_height="0.5dp"
-                android:background="@color/divider" />
-
-            <ImageButton
-                android:id="@+id/input_type_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/small_toolbar_margin"
-                android:background="@android:color/transparent"
-                android:src="@drawable/ic_pets_black_24dp" />
-
-            <CheckBox
-                android:id="@+id/facebook_check"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_toEndOf="@+id/input_type_button"
-                android:layout_toRightOf="@+id/input_type_button"
-                android:text="@string/facebook" />
-        </RelativeLayout>
-
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:id="@+id/root_input"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true">
-
-            <com.blogspot.sontx.bottle.view.custom.RichFloatingActionButton
-                android:id="@+id/fab"
-                style="@style/Widget.MaterialSheetFab.Fab" />
-        </LinearLayout>
-
-        <!-- Overlay that dims the screen -->
-        <com.gordonwong.materialsheetfab.DimOverlayFrameLayout
-            android:id="@+id/overlay"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
-        <!-- Circular reveal container for the sheet -->
-        <io.codetail.widget.RevealLinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_alignParentBottom="true"
-            android:gravity="end|bottom"
             android:orientation="vertical">
 
-            <!-- Sheet that contains your items -->
-            <android.support.v7.widget.CardView
-                android:id="@+id/fab_sheet"
-                style="@style/Widget.MaterialSheetFab.Sheet">
+            <com.blogspot.sontx.bottle.view.custom.FrameLayout169
+                android:id="@+id/preview_container"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:visibility="visible" />
 
-                <!-- Sheet items -->
+            <LinearLayout
+                android:id="@+id/input_type_layout1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <View
+                    android:layout_width="fill_parent"
+                    android:layout_height="0.5dp"
+                    android:background="@color/divider" />
+
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:orientation="horizontal"
+                    android:paddingBottom="@dimen/small_toolbar_vertical_margin"
+                    android:paddingLeft="@dimen/small_toolbar_horizontal_margin"
+                    android:paddingRight="@dimen/small_toolbar_horizontal_margin"
+                    android:paddingTop="@dimen/small_toolbar_vertical_margin">
 
-                    <!-- Photo -->
+                    <ImageView
+                        android:id="@+id/type_button1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="@dimen/small_toolbar_horizontal_margin"
+                        android:src="@drawable/ic_pets_black_24dp"
+                        android:tint="@color/primary" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="right"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="@dimen/small_toolbar_horizontal_margin"
+
+                            android:tint="@color/primary"
+                            app:srcCompat="@drawable/ic_photo_black_24dp" />
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="@dimen/small_toolbar_horizontal_margin"
+                            android:tint="@color/primary"
+                            app:srcCompat="@drawable/ic_camera_black_24dp" />
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="@dimen/small_toolbar_horizontal_margin"
+                            android:tint="@color/primary"
+                            app:srcCompat="@drawable/ic_record_voice_over_black_24dp" />
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="@dimen/small_toolbar_horizontal_margin"
+                            android:tint="@color/primary"
+                            app:srcCompat="@drawable/ic_color_lens_black_24dp" />
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:tint="@color/primary"
+                            app:srcCompat="@drawable/ic_link_black_24dp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/input_type_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <View
+                    android:layout_width="fill_parent"
+                    android:layout_height="0.5dp"
+                    android:background="@color/divider" />
+
+                <LinearLayout
+                    android:id="@+id/type_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:orientation="horizontal"
+                    android:paddingBottom="@dimen/small_toolbar_vertical_margin"
+                    android:paddingLeft="@dimen/small_toolbar_horizontal_margin"
+                    android:paddingRight="@dimen/small_toolbar_horizontal_margin"
+                    android:paddingTop="@dimen/small_toolbar_vertical_margin">
+
+                    <ImageView
+                        android:id="@+id/type_view"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_pets_black_24dp"
+                        android:tint="@color/primary" />
+
                     <TextView
-                        android:id="@+id/fab_sheet_item_photo"
-                        style="@style/TextAppearance.MaterialSheetFab.Sheet.Item"
-                        android:drawableLeft="@drawable/ic_photo_black_24dp"
-                        android:drawableStart="@drawable/ic_photo_black_24dp"
-                        android:text="@string/take_photo" />
-
-                    <!-- Video -->
-                    <com.blogspot.sontx.bottle.view.custom.RichTextView
-                        app:tint="@color/secondary_text"
-                        android:id="@+id/fab_sheet_item_video"
-                        style="@style/TextAppearance.MaterialSheetFab.Sheet.Item"
-                        android:drawableLeft="@drawable/ic_camera_black_24dp"
-                        android:text="@string/Video" />
-
-                    <!-- Recording -->
-                    <TextView
-                        android:id="@+id/fab_sheet_item_recording"
-                        style="@style/TextAppearance.MaterialSheetFab.Sheet.Item"
-                        android:drawableLeft="@drawable/ic_record_voice_over_black_24dp"
-                        android:drawableStart="@drawable/ic_record_voice_over_black_24dp"
-                        android:text="@string/recording" />
-
-                    <!-- Drawing -->
-                    <TextView
-                        android:id="@+id/fab_sheet_item_drawing"
-                        style="@style/TextAppearance.MaterialSheetFab.Sheet.Item"
-                        android:drawableLeft="@drawable/ic_color_lens_black_24dp"
-                        android:drawableStart="@drawable/ic_color_lens_black_24dp"
-                        android:text="@string/drawing" />
-
-                    <!-- Link -->
-                    <TextView
-                        android:id="@+id/fab_sheet_item_link"
-                        style="@style/TextAppearance.MaterialSheetFab.Sheet.Item"
-                        android:drawableLeft="@drawable/ic_link_black_24dp"
-                        android:drawableStart="@drawable/ic_link_black_24dp"
-                        android:text="@string/link" />
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginLeft="@dimen/small_toolbar_vertical_margin"
+                        android:text="@string/input_type_emoji" />
                 </LinearLayout>
 
-            </android.support.v7.widget.CardView>
+                <View
+                    android:layout_width="fill_parent"
+                    android:layout_height="0.5dp"
+                    android:background="@color/divider" />
 
-        </io.codetail.widget.RevealLinearLayout>
+                <LinearLayout
+                    android:id="@+id/photo_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:orientation="horizontal"
+                    android:paddingBottom="@dimen/small_toolbar_vertical_margin"
+                    android:paddingLeft="@dimen/small_toolbar_horizontal_margin"
+                    android:paddingRight="@dimen/small_toolbar_horizontal_margin"
+                    android:paddingTop="@dimen/small_toolbar_vertical_margin">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:tint="@color/primary"
+                        app:srcCompat="@drawable/ic_photo_black_24dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginLeft="@dimen/small_toolbar_vertical_margin"
+                        android:text="@string/take_a_photo" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="fill_parent"
+                    android:layout_height="0.5dp"
+                    android:background="@color/divider" />
+
+                <LinearLayout
+                    android:id="@+id/video_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:orientation="horizontal"
+                    android:paddingBottom="@dimen/small_toolbar_vertical_margin"
+                    android:paddingLeft="@dimen/small_toolbar_horizontal_margin"
+                    android:paddingRight="@dimen/small_toolbar_horizontal_margin"
+                    android:paddingTop="@dimen/small_toolbar_vertical_margin">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:tint="@color/primary"
+                        app:srcCompat="@drawable/ic_camera_black_24dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginLeft="@dimen/small_toolbar_vertical_margin"
+                        android:text="@string/record_a_video" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="fill_parent"
+                    android:layout_height="0.5dp"
+                    android:background="@color/divider" />
+
+                <LinearLayout
+                    android:id="@+id/recording_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:orientation="horizontal"
+                    android:paddingBottom="@dimen/small_toolbar_vertical_margin"
+                    android:paddingLeft="@dimen/small_toolbar_horizontal_margin"
+                    android:paddingRight="@dimen/small_toolbar_horizontal_margin"
+                    android:paddingTop="@dimen/small_toolbar_vertical_margin">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:tint="@color/primary"
+                        app:srcCompat="@drawable/ic_record_voice_over_black_24dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginLeft="@dimen/small_toolbar_vertical_margin"
+                        android:text="@string/recording_your_voice" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="fill_parent"
+                    android:layout_height="0.5dp"
+                    android:background="@color/divider" />
+
+                <LinearLayout
+                    android:id="@+id/drawing_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:orientation="horizontal"
+                    android:paddingBottom="@dimen/small_toolbar_vertical_margin"
+                    android:paddingLeft="@dimen/small_toolbar_horizontal_margin"
+                    android:paddingRight="@dimen/small_toolbar_horizontal_margin"
+                    android:paddingTop="@dimen/small_toolbar_vertical_margin">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:tint="@color/primary"
+                        app:srcCompat="@drawable/ic_color_lens_black_24dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginLeft="@dimen/small_toolbar_vertical_margin"
+                        android:text="@string/draw_a_image" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="fill_parent"
+                    android:layout_height="0.5dp"
+                    android:background="@color/divider" />
+
+                <LinearLayout
+                    android:id="@+id/link_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:orientation="horizontal"
+                    android:paddingBottom="@dimen/small_toolbar_vertical_margin"
+                    android:paddingLeft="@dimen/small_toolbar_horizontal_margin"
+                    android:paddingRight="@dimen/small_toolbar_horizontal_margin"
+                    android:paddingTop="@dimen/small_toolbar_vertical_margin">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:tint="@color/primary"
+                        app:srcCompat="@drawable/ic_link_black_24dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginLeft="@dimen/small_toolbar_vertical_margin"
+                        android:text="@string/paste_a_link" />
+                </LinearLayout>
+            </LinearLayout>
+
+        </LinearLayout>
+
     </RelativeLayout>
 
-</RelativeLayout>
+</LinearLayout>
