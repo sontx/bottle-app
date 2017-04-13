@@ -15,9 +15,11 @@ import android.widget.ImageView;
 
 import com.blogspot.sontx.bottle.Constants;
 import com.blogspot.sontx.bottle.R;
+import com.blogspot.sontx.bottle.model.service.SimpleCallback;
 import com.blogspot.sontx.bottle.presenter.WriteMessagePresenterImpl;
 import com.blogspot.sontx.bottle.presenter.interfaces.WriteMessagePresenter;
 import com.blogspot.sontx.bottle.utils.DelayJobUtils;
+import com.blogspot.sontx.bottle.utils.TempUtils;
 import com.blogspot.sontx.bottle.view.custom.OnBackPressedListener;
 import com.blogspot.sontx.bottle.view.custom.RichEmojiEditText;
 import com.blogspot.sontx.bottle.view.fragment.PhotoPreviewFragment;
@@ -31,6 +33,7 @@ import com.vanniktech.emoji.one.EmojiOneProvider;
 
 import net.alhazmy13.mediapicker.Video.VideoPicker;
 
+import java.io.File;
 import java.util.List;
 
 import butterknife.BindView;
@@ -38,7 +41,9 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnTouch;
 
-public class WriteMessageActivity extends ActivityBase implements OnBackPressedListener, WriteMessageView, PreviewFragmentBase.OnRemoveExtraListener {
+public class WriteMessageActivity extends ActivityBase
+        implements OnBackPressedListener, WriteMessageView, PreviewFragmentBase.OnRemoveExtraListener {
+
     @BindView(R.id.type_view)
     ImageView typeView;
     @BindView(R.id.message_text)
@@ -49,9 +54,10 @@ public class WriteMessageActivity extends ActivityBase implements OnBackPressedL
     ViewGroup fullInputTypeLayout;
     @BindView(R.id.input_type_layout1)
     ViewGroup miniInputTypeLayout;
+
+    private WriteMessagePresenter writeMessagePresenter;
     private InputType inputType;
     private EmojiPopup emojiPopup;
-    private WriteMessagePresenter writeMessagePresenter;
     private boolean firstTime = true;
     private boolean minimized = false;
 
@@ -117,33 +123,46 @@ public class WriteMessageActivity extends ActivityBase implements OnBackPressedL
     public boolean onOptionsItemSelected(MenuItem item) {
         int selectedItem = item.getItemId();
         if (selectedItem == R.id.menu_item_post) {
-
+            writeMessagePresenter.requestPostMessage();
         }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Bitmap bitmap = ImagePicker.getImageFromResult(this, requestCode, resultCode, data);
+        // photo
+        final Bitmap bitmap = ImagePicker.getImageFromResult(this, requestCode, resultCode, data);
         if (bitmap != null) {
-            writeMessagePresenter.setExtraAsPhoto(bitmap);
-            displayPhotoPreview(bitmap);
-        } else if (requestCode == VideoPicker.VIDEO_PICKER_REQUEST_CODE && resultCode == RESULT_OK) {
+            String photoPath = TempUtils.saveBitmapAsync(bitmap, new SimpleCallback<File>() {
+                @Override
+                public void onCallback(File value) {
+                    bitmap.recycle();
+                    displayPhotoPreview(value.getAbsolutePath());
+                }
+            });
+            writeMessagePresenter.setMediaAsPhoto(photoPath);
+            return;
+        }
+
+        // video
+        if (requestCode == VideoPicker.VIDEO_PICKER_REQUEST_CODE && resultCode == RESULT_OK) {
+            @SuppressWarnings("unchecked")
             List<String> paths = (List<String>) data.getSerializableExtra(VideoPicker.EXTRA_VIDEO_PATH);
             String videoPath = paths.get(0);
-            writeMessagePresenter.setExtraAsVideo(videoPath);
+            writeMessagePresenter.setMediaAsVideo(videoPath);
             displayVideoPreview(videoPath);
-        } else {
-            super.onActivityResult(requestCode, resultCode, data);
+            return;
         }
+
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
-    @OnClick(R.id.photo_button)
+    @OnClick({R.id.photo_button, R.id.photo_button1})
     void onPhotoClick() {
         ImagePicker.pickImage(this, getResources().getString(R.string.photo_picker_title));
     }
 
-    @OnClick(R.id.video_button)
+    @OnClick({R.id.video_button, R.id.video_button1})
     void onVideoClick() {
         new VideoPicker.Builder(this)
                 .mode(VideoPicker.Mode.CAMERA_AND_GALLERY)
@@ -153,22 +172,22 @@ public class WriteMessageActivity extends ActivityBase implements OnBackPressedL
                 .build();
     }
 
-    @OnClick(R.id.recording_button)
+    @OnClick({R.id.recording_button, R.id.recording_button1})
     void onRecordingClick() {
 
     }
 
-    @OnClick(R.id.drawing_button)
+    @OnClick({R.id.drawing_button, R.id.drawing_button1})
     void onDrawingClick() {
 
     }
 
-    @OnClick(R.id.link_button)
+    @OnClick({R.id.link_button, R.id.link_button1})
     void onLinkClick() {
 
     }
 
-    @OnClick(R.id.type_button)
+    @OnClick({R.id.type_button, R.id.type_button1})
     void onInputTypeClick() {
         if (inputType == InputType.WORD)
             setInputType(InputType.EMOJI);
@@ -178,14 +197,26 @@ public class WriteMessageActivity extends ActivityBase implements OnBackPressedL
 
     @OnTouch(R.id.message_text)
     boolean onMessageTextTouch() {
+        fullInputTypeLayout.setVisibility(View.GONE);
+        showPreviewLayoutIfNecessary(false);
         setInputType(InputType.WORD);
         return false;
     }
 
     @Override
     public void onRemovePreview() {
-        writeMessagePresenter.removeExtra();
+        writeMessagePresenter.removeMedia();
         showPreviewLayoutIfNecessary(false);
+    }
+
+    @Override
+    public String getText() {
+        return messageText.getText().toString();
+    }
+
+    @Override
+    public void goBackWithSuccess(String text, String mediaPath) {
+        finish();
     }
 
     private void setupToolbar() {
@@ -233,11 +264,11 @@ public class WriteMessageActivity extends ActivityBase implements OnBackPressedL
         }
     }
 
-    private void showInputTypeAsMinimizeMode(boolean minimized) {
+    private void showInputTypeAsMinimizeMode(final boolean minimized) {
         if (this.minimized == minimized)
             return;
 
-        this.minimized = minimized;
+        WriteMessageActivity.this.minimized = minimized;
 
         if (minimized) {
             fullInputTypeLayout.setVisibility(View.GONE);
@@ -248,10 +279,11 @@ public class WriteMessageActivity extends ActivityBase implements OnBackPressedL
             fullInputTypeLayout.setVisibility(View.VISIBLE);
             showPreviewLayoutIfNecessary(true);
         }
+
     }
 
     private void showPreviewLayoutIfNecessary(boolean show) {
-        if (writeMessagePresenter.isContainsExtra())
+        if (writeMessagePresenter.isContainsMedia())
             previewContainerView.setVisibility(show ? View.VISIBLE : View.GONE);
         else
             previewContainerView.setVisibility(View.GONE);
@@ -273,20 +305,15 @@ public class WriteMessageActivity extends ActivityBase implements OnBackPressedL
         }
     }
 
-    private void displayPhotoPreview(final Bitmap bitmap) {
-        showPreviewLayoutIfNecessary(true);
-        PhotoPreviewFragment photoPreviewFragment = PhotoPreviewFragment.newInstance();
-        replaceFragment(R.id.preview_container, photoPreviewFragment);
-        photoPreviewFragment.setBitmap(bitmap);
-        if (firstTime) {
-            firstTime = false;
-            DelayJobUtils.delay(new Runnable() {
-                @Override
-                public void run() {
-                    displayPhotoPreview(bitmap);
-                }
-            }, 600);
-        }
+    private void displayPhotoPreview(final String photoPath) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                showPreviewLayoutIfNecessary(true);
+                PhotoPreviewFragment photoPreviewFragment = PhotoPreviewFragment.newInstance(photoPath);
+                replaceFragment(R.id.preview_container, photoPreviewFragment);
+            }
+        });
     }
 
     private void showSoftKeyboard() {

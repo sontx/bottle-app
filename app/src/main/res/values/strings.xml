@@ -32,4 +32,6 @@
     <string name="paste_a_link">Link</string>
     <string name="input_type_typing">Typing</string>
     <string name="input_type_emoji">Emoji</string>
+
+    <string name="message_text_empty">I want to know how are you feeling :)</string>
 </resources>
