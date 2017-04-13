@@ -1,7 +1,6 @@
 package com.blogspot.sontx.bottle.view.activity;
 
 import android.content.Context;
-import android.support.annotation.UiThread;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -41,20 +40,28 @@ abstract class ActivityBase extends AppCompatActivity implements ViewBase {
         fragmentTransaction.commitAllowingStateLoss();
     }
 
-    @UiThread
     @Override
     public void showProcess() {
-        if (processDialog == null)
-            processDialog = new ProcessDialog(ActivityBase.this);
-        if (!processDialog.isShowing())
-            processDialog.show();
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (processDialog == null)
+                    processDialog = new ProcessDialog(ActivityBase.this);
+                if (!processDialog.isShowing())
+                    processDialog.show();
+            }
+        });
     }
 
-    @UiThread
     @Override
     public void hideProcess() {
-        if (processDialog != null)
-            processDialog.hide();
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (processDialog != null)
+                    processDialog.hide();
+            }
+        });
     }
 
     @Override
@@ -64,16 +71,24 @@ abstract class ActivityBase extends AppCompatActivity implements ViewBase {
             processDialog.hide();
     }
 
-    @UiThread
     @Override
     public void showErrorMessage(final String message) {
-        Toast.makeText(ActivityBase.this, message, Toast.LENGTH_LONG).show();
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(ActivityBase.this, message, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
-    @UiThread
     @Override
     public void showSuccessMessage(final String message) {
-        Toast.makeText(ActivityBase.this, message, Toast.LENGTH_SHORT).show();
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(ActivityBase.this, message, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override

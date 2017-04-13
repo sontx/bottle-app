@@ -2,7 +2,6 @@ package com.blogspot.sontx.bottle.view.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.UiThread;
 
 import com.blogspot.sontx.bottle.R;
 import com.blogspot.sontx.bottle.model.bean.LoginData;
@@ -45,31 +44,43 @@ public class LoadingActivity extends ActivityBase implements LoginView, LoadingV
         loadingPresenter.unregisterListener();
     }
 
-    @UiThread
     @Override
-    public void onLoginStateChanged(boolean logged) {
-        if (logged) {
-            loadingPresenter.loadIfNecessaryAsync();
-        } else {
-            loginPresenter.logout();
-            startActivity(new Intent(this, LoginActivity.class));
-            finish();
-        }
+    public void onLoginStateChanged(final boolean logged) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (logged) {
+                    loadingPresenter.loadIfNecessaryAsync();
+                } else {
+                    loginPresenter.logout();
+                    startActivity(new Intent(LoadingActivity.this, LoginActivity.class));
+                    finish();
+                }
+            }
+        });
     }
 
-    @UiThread
     @Override
-    public void navigateToErrorActivity(String message) {
-        Intent intent = new Intent(this, ErrorActivity.class);
-        intent.putExtra(ErrorActivity.MESSAGE_KEY, message);
-        startActivity(intent);
-        finish();
+    public void navigateToErrorActivity(final String message) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Intent intent = new Intent(LoadingActivity.this, ErrorActivity.class);
+                intent.putExtra(ErrorActivity.MESSAGE_KEY, message);
+                startActivity(intent);
+                finish();
+            }
+        });
     }
 
-    @UiThread
     @Override
     public void onLoadSuccess() {
-        startActivity(new Intent(LoadingActivity.this, HomeActivity.class));
-        finish();
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                startActivity(new Intent(LoadingActivity.this, HomeActivity.class));
+                finish();
+            }
+        });
     }
 }
