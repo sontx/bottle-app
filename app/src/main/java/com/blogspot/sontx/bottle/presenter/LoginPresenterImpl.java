@@ -34,6 +34,7 @@ public class LoginPresenterImpl extends PresenterBase implements LoginPresenter 
         if (loginData.getState() != LoginData.STATE_SUCCESS) {
             if (loginData.getState() == LoginData.STATE_ERROR)
                 loginView.showErrorMessage(loginView.getContext().getString(R.string.facebook_login_error));
+            loginView.onLoginStateChanged(false);
         } else {
             chatServerLoginService.facebookLoginAsync(loginData, new SimpleCallback<String>() {
                 @Override
