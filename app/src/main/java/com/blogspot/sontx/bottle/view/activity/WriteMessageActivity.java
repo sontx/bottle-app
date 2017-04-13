@@ -44,6 +44,9 @@ import butterknife.OnTouch;
 public class WriteMessageActivity extends ActivityBase
         implements OnBackPressedListener, WriteMessageView, PreviewFragmentBase.OnRemoveExtraListener {
 
+    static final String MESSAGE_TEXT = "message-text";
+    static final String MESSAGE_MEDIA = "message-media";
+
     @BindView(R.id.type_view)
     ImageView typeView;
     @BindView(R.id.message_text)
@@ -216,6 +219,10 @@ public class WriteMessageActivity extends ActivityBase
 
     @Override
     public void goBackWithSuccess(String text, String mediaPath) {
+        Intent intent = getIntent();
+        intent.putExtra(MESSAGE_TEXT, text);
+        intent.putExtra(MESSAGE_MEDIA, mediaPath);
+        setResult(RESULT_OK, intent);
         finish();
     }
 
