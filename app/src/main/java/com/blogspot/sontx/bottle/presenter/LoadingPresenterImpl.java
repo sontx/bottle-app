@@ -1,6 +1,7 @@
 package com.blogspot.sontx.bottle.presenter;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import com.blogspot.sontx.bottle.App;
@@ -20,6 +21,8 @@ import com.blogspot.sontx.bottle.system.event.ServiceState;
 import com.blogspot.sontx.bottle.system.event.ServiceStateChangedEvent;
 import com.blogspot.sontx.bottle.system.service.MessagingService;
 import com.blogspot.sontx.bottle.view.interfaces.LoadingView;
+import com.vanniktech.emoji.EmojiManager;
+import com.vanniktech.emoji.one.EmojiOneProvider;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -29,7 +32,8 @@ import java.util.List;
 
 /**
  * [Login to firebase server] -> fetch user access token from firebase server -> login to bottle server
- * -> fetch user setting from bottle server[init context] -> cache chat channels -> cache messages
+ * -> fetch user setting from bottle server[init context] -> cache chat channels -> cache messages ->
+ * prepare UI
  */
 public class LoadingPresenterImpl extends PresenterBase implements LoadingPresenter {
     private final LoadingView loadingView;
@@ -50,7 +54,7 @@ public class LoadingPresenterImpl extends PresenterBase implements LoadingPresen
 
     @Override
     public void loadIfNecessaryAsync() {
-        onTaskCompleted(Task.END_POINT, null);
+        onTaskCompleted(Task.ENTRY_POINT, null);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -75,7 +79,7 @@ public class LoadingPresenterImpl extends PresenterBase implements LoadingPresen
     private void onTaskCompleted(Task task, Object result) {
         switch (task) {
 
-            case END_POINT:// fetch firebase user token
+            case ENTRY_POINT:// fetch firebase user token
                 Log.d(TAG, "fetch firebase user token");
                 ChatServerLoginService chatServerLoginService = FirebaseServicePool.getInstance().getChatServerLoginService();
                 chatServerLoginService.getCurrentUserTokenAsync(new FetchFirebaseUserTokenTask());
@@ -109,7 +113,12 @@ public class LoadingPresenterImpl extends PresenterBase implements LoadingPresen
                 bottleServerMessageService.cacheMessagesAsync(new CacheMessagesTask());
                 break;
 
-            case CACHE_MESSAGES:
+            case CACHE_MESSAGES:// prepare UI such as load emoji
+                Log.d(TAG, "prepare UI");
+                new PrepareUITask().execute();
+                break;
+
+            case PREPARE_UI:
                 if (MessagingService.isRunning()) {
                     completePreparing();
                 } else {
@@ -133,12 +142,13 @@ public class LoadingPresenterImpl extends PresenterBase implements LoadingPresen
     }
 
     private enum Task {
-        END_POINT,
+        ENTRY_POINT,
         FETCH_USER_TOKEN,
         LOGIN_BOTTLE_SERVER,
         CACHE_USER_SETTING,
         CACHE_LIST_CHANNEL,
-        CACHE_MESSAGES
+        CACHE_MESSAGES,
+        PREPARE_UI
     }
 
     private class FetchFirebaseUserTokenTask extends TaskBase<String> implements Callback<String> {
@@ -179,6 +189,16 @@ public class LoadingPresenterImpl extends PresenterBase implements LoadingPresen
         @Override
         public void onSuccess(Void result) {
             onTaskCompleted(Task.CACHE_MESSAGES, result);
+        }
+    }
+
+    private class PrepareUITask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            EmojiManager.install(new EmojiOneProvider());
+            onTaskCompleted(Task.PREPARE_UI, null);
+            return null;
         }
     }
 

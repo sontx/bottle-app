@@ -27,9 +27,7 @@ import com.blogspot.sontx.bottle.view.fragment.PreviewFragmentBase;
 import com.blogspot.sontx.bottle.view.fragment.VideoPreviewFragment;
 import com.blogspot.sontx.bottle.view.interfaces.WriteMessageView;
 import com.mvc.imagepicker.ImagePicker;
-import com.vanniktech.emoji.EmojiManager;
 import com.vanniktech.emoji.EmojiPopup;
-import com.vanniktech.emoji.one.EmojiOneProvider;
 
 import net.alhazmy13.mediapicker.Video.VideoPicker;
 
@@ -67,8 +65,6 @@ public class WriteMessageActivity extends ActivityBase
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        EmojiManager.install(new EmojiOneProvider());
 
         setContentView(R.layout.activity_write_message);
         ButterKnife.bind(this);
