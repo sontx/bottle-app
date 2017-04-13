@@ -2,6 +2,7 @@ package com.blogspot.sontx.bottle.view.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -11,18 +12,19 @@ import android.view.ViewGroup;
 
 import com.blogspot.sontx.bottle.R;
 import com.blogspot.sontx.bottle.model.bean.Room;
+import com.blogspot.sontx.bottle.model.bean.RoomList;
 import com.blogspot.sontx.bottle.presenter.RoomPresenterImpl;
 import com.blogspot.sontx.bottle.presenter.interfaces.RoomPresenter;
 import com.blogspot.sontx.bottle.view.adapter.RoomRecyclerViewAdapter;
 import com.blogspot.sontx.bottle.view.interfaces.ListRoomView;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class ListRoomFragment extends FragmentBase implements ListRoomView {
 
     private static final String ARG_COLUMN_COUNT = "column-count";
     private static final String ARG_CATEGORY_ID = "category-id";
+    private static final String ARG_ROOM_ID = "room-id";
 
     private int mColumnCount = 1;
     private RoomRecyclerViewAdapter roomRecyclerViewAdapter;
@@ -32,7 +34,16 @@ public class ListRoomFragment extends FragmentBase implements ListRoomView {
     public ListRoomFragment() {
     }
 
-    public static ListRoomFragment newInstance(int columnCount, int categoryId) {
+    public static ListRoomFragment newInstanceWithRoomId(int columnCount, int roomId) {
+        ListRoomFragment fragment = new ListRoomFragment();
+        Bundle args = new Bundle();
+        args.putInt(ARG_COLUMN_COUNT, columnCount);
+        args.putInt(ARG_ROOM_ID, roomId);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public static ListRoomFragment newInstanceWithCategoryId(int columnCount, int categoryId) {
         ListRoomFragment fragment = new ListRoomFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_COLUMN_COUNT, columnCount);
@@ -45,14 +56,21 @@ public class ListRoomFragment extends FragmentBase implements ListRoomView {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getArguments() != null) {
-            mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
-            int categoryId = getArguments().getInt(ARG_CATEGORY_ID);
+        Bundle arguments = getArguments();
+        if (arguments != null) {
+            mColumnCount = arguments.getInt(ARG_COLUMN_COUNT);
 
             roomRecyclerViewAdapter = new RoomRecyclerViewAdapter(new ArrayList<Room>(), listener);
 
             roomPresenter = new RoomPresenterImpl(this);
-            roomPresenter.getRoomsAsync(categoryId);
+
+            if (arguments.containsKey(ARG_CATEGORY_ID)) {
+                int categoryId = arguments.getInt(ARG_CATEGORY_ID);
+                roomPresenter.getRoomsAsync(categoryId);
+            } else if (arguments.containsKey(ARG_ROOM_ID)) {
+                int roomId = arguments.getInt(ARG_ROOM_ID);
+                roomPresenter.getRoomsHaveSameCategoryAsync(roomId);
+            }
         }
     }
 
@@ -75,7 +93,6 @@ public class ListRoomFragment extends FragmentBase implements ListRoomView {
         return view;
     }
 
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -93,11 +110,15 @@ public class ListRoomFragment extends FragmentBase implements ListRoomView {
     }
 
     @Override
-    public void showRooms(List<Room> rooms) {
+    public void showRooms(RoomList rooms) {
         if (roomRecyclerViewAdapter != null) {
-            roomRecyclerViewAdapter.getValues().addAll(rooms);
+            roomRecyclerViewAdapter.getValues().addAll(rooms.getRooms());
             roomRecyclerViewAdapter.notifyDataSetChanged();
         }
+
+        FragmentActivity activity = getActivity();
+        if (activity != null)
+            activity.setTitle(rooms.getCategoryName());
     }
 
     public interface OnListRoomInteractionListener {

@@ -13,8 +13,8 @@ import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 public interface ApiRoom {
-    @GET("categories/{categoryId}/rooms")
-    Call<List<Room>> getRooms(@Path("categoryId") int categoryId, @Query("page") int page, @Query("pageSize") int pageSize);
+    @GET("rooms/{roomId}")
+    Call<Room> getRoom(@Path("roomId") int roomId);
 
     @GET("rooms/{roomId}/messages")
     Call<List<RoomMessage>> getRoomMessages(@Path("roomId") int roomId, @Query("page") int page, @Query("pageSize") int pageSize);

@@ -1,9 +1,7 @@
 package com.blogspot.sontx.bottle.view.interfaces;
 
-import com.blogspot.sontx.bottle.model.bean.Room;
-
-import java.util.List;
+import com.blogspot.sontx.bottle.model.bean.RoomList;
 
 public interface ListRoomView extends ViewBase {
-    void showRooms(List<Room> rooms);
+    void showRooms(RoomList rooms);
 }

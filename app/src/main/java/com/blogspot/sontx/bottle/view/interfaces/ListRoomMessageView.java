@@ -10,4 +10,8 @@ public interface ListRoomMessageView extends ViewBase {
     void addRoomMessage(RoomMessage roomMessage);
 
     void updateRoomMessage(RoomMessage roomMessage, RoomMessage originRoomMessage);
+
+    void showListRoomsByCategoryId(int categoryId);
+
+    void showListRoomsByRoomId(int roomId);
 }

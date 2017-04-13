@@ -68,6 +68,9 @@
         <activity
             android:name=".view.activity.ListCategoryActivity"
             android:theme="@style/FullscreenTheme" />
+        <activity
+            android:name=".view.activity.ListRoomActivity"
+            android:theme="@style/FullscreenTheme" />
 
         <service
             android:name=".system.service.MessagingService"

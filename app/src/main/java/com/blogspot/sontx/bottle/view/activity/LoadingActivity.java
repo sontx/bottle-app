@@ -41,8 +41,8 @@ public class LoadingActivity extends ActivityBase implements LoginView, LoadingV
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
+    protected void onDestroy() {
+        super.onDestroy();
         loadingPresenter.unregisterListener();
     }
 

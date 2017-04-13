@@ -10,43 +10,10 @@ import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerRoomServic
 import com.blogspot.sontx.bottle.model.service.rest.ApiClient;
 import com.blogspot.sontx.bottle.model.service.rest.ApiRoom;
 
-import java.util.List;
-
 import retrofit2.Call;
 import retrofit2.Response;
 
 class BottleServerRoomServiceImpl extends BottleServerServiceBase implements BottleServerRoomService {
-
-    @Override
-    public void getRoomsAsync(int categoryId, final Callback<List<Room>> callback) {
-        if (!App.getInstance().getBottleContext().isLogged()) {
-            callback.onError(new Exception("Unauthenticated"));
-            return;
-        }
-
-        BottleUser bottleUser = App.getInstance().getBottleContext().getCurrentBottleUser();
-
-        ApiRoom apiRoom = ApiClient.getClient(bottleUser.getToken()).create(ApiRoom.class);
-
-        Call<List<Room>> call = apiRoom.getRooms(categoryId, 0, 100);// assume that we want to get all rooms
-
-        call.enqueue(new retrofit2.Callback<List<Room>>() {
-            @Override
-            public void onResponse(Call<List<Room>> call, Response<List<Room>> response) {
-                if (response.code() == 200) {
-                    callback.onSuccess(response.body());
-                } else {
-                    Log.e(TAG, "getRoomsAsync: " + response.code() + " " + response.message());
-                    callback.onError(new Exception(""));
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<Room>> call, Throwable t) {
-                callback.onError(t);
-            }
-        });
-    }
 
     @Override
     public void postRoomMessageAsync(int roomId, RoomMessage roomMessage, final Callback<RoomMessage> callback) {
@@ -74,6 +41,37 @@ class BottleServerRoomServiceImpl extends BottleServerServiceBase implements Bot
 
             @Override
             public void onFailure(Call<RoomMessage> call, Throwable t) {
+                callback.onError(t);
+            }
+        });
+    }
+
+    @Override
+    public void getRoomAsync(int roomId, final Callback<Room> callback) {
+        if (!App.getInstance().getBottleContext().isLogged()) {
+            callback.onError(new Exception("Unauthenticated"));
+            return;
+        }
+
+        BottleUser bottleUser = App.getInstance().getBottleContext().getCurrentBottleUser();
+
+        ApiRoom apiRoom = ApiClient.getClient(bottleUser.getToken()).create(ApiRoom.class);
+
+        final Call<Room> call = apiRoom.getRoom(roomId);
+
+        call.enqueue(new retrofit2.Callback<Room>() {
+            @Override
+            public void onResponse(Call<Room> call, Response<Room> response) {
+                if (response.code() == 200) {
+                    callback.onSuccess(response.body());
+                } else {
+                    Log.e(TAG, "getRoomAsync: " + response.code() + " " + response.message());
+                    callback.onError(new Exception(""));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Room> call, Throwable t) {
                 callback.onError(t);
             }
         });

@@ -18,6 +18,7 @@ import com.blogspot.sontx.bottle.model.bean.RoomMessage;
 import com.blogspot.sontx.bottle.presenter.RoomMessagePresenterImpl;
 import com.blogspot.sontx.bottle.presenter.interfaces.RoomMessagePresenter;
 import com.blogspot.sontx.bottle.system.BottleContext;
+import com.blogspot.sontx.bottle.view.activity.ListRoomActivity;
 import com.blogspot.sontx.bottle.view.activity.WriteMessageActivity;
 import com.blogspot.sontx.bottle.view.adapter.RoomMessageRecyclerViewAdapter;
 import com.blogspot.sontx.bottle.view.interfaces.ListRoomMessageView;
@@ -32,6 +33,7 @@ import butterknife.ButterKnife;
 public class ListRoomMessageFragment extends FragmentBase implements ListRoomMessageView, TabSelectionInterceptor {
 
     private static final int REQUEST_CODE_NEW_ROOM_MESSAGE = 1;
+    private static final int REQUEST_CODE_SELECT_ROOM = 2;
     private static final String ARG_COLUMN_COUNT = "column-count";
 
     private int mColumnCount = 1;
@@ -166,9 +168,23 @@ public class ListRoomMessageFragment extends FragmentBase implements ListRoomMes
     }
 
     @Override
+    public void showListRoomsByCategoryId(int categoryId) {
+        Intent intent = new Intent(getContext(), ListRoomActivity.class);
+        intent.putExtra(ListRoomActivity.CATEGORY_ID, categoryId);
+        startActivity(intent);
+    }
+
+    @Override
+    public void showListRoomsByRoomId(int roomId) {
+        Intent intent = new Intent(getContext(), ListRoomActivity.class);
+        intent.putExtra(ListRoomActivity.ROOM_ID, roomId);
+        startActivity(intent);
+    }
+
+    @Override
     public boolean shouldInterceptTabSelection(@IdRes int oldTabId, @IdRes int newTabId) {
         if (newTabId == R.id.tab_jump) {
-
+            roomMessagePresenter.jumpToListRooms();
         } else if (newTabId == R.id.tab_new) {
             startActivityForResult(new Intent(getContext(), WriteMessageActivity.class), REQUEST_CODE_NEW_ROOM_MESSAGE);
         }

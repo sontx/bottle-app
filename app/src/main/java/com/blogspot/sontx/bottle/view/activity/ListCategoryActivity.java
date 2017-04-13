@@ -12,50 +12,29 @@ import com.blogspot.sontx.bottle.view.fragment.ListRoomFragment;
 
 public class ListCategoryActivity extends ActivityBase implements ListCategoryFragment.OnListCategoryInteractionListener, ListRoomFragment.OnListRoomInteractionListener {
 
-    private int fragmentStackIndex = 0;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_category);
-        placeCategoryFragment();
+        setContentView(R.layout.activity_list_category);
+        placeListCategoryFragment();
     }
 
-    private void placeCategoryFragment() {
+    private void placeListCategoryFragment() {
         ListCategoryFragment listCategoryFragment = ListCategoryFragment.newInstance(1);
 
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fm.beginTransaction();
         fragmentTransaction.replace(R.id.content_fragment, listCategoryFragment);
         fragmentTransaction.commit();
-
-        fragmentStackIndex = 1;
     }
 
     @Override
     public void onListCategoryInteraction(Category item) {
-        ListRoomFragment listRoomFragment = ListRoomFragment.newInstance(1, item.getId());
 
-        FragmentManager fm = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fm.beginTransaction();
-        fragmentTransaction.replace(R.id.content_fragment, listRoomFragment);
-        fragmentTransaction.commit();
-
-        fragmentStackIndex++;
     }
 
     @Override
     public void onListRoomInteraction(Room item) {
 
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (fragmentStackIndex > 0) {
-            placeCategoryFragment();
-            fragmentStackIndex--;
-        } else {
-            super.onBackPressed();
-        }
     }
 }
