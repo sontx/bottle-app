@@ -1,13 +1,13 @@
 package com.blogspot.sontx.bottle.presenter.interfaces;
 
-import android.graphics.Bitmap;
-
 public interface WriteMessagePresenter {
-    void setExtraAsPhoto(Bitmap bitmap);
+    void setMediaAsPhoto(String photoPath);
 
-    void removeExtra();
+    void setMediaAsVideo(String videoPath);
 
-    boolean isContainsExtra();
+    void removeMedia();
 
-    void setExtraAsVideo(String videoPath);
+    boolean isContainsMedia();
+
+    void requestPostMessage();
 }

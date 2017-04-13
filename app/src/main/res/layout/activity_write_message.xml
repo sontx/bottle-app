@@ -107,14 +107,15 @@
                         android:orientation="horizontal">
 
                         <ImageView
+                            android:id="@+id/photo_button1"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginRight="@dimen/small_toolbar_horizontal_margin"
-
                             android:tint="@color/primary"
                             app:srcCompat="@drawable/ic_photo_black_24dp" />
 
                         <ImageView
+                            android:id="@+id/video_button1"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginRight="@dimen/small_toolbar_horizontal_margin"
@@ -122,6 +123,7 @@
                             app:srcCompat="@drawable/ic_camera_black_24dp" />
 
                         <ImageView
+                            android:id="@+id/recording_button1"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginRight="@dimen/small_toolbar_horizontal_margin"
@@ -129,6 +131,7 @@
                             app:srcCompat="@drawable/ic_record_voice_over_black_24dp" />
 
                         <ImageView
+                            android:id="@+id/drawing_button1"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginRight="@dimen/small_toolbar_horizontal_margin"
@@ -136,6 +139,7 @@
                             app:srcCompat="@drawable/ic_color_lens_black_24dp" />
 
                         <ImageView
+                            android:id="@+id/link_button1"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:tint="@color/primary"
