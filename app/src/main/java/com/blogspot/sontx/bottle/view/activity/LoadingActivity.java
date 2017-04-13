@@ -1,5 +1,7 @@
 package com.blogspot.sontx.bottle.view.activity;
 
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -82,5 +84,16 @@ public class LoadingActivity extends ActivityBase implements LoginView, LoadingV
                 finish();
             }
         });
+    }
+
+    @Override
+    public boolean isServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

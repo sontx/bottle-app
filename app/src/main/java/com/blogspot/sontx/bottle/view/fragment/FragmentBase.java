@@ -9,10 +9,19 @@ import android.widget.Toast;
 import com.blogspot.sontx.bottle.view.dialog.ProcessDialog;
 import com.blogspot.sontx.bottle.view.interfaces.ViewBase;
 
+import lombok.NonNull;
+
 abstract class FragmentBase extends Fragment implements ViewBase {
     protected final static String TAG = "fragment";
 
     private ProcessDialog processDialog;
+
+    protected void runOnUiThread(@NonNull Runnable runnable) {
+        FragmentActivity activity = getActivity();
+        if (activity != null) {
+            activity.runOnUiThread(runnable);
+        }
+    }
 
     @Override
     public void showProcess() {

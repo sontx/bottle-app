@@ -59,16 +59,6 @@ public class HomeActivity extends ActivityBase
     }
 
     @Override
-    public void onJumpToAnotherRoomInteraction() {
-
-    }
-
-    @Override
-    public void onNewRoomMessageInteraction() {
-
-    }
-
-    @Override
     public void startChat(Channel channel) {
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra(ChatActivity.CHANNEL_KEY, channel);

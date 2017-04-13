@@ -1,6 +1,8 @@
 package com.blogspot.sontx.bottle.view.fragment;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.v7.widget.GridLayoutManager;
@@ -16,18 +18,20 @@ import com.blogspot.sontx.bottle.model.bean.RoomMessage;
 import com.blogspot.sontx.bottle.presenter.RoomMessagePresenterImpl;
 import com.blogspot.sontx.bottle.presenter.interfaces.RoomMessagePresenter;
 import com.blogspot.sontx.bottle.system.BottleContext;
+import com.blogspot.sontx.bottle.view.activity.WriteMessageActivity;
 import com.blogspot.sontx.bottle.view.adapter.RoomMessageRecyclerViewAdapter;
 import com.blogspot.sontx.bottle.view.interfaces.ListRoomMessageView;
 import com.roughike.bottombar.BottomBar;
-import com.roughike.bottombar.OnTabSelectListener;
+import com.roughike.bottombar.TabSelectionInterceptor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.ButterKnife;
 
-public class ListRoomMessageFragment extends FragmentBase implements ListRoomMessageView, OnTabSelectListener {
+public class ListRoomMessageFragment extends FragmentBase implements ListRoomMessageView, TabSelectionInterceptor {
 
+    private static final int REQUEST_CODE_NEW_ROOM_MESSAGE = 1;
     private static final String ARG_COLUMN_COUNT = "column-count";
 
     private int mColumnCount = 1;
@@ -74,7 +78,7 @@ public class ListRoomMessageFragment extends FragmentBase implements ListRoomMes
         Context context = view.getContext();
 
         bottomBar = ButterKnife.findById(view, R.id.bottom_bar);
-        bottomBar.setOnTabSelectListener(this);
+        bottomBar.setTabSelectionInterceptor(this);
 
         RecyclerView recyclerView = ButterKnife.findById(view, R.id.list);
         if (mColumnCount <= 1)
@@ -90,7 +94,7 @@ public class ListRoomMessageFragment extends FragmentBase implements ListRoomMes
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        bottomBar.removeOnTabSelectListener();
+        bottomBar.removeOverrideTabSelectionListener();
     }
 
     @Override
@@ -110,6 +114,20 @@ public class ListRoomMessageFragment extends FragmentBase implements ListRoomMes
     }
 
     @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_CODE_NEW_ROOM_MESSAGE) {
+            if (resultCode == Activity.RESULT_OK) {
+                String text = data.getStringExtra(WriteMessageActivity.MESSAGE_TEXT);
+                String mediaPath = data.getStringExtra(WriteMessageActivity.MESSAGE_MEDIA);
+                roomMessagePresenter.postRoomMessageAsync(text, mediaPath);
+            }
+            return;
+        }
+
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
     public void showRoomMessages(List<RoomMessage> rooms) {
         if (roomMessageRecyclerViewAdapter != null) {
             roomMessageRecyclerViewAdapter.getValues().addAll(rooms);
@@ -118,21 +136,46 @@ public class ListRoomMessageFragment extends FragmentBase implements ListRoomMes
     }
 
     @Override
-    public void onTabSelected(@IdRes int tabId) {
-        if (tabId == R.id.tab_jump) {
-            if (listener != null)
-                listener.onJumpToAnotherRoomInteraction();
-        } else if (tabId == R.id.tab_new) {
-            if (listener != null)
-                listener.onNewRoomMessageInteraction();
+    public void addRoomMessage(final RoomMessage roomMessage) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                List<RoomMessage> values = roomMessageRecyclerViewAdapter.getValues();
+                values.add(0, roomMessage);
+                roomMessageRecyclerViewAdapter.notifyItemInserted(0);
+            }
+        });
+    }
+
+    @Override
+    public void updateRoomMessage(final RoomMessage roomMessage, final RoomMessage originRoomMessage) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                List<RoomMessage> values = roomMessageRecyclerViewAdapter.getValues();
+                for (int i = 0; i < values.size(); i++) {
+                    RoomMessage value = values.get(i);
+                    if (value == originRoomMessage) {
+                        values.set(i, roomMessage);
+                        roomMessageRecyclerViewAdapter.notifyItemChanged(i);
+                        break;
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
+    public boolean shouldInterceptTabSelection(@IdRes int oldTabId, @IdRes int newTabId) {
+        if (newTabId == R.id.tab_jump) {
+
+        } else if (newTabId == R.id.tab_new) {
+            startActivityForResult(new Intent(getContext(), WriteMessageActivity.class), REQUEST_CODE_NEW_ROOM_MESSAGE);
         }
+        return false;
     }
 
     public interface OnListRoomMessageInteractionListener {
         void onListRoomMessageInteraction(RoomMessage item);
-
-        void onJumpToAnotherRoomInteraction();
-
-        void onNewRoomMessageInteraction();
     }
 }

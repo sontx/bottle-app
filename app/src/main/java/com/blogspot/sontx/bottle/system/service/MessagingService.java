@@ -77,6 +77,10 @@ public class MessagingService extends ServiceBase {
         }
 
         isRunning = false;
+
+        ServiceStateChangedEvent serviceStateChangedEvent = new ServiceStateChangedEvent();
+        serviceStateChangedEvent.setServiceState(ServiceState.STOPPED);
+        EventBus.getDefault().post(serviceStateChangedEvent);
     }
 
     /**

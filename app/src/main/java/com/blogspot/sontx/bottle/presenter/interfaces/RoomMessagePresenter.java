@@ -4,4 +4,6 @@ public interface RoomMessagePresenter {
     void setCurrentRoomId(int roomId);
 
     void getMoreRoomMessagesAsync();
+
+    void postRoomMessageAsync(String text, String mediaPath);
 }

@@ -119,7 +119,7 @@ public class LoadingPresenterImpl extends PresenterBase implements LoadingPresen
                 break;
 
             case PREPARE_UI:
-                if (MessagingService.isRunning()) {
+                if (loadingView.isServiceRunning(MessagingService.class)) {
                     completePreparing();
                 } else {
                     Log.d(TAG, "one more step, start messaging service...");
