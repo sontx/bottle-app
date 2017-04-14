@@ -4,16 +4,18 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.blogspot.sontx.bottle.R;
 import com.blogspot.sontx.bottle.model.bean.Room;
+import com.blogspot.sontx.bottle.utils.StringUtils;
 import com.blogspot.sontx.bottle.view.fragment.ListRoomFragment;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
 import butterknife.ButterKnife;
-import de.hdodenhof.circleimageview.CircleImageView;
 import lombok.Getter;
 
 public class RoomRecyclerViewAdapter extends RecyclerView.Adapter<RoomRecyclerViewAdapter.ViewHolder> {
@@ -21,6 +23,7 @@ public class RoomRecyclerViewAdapter extends RecyclerView.Adapter<RoomRecyclerVi
     private final ListRoomFragment.OnListRoomInteractionListener listener;
     @Getter
     private List<Room> values;
+    private int avatarSize;
 
     public RoomRecyclerViewAdapter(List<Room> items, ListRoomFragment.OnListRoomInteractionListener listener) {
         values = items;
@@ -36,9 +39,16 @@ public class RoomRecyclerViewAdapter extends RecyclerView.Adapter<RoomRecyclerVi
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        holder.item = values.get(position);
-        holder.titleView.setText(values.get(position).getName());
-        holder.descriptionView.setText(values.get(position).getDescription());
+        Room room = values.get(position);
+
+        holder.item = room;
+        holder.titleView.setText(room.getName());
+        holder.descriptionView.setText(room.getDescription());
+
+        if (!StringUtils.isEmpty(room.getPhotoUrl()))
+            Picasso.with(holder.root.getContext()).load(room.getPhotoUrl()).resize(avatarSize, avatarSize).centerCrop().into(holder.imageView);
+        else
+            holder.imageView.setImageResource(R.drawable.ic_default_room);
 
         holder.root.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -55,9 +65,13 @@ public class RoomRecyclerViewAdapter extends RecyclerView.Adapter<RoomRecyclerVi
         return values.size();
     }
 
+    public void setAvatarSize(int avatarSize) {
+        this.avatarSize = avatarSize;
+    }
+
     class ViewHolder extends RecyclerView.ViewHolder {
         final View root;
-        final CircleImageView imageView;
+        final ImageView imageView;
         final TextView titleView;
         final TextView descriptionView;
 

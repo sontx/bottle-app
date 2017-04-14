@@ -24,5 +24,6 @@
     <dimen name="text_content_margin_top">10dp</dimen>
     <dimen name="media_content_margin_top">5dp</dimen>
 
-    <dimen name="preview_height">250dp</dimen>
+    <dimen name="header_image_height">250dp</dimen>
+    <dimen name="avatar_size">54dp</dimen>
 </resources>

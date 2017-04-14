@@ -8,4 +8,5 @@ public class Room {
     private int categoryId;
     private String name;
     private String description;
+    private String photoUrl;
 }

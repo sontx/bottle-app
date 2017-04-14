@@ -14,13 +14,12 @@
         android:paddingRight="@dimen/half_item_padding"
         android:paddingTop="@dimen/half_item_padding">
 
-        <de.hdodenhof.circleimageview.CircleImageView
+        <ImageView
             android:id="@+id/image_view"
-            android:layout_width="54dp"
-            android:layout_height="54dp"
+            android:layout_width="@dimen/avatar_size"
+            android:layout_height="@dimen/avatar_size"
             android:layout_marginRight="@dimen/sheet_spacing"
-            android:src="@drawable/ic_account_circle_black_36dp"
-            android:tint="@color/accent" />
+            android:src="@drawable/ic_default_room" />
 
         <RelativeLayout
             android:layout_width="match_parent"

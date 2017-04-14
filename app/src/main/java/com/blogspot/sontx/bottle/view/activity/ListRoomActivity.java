@@ -31,7 +31,7 @@ public class ListRoomActivity extends ActivityBase implements ListRoomFragment.O
     CollapsingToolbarLayout collapsingToolbarLayout;
     @BindView(R.id.header_image)
     ImageView headerImageView;
-    @BindDimen(R.dimen.preview_height)
+    @BindDimen(R.dimen.header_image_height)
     int previewHeight;
 
     @Override

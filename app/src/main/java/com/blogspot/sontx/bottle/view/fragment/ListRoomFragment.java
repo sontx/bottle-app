@@ -88,6 +88,8 @@ public class ListRoomFragment extends FragmentBase implements ListRoomView {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
+            int avatarSize = view.getResources().getDimensionPixelSize(R.dimen.avatar_size);
+            roomRecyclerViewAdapter.setAvatarSize(avatarSize);
             recyclerView.setAdapter(roomRecyclerViewAdapter);
         }
         return view;
