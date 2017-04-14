@@ -5,7 +5,7 @@ import android.util.Log;
 import com.blogspot.sontx.bottle.App;
 import com.blogspot.sontx.bottle.model.bean.BottleUser;
 import com.blogspot.sontx.bottle.model.bean.Category;
-import com.blogspot.sontx.bottle.model.bean.RoomList;
+import com.blogspot.sontx.bottle.model.bean.Room;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerCategoryService;
 import com.blogspot.sontx.bottle.model.service.rest.ApiCategory;
 import com.blogspot.sontx.bottle.model.service.rest.ApiClient;
@@ -18,7 +18,7 @@ import retrofit2.Response;
 class BottleServerCategoryServiceImpl extends BottleServerServiceBase implements BottleServerCategoryService {
 
     @Override
-    public void getRoomsAsync(int categoryId, final Callback<RoomList> callback) {
+    public void getRoomsAsync(int categoryId, final Callback<List<Room>> callback) {
         if (!App.getInstance().getBottleContext().isLogged()) {
             callback.onError(new Exception("Unauthenticated"));
             return;
@@ -28,11 +28,11 @@ class BottleServerCategoryServiceImpl extends BottleServerServiceBase implements
 
         ApiCategory apiCategory = ApiClient.getClient(bottleUser.getToken()).create(ApiCategory.class);
 
-        Call<RoomList> call = apiCategory.getRooms(categoryId, 0, 100);// assume that we want to get all rooms
+        Call<List<Room>> call = apiCategory.getRooms(categoryId, 0, 100);// assume that we want to get all rooms
 
-        call.enqueue(new retrofit2.Callback<RoomList>() {
+        call.enqueue(new retrofit2.Callback<List<Room>>() {
             @Override
-            public void onResponse(Call<RoomList> call, Response<RoomList> response) {
+            public void onResponse(Call<List<Room>> call, Response<List<Room>> response) {
                 if (response.code() == 200) {
                     callback.onSuccess(response.body());
                 } else {
@@ -42,7 +42,7 @@ class BottleServerCategoryServiceImpl extends BottleServerServiceBase implements
             }
 
             @Override
-            public void onFailure(Call<RoomList> call, Throwable t) {
+            public void onFailure(Call<List<Room>> call, Throwable t) {
                 callback.onError(t);
             }
         });

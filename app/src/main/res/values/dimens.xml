@@ -24,4 +24,5 @@
     <dimen name="text_content_margin_top">10dp</dimen>
     <dimen name="media_content_margin_top">5dp</dimen>
 
+    <dimen name="preview_height">250dp</dimen>
 </resources>

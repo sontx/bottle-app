@@ -1,7 +1,7 @@
 package com.blogspot.sontx.bottle.model.service.rest;
 
 import com.blogspot.sontx.bottle.model.bean.Category;
-import com.blogspot.sontx.bottle.model.bean.RoomList;
+import com.blogspot.sontx.bottle.model.bean.Room;
 
 import java.util.List;
 
@@ -12,7 +12,7 @@ import retrofit2.http.Query;
 
 public interface ApiCategory {
     @GET("categories/{categoryId}/rooms")
-    Call<RoomList> getRooms(@Path("categoryId") int categoryId, @Query("page") int page, @Query("pageSize") int pageSize);
+    Call<List<Room>> getRooms(@Path("categoryId") int categoryId, @Query("page") int page, @Query("pageSize") int pageSize);
 
     @GET("categories")
     Call<List<Category>> getCategories(@Query("page") int page, @Query("pageSize") int pageSize);

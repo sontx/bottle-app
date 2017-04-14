@@ -6,11 +6,9 @@ import android.support.v4.app.FragmentTransaction;
 
 import com.blogspot.sontx.bottle.R;
 import com.blogspot.sontx.bottle.model.bean.Category;
-import com.blogspot.sontx.bottle.model.bean.Room;
 import com.blogspot.sontx.bottle.view.fragment.ListCategoryFragment;
-import com.blogspot.sontx.bottle.view.fragment.ListRoomFragment;
 
-public class ListCategoryActivity extends ActivityBase implements ListCategoryFragment.OnListCategoryInteractionListener, ListRoomFragment.OnListRoomInteractionListener {
+public class ListCategoryActivity extends ActivityBase implements ListCategoryFragment.OnListCategoryInteractionListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,11 +28,6 @@ public class ListCategoryActivity extends ActivityBase implements ListCategoryFr
 
     @Override
     public void onListCategoryInteraction(Category item) {
-
-    }
-
-    @Override
-    public void onListRoomInteraction(Room item) {
 
     }
 }

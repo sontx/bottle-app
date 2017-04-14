@@ -2,7 +2,6 @@ package com.blogspot.sontx.bottle.view.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -11,14 +10,15 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.blogspot.sontx.bottle.R;
+import com.blogspot.sontx.bottle.model.bean.Category;
 import com.blogspot.sontx.bottle.model.bean.Room;
-import com.blogspot.sontx.bottle.model.bean.RoomList;
 import com.blogspot.sontx.bottle.presenter.RoomPresenterImpl;
 import com.blogspot.sontx.bottle.presenter.interfaces.RoomPresenter;
 import com.blogspot.sontx.bottle.view.adapter.RoomRecyclerViewAdapter;
 import com.blogspot.sontx.bottle.view.interfaces.ListRoomView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ListRoomFragment extends FragmentBase implements ListRoomView {
 
@@ -66,10 +66,10 @@ public class ListRoomFragment extends FragmentBase implements ListRoomView {
 
             if (arguments.containsKey(ARG_CATEGORY_ID)) {
                 int categoryId = arguments.getInt(ARG_CATEGORY_ID);
-                roomPresenter.getRoomsAsync(categoryId);
+                roomPresenter.getRoomsAsync(categoryId, true);
             } else if (arguments.containsKey(ARG_ROOM_ID)) {
                 int roomId = arguments.getInt(ARG_ROOM_ID);
-                roomPresenter.getRoomsHaveSameCategoryAsync(roomId);
+                roomPresenter.getRoomsHaveSameCategoryAsync(roomId, true);
             }
         }
     }
@@ -110,18 +110,22 @@ public class ListRoomFragment extends FragmentBase implements ListRoomView {
     }
 
     @Override
-    public void showRooms(RoomList rooms) {
+    public void showRooms(List<Room> rooms) {
         if (roomRecyclerViewAdapter != null) {
-            roomRecyclerViewAdapter.getValues().addAll(rooms.getRooms());
+            roomRecyclerViewAdapter.getValues().addAll(rooms);
             roomRecyclerViewAdapter.notifyDataSetChanged();
         }
+    }
 
-        FragmentActivity activity = getActivity();
-        if (activity != null)
-            activity.setTitle(rooms.getCategoryName());
+    @Override
+    public void showCategory(Category category) {
+        if (listener != null)
+            listener.onCategoryAvailable(category);
     }
 
     public interface OnListRoomInteractionListener {
         void onListRoomInteraction(Room item);
+
+        void onCategoryAvailable(Category category);
     }
 }
