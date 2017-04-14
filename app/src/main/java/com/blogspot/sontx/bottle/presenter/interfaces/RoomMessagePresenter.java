@@ -8,4 +8,6 @@ public interface RoomMessagePresenter {
     void postRoomMessageAsync(String text, String mediaPath);
 
     void jumpToListRooms();
+
+    void selectRoom(int roomId);
 }

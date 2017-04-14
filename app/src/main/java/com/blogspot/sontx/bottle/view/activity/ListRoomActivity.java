@@ -6,6 +6,7 @@ import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.widget.ImageView;
 
 import com.blogspot.sontx.bottle.R;
@@ -41,6 +42,17 @@ public class ListRoomActivity extends ActivityBase implements ListRoomFragment.O
         setupToolbar();
         ButterKnife.bind(this);
         processArguments();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            Intent intent = getIntent();
+            setResult(RESULT_CANCELED, intent);
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void processArguments() {
@@ -83,7 +95,10 @@ public class ListRoomActivity extends ActivityBase implements ListRoomFragment.O
 
     @Override
     public void onListRoomInteraction(Room item) {
-
+        Intent intent = getIntent();
+        intent.putExtra(ROOM_ID, item.getId());
+        setResult(RESULT_OK, intent);
+        finish();
     }
 
     @Override

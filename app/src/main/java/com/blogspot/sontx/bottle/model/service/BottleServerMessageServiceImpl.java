@@ -23,6 +23,7 @@ class BottleServerMessageServiceImpl extends BottleServerServiceBase implements 
         if (cachedRoomMessages != null) {
             if (page == 0) {
                 callback.onSuccess(cachedRoomMessages);
+                cachedRoomMessages = null;
                 return;
             } else {
                 cachedRoomMessages = null;

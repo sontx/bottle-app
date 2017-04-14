@@ -52,6 +52,8 @@ public class RoomMessagePresenterImpl extends PresenterBase implements RoomMessa
         currentRoom.setId(currentRoomId);
         currentRoom.setCategoryId(-1);
 
+        currentPage = 0;
+
         bottleServerRoomService.getRoomAsync(currentRoomId, new Callback<Room>() {
             @Override
             public void onSuccess(Room result) {
@@ -67,6 +69,8 @@ public class RoomMessagePresenterImpl extends PresenterBase implements RoomMessa
 
     @Override
     public synchronized void getMoreRoomMessagesAsync() {
+        listRoomMessageView.clearRoomMessages();
+
         bottleServerMessageService.getRoomMessages(currentRoom.getId(), currentPage, 10, new Callback<List<RoomMessage>>() {
             @Override
             public void onSuccess(List<RoomMessage> result) {
@@ -110,6 +114,14 @@ public class RoomMessagePresenterImpl extends PresenterBase implements RoomMessa
                 listRoomMessageView.showListRoomsByCategoryId(currentRoom.getCategoryId());
             else
                 listRoomMessageView.showListRoomsByRoomId(currentRoom.getId());
+        }
+    }
+
+    @Override
+    public void selectRoom(int roomId) {
+        if (currentRoom == null || currentRoom.getId() != roomId) {
+            setCurrentRoomId(roomId);
+            getMoreRoomMessagesAsync();
         }
     }
 }

@@ -66,8 +66,7 @@ public class ListRoomMessageFragment extends FragmentBase implements ListRoomMes
             if (bottleContext.isLogged()) {
                 int currentRoomId = bottleContext.getCurrentUserSetting().getCurrentRoomId();
                 roomMessagePresenter = new RoomMessagePresenterImpl(this);
-                roomMessagePresenter.setCurrentRoomId(currentRoomId);
-                roomMessagePresenter.getMoreRoomMessagesAsync();
+                roomMessagePresenter.selectRoom(currentRoomId);
             }
         }
     }
@@ -126,6 +125,14 @@ public class ListRoomMessageFragment extends FragmentBase implements ListRoomMes
             return;
         }
 
+        if (requestCode == REQUEST_CODE_SELECT_ROOM) {
+            if (resultCode == Activity.RESULT_OK) {
+                int roomId = data.getIntExtra(ListRoomActivity.ROOM_ID, -1);
+                roomMessagePresenter.selectRoom(roomId);
+            }
+            return;
+        }
+
         super.onActivityResult(requestCode, resultCode, data);
     }
 
@@ -171,14 +178,22 @@ public class ListRoomMessageFragment extends FragmentBase implements ListRoomMes
     public void showListRoomsByCategoryId(int categoryId) {
         Intent intent = new Intent(getContext(), ListRoomActivity.class);
         intent.putExtra(ListRoomActivity.CATEGORY_ID, categoryId);
-        startActivity(intent);
+        startActivityForResult(intent, REQUEST_CODE_SELECT_ROOM);
     }
 
     @Override
     public void showListRoomsByRoomId(int roomId) {
         Intent intent = new Intent(getContext(), ListRoomActivity.class);
         intent.putExtra(ListRoomActivity.ROOM_ID, roomId);
-        startActivity(intent);
+        startActivityForResult(intent, REQUEST_CODE_SELECT_ROOM);
+    }
+
+    @Override
+    public void clearRoomMessages() {
+        if (roomMessageRecyclerViewAdapter != null) {
+            roomMessageRecyclerViewAdapter.getValues().clear();
+            roomMessageRecyclerViewAdapter.notifyDataSetChanged();
+        }
     }
 
     @Override
