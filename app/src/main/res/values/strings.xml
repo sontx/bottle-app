@@ -34,4 +34,6 @@
     <string name="input_type_emoji">Emoji</string>
 
     <string name="message_text_empty">I want to know how are you feeling :)</string>
+    <string name="select_category">Select a category</string>
+    <string name="category">Category</string>
 </resources>

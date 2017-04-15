@@ -82,6 +82,7 @@ dependencies {
     compile 'me.itangqi.waveloadingview:library:0.3.5'
     compile 'com.malinskiy:superrecyclerview:1.1.4'
     compile 'com.roughike:bottom-bar:2.3.0'
+    compile 'com.orhanobut:dialogplus:1.11@aar'
     testCompile 'junit:junit:4.12'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
     provided 'org.projectlombok:lombok:1.12.6'
