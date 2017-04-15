@@ -15,8 +15,7 @@ public class App extends MultiDexApplication {
     private static App instance;
 
     @Getter
-    private BottleContextWrapper bottleContextWrapper = new BottleContextWrapper();
-
+    private BottleContextWrapper bottleContextWrapper;
     public App() {
         instance = this;
     }
@@ -36,6 +35,7 @@ public class App extends MultiDexApplication {
         super.onCreate();
         setupEnvironmentProperties();
         FirebaseServicePool.getInstance().initialize(this);
+        bottleContextWrapper = new BottleContextWrapper();
     }
 
     private void setupEnvironmentProperties() {
@@ -52,5 +52,6 @@ public class App extends MultiDexApplication {
         System.setProperty(Constants.FIREBASE_MESSAGES_KEY, "messages");
 
         System.setProperty(Constants.BOTTLE_SERVER_BASE_URL_KEY, "http://192.168.1.33:8080/bottle/rest/");
+        System.setProperty(Constants.BOTTLE_FS_BASE_URL_KEY, "http://192.168.1.33:3030/bottlefs/rest/storage");
     }
 }

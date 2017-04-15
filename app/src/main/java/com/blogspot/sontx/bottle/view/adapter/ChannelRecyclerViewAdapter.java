@@ -6,11 +6,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.blogspot.sontx.bottle.App;
 import com.blogspot.sontx.bottle.Constants;
 import com.blogspot.sontx.bottle.R;
 import com.blogspot.sontx.bottle.model.bean.PublicProfile;
 import com.blogspot.sontx.bottle.model.bean.chat.Channel;
 import com.blogspot.sontx.bottle.model.bean.chat.ChannelDetail;
+import com.blogspot.sontx.bottle.system.Resource;
 import com.blogspot.sontx.bottle.utils.DateTimeUtils;
 import com.blogspot.sontx.bottle.view.fragment.ListChannelFragment.OnChannelInteractionListener;
 import com.squareup.picasso.Picasso;
@@ -28,10 +30,12 @@ public class ChannelRecyclerViewAdapter extends RecyclerView.Adapter<ChannelRecy
     @Setter
     private List<Channel> values;
     private OnChannelInteractionListener listener;
+    private Resource resource;
 
     public ChannelRecyclerViewAdapter(List<Channel> items, OnChannelInteractionListener listener) {
         this.values = items;
         this.listener = listener;
+        resource = App.getInstance().getBottleContext().getResource();
     }
 
     @Override
@@ -54,7 +58,8 @@ public class ChannelRecyclerViewAdapter extends RecyclerView.Adapter<ChannelRecy
         holder.timestampView.setText(DateTimeUtils.getTimestamp(detail.getTimestamp()));
 
         String avatarUrl = anotherGuy != null ? anotherGuy.getAvatarUrl() : System.getProperty(Constants.UI_DEFAULT_AVATAR_URL_KEY);
-        Picasso.with(holder.root.getContext()).load(avatarUrl).into(holder.avatarView);
+        String url = resource.absoluteUrl(avatarUrl);
+        Picasso.with(holder.root.getContext()).load(url).into(holder.avatarView);
 
         holder.root.setOnClickListener(new View.OnClickListener() {
             @Override

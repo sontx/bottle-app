@@ -1,6 +1,8 @@
 package com.blogspot.sontx.bottle.view.activity;
 
 import android.content.Context;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -9,12 +11,21 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.blogspot.sontx.bottle.App;
+import com.blogspot.sontx.bottle.system.Resource;
 import com.blogspot.sontx.bottle.view.dialog.ProcessDialog;
 import com.blogspot.sontx.bottle.view.interfaces.ViewBase;
 
 abstract class ActivityBase extends AppCompatActivity implements ViewBase {
     protected static final String TAG = "ACTIVITY";
     private ProcessDialog processDialog;
+    protected Resource resource;
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        resource = App.getInstance().getBottleContext().getResource();
+    }
 
     protected void requestFullscreen() {
         requestWindowFeature(Window.FEATURE_NO_TITLE);

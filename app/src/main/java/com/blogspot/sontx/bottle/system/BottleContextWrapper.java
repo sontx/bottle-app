@@ -1,5 +1,6 @@
 package com.blogspot.sontx.bottle.system;
 
+import com.blogspot.sontx.bottle.Constants;
 import com.blogspot.sontx.bottle.model.bean.BottleUser;
 import com.blogspot.sontx.bottle.model.bean.UserSetting;
 import com.blogspot.sontx.bottle.system.provider.Auth2Provider;
@@ -31,6 +32,10 @@ public final class BottleContextWrapper {
         @Override
         public boolean isLogged() {
             return currentBottleUser != null && currentBottleUser.getToken() != null;
+        }
+
+        BottleContextImpl() {
+            resource = new Resource(System.getProperty(Constants.BOTTLE_FS_BASE_URL_KEY));
         }
     }
 }

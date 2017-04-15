@@ -7,8 +7,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.blogspot.sontx.bottle.App;
 import com.blogspot.sontx.bottle.R;
 import com.blogspot.sontx.bottle.model.bean.Room;
+import com.blogspot.sontx.bottle.system.Resource;
 import com.blogspot.sontx.bottle.utils.StringUtils;
 import com.blogspot.sontx.bottle.view.fragment.ListRoomFragment;
 import com.squareup.picasso.Picasso;
@@ -24,10 +26,12 @@ public class RoomRecyclerViewAdapter extends RecyclerView.Adapter<RoomRecyclerVi
     @Getter
     private List<Room> values;
     private int avatarSize;
+    private Resource resource;
 
     public RoomRecyclerViewAdapter(List<Room> items, ListRoomFragment.OnListRoomInteractionListener listener) {
         values = items;
         this.listener = listener;
+        resource = App.getInstance().getBottleContext().getResource();
     }
 
     @Override
@@ -45,10 +49,12 @@ public class RoomRecyclerViewAdapter extends RecyclerView.Adapter<RoomRecyclerVi
         holder.titleView.setText(room.getName());
         holder.descriptionView.setText(room.getDescription());
 
-        if (!StringUtils.isEmpty(room.getPhotoUrl()))
-            Picasso.with(holder.root.getContext()).load(room.getPhotoUrl()).resize(avatarSize, avatarSize).centerCrop().into(holder.imageView);
-        else
+        if (!StringUtils.isEmpty(room.getPhotoUrl())) {
+            String url = resource.absoluteUrl(room.getPhotoUrl());
+            Picasso.with(holder.root.getContext()).load(url).resize(avatarSize, avatarSize).centerCrop().into(holder.imageView);
+        } else {
             holder.imageView.setImageResource(R.drawable.ic_default_room);
+        }
 
         holder.root.setOnClickListener(new View.OnClickListener() {
             @Override

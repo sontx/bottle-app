@@ -19,4 +19,7 @@ public abstract class BottleContext {
 
     @Getter
     protected Auth2Provider currentAuth2Provider;
+
+    @Getter
+    protected Resource resource;
 }

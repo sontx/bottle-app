@@ -6,9 +6,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.blogspot.sontx.bottle.App;
 import com.blogspot.sontx.bottle.R;
 import com.blogspot.sontx.bottle.model.bean.PublicProfile;
 import com.blogspot.sontx.bottle.model.bean.RoomMessage;
+import com.blogspot.sontx.bottle.system.Resource;
 import com.blogspot.sontx.bottle.view.fragment.ListRoomMessageFragment;
 import com.squareup.picasso.Picasso;
 
@@ -24,10 +26,12 @@ public class RoomMessageRecyclerViewAdapter extends RecyclerView.Adapter<RoomMes
     private final ListRoomMessageFragment.OnListRoomMessageInteractionListener listener;
     @Getter
     private List<RoomMessage> values;
+    private Resource resource;
 
     public RoomMessageRecyclerViewAdapter(List<RoomMessage> items, ListRoomMessageFragment.OnListRoomMessageInteractionListener listener) {
         values = items;
         this.listener = listener;
+        resource = App.getInstance().getBottleContext().getResource();
     }
 
     @Override
@@ -44,7 +48,8 @@ public class RoomMessageRecyclerViewAdapter extends RecyclerView.Adapter<RoomMes
         holder.item = roomMessage;
 
         holder.displayNameView.setText(owner.getDisplayName());
-        Picasso.with(holder.root.getContext()).load(owner.getAvatarUrl()).into(holder.avatarView);
+        String url = resource.absoluteUrl(owner.getAvatarUrl());
+        Picasso.with(holder.root.getContext()).load(url).into(holder.avatarView);
         holder.timestampView.setText(DateTimeUtils.getTimestamp(holder.root.getContext(), roomMessage.getTimestamp()));
         holder.textContentView.setText(roomMessage.getText());
 

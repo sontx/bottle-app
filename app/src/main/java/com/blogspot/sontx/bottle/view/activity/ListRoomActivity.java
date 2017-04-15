@@ -133,7 +133,8 @@ public class ListRoomActivity extends ActivityBase implements ListRoomFragment.O
 
         if (!StringUtils.isEmpty(category.getPhotoUrl())) {
             int width = headerImageView.getWidth();
-            Picasso.with(this).load(category.getPhotoUrl()).resize(width, previewHeight).centerCrop().into(headerImageView);
+            String url = resource.absoluteUrl(category.getPhotoUrl());
+            Picasso.with(this).load(url).resize(width, previewHeight).centerCrop().into(headerImageView);
         }
     }
 
