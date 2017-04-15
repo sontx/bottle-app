@@ -15,7 +15,7 @@
         android:paddingLeft="@dimen/item_margin"
         android:paddingRight="@dimen/item_margin"
         app:layoutManager="LinearLayoutManager"
-        tools:listitem="@layout/fragment_room_message" />
+        tools:listitem="@layout/fragment_room_message_text" />
 
     <com.roughike.bottombar.BottomBar
         android:id="@+id/bottom_bar"

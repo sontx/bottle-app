@@ -1,6 +1,7 @@
 package com.blogspot.sontx.bottle.presenter;
 
 import com.blogspot.sontx.bottle.R;
+import com.blogspot.sontx.bottle.model.bean.MessageBase;
 import com.blogspot.sontx.bottle.presenter.interfaces.WriteMessagePresenter;
 import com.blogspot.sontx.bottle.view.interfaces.WriteMessageView;
 
@@ -19,7 +20,7 @@ public class WriteMessagePresenterImpl extends PresenterBase implements WriteMes
         freeLastExtraObjectResource();
         mediaObject = new MediaObject();
         mediaObject.resourcePath = photoPath;
-        mediaObject.type = MediaType.IMAGE;
+        mediaObject.type = MessageBase.PHOTO;
     }
 
     @Override
@@ -27,7 +28,7 @@ public class WriteMessagePresenterImpl extends PresenterBase implements WriteMes
         freeLastExtraObjectResource();
         mediaObject = new MediaObject();
         mediaObject.resourcePath = videoPath;
-        mediaObject.type = MediaType.VIDEO;
+        mediaObject.type = MessageBase.VIDEO;
     }
 
     @Override
@@ -36,7 +37,8 @@ public class WriteMessagePresenterImpl extends PresenterBase implements WriteMes
         if (text == null || (text.trim()).length() == 0) {
             writeMessageView.showErrorMessage(writeMessageView.getContext().getString(R.string.message_text_empty));
         } else {
-            writeMessageView.goBackWithSuccess(text.trim(), mediaObject != null ? mediaObject.resourcePath : null);
+            String type = mediaObject != null ? mediaObject.type : MessageBase.TEXT;
+            writeMessageView.goBackWithSuccess(text.trim(), mediaObject != null ? mediaObject.resourcePath : null, type);
         }
     }
 
@@ -59,15 +61,8 @@ public class WriteMessagePresenterImpl extends PresenterBase implements WriteMes
         mediaObject = null;
     }
 
-    private enum MediaType {
-        IMAGE,
-        VIDEO,
-        RECORDING,
-        LINK
-    }
-
     private static class MediaObject {
         String resourcePath;
-        MediaType type;
+        String type;
     }
 }

@@ -37,7 +37,7 @@ public class RoomMessageRecyclerViewAdapter extends RecyclerView.Adapter<RoomMes
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_room_message, parent, false);
+                .inflate(R.layout.fragment_room_message_text, parent, false);
         return new ViewHolder(view);
     }
 

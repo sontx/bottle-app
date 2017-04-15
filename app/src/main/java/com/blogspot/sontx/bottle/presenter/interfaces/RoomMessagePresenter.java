@@ -5,7 +5,7 @@ public interface RoomMessagePresenter {
 
     void getMoreRoomMessagesAsync();
 
-    void postRoomMessageAsync(String text, String mediaPath);
+    void postRoomMessageAsync(String text, String mediaPath, String type);
 
     void jumpToListRooms();
 

@@ -44,6 +44,7 @@ public class WriteMessageActivity extends ActivityBase
 
     public static final String MESSAGE_TEXT = "message-text";
     public static final String MESSAGE_MEDIA = "message-media";
+    public static final String MESSAGE_TYPE = "message-type";
 
     @BindView(R.id.type_view)
     ImageView typeView;
@@ -214,10 +215,13 @@ public class WriteMessageActivity extends ActivityBase
     }
 
     @Override
-    public void goBackWithSuccess(String text, String mediaPath) {
+    public void goBackWithSuccess(String text, String mediaPath, String type) {
         Intent intent = getIntent();
+
         intent.putExtra(MESSAGE_TEXT, text);
         intent.putExtra(MESSAGE_MEDIA, mediaPath);
+        intent.putExtra(MESSAGE_TYPE, type);
+
         setResult(RESULT_OK, intent);
         finish();
     }

@@ -92,11 +92,12 @@ public class RoomMessagePresenterImpl extends PresenterBase implements RoomMessa
     }
 
     @Override
-    public void postRoomMessageAsync(String text, String mediaPath) {
+    public void postRoomMessageAsync(String text, String mediaPath, String type) {
         final RoomMessage tempRoomMessage = new RoomMessage();
         tempRoomMessage.setText(text);
         tempRoomMessage.setOwner(currentPublicProfile);
         tempRoomMessage.setMediaUrl(mediaPath);
+        tempRoomMessage.setType(type);
 
         if (currentPublicProfile != null)
             listRoomMessageView.addRoomMessage(tempRoomMessage);

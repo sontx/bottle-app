@@ -120,7 +120,9 @@ public class ListRoomMessageFragment extends FragmentBase implements ListRoomMes
             if (resultCode == Activity.RESULT_OK) {
                 String text = data.getStringExtra(WriteMessageActivity.MESSAGE_TEXT);
                 String mediaPath = data.getStringExtra(WriteMessageActivity.MESSAGE_MEDIA);
-                roomMessagePresenter.postRoomMessageAsync(text, mediaPath);
+                String type = data.getStringExtra(WriteMessageActivity.MESSAGE_TYPE);
+
+                roomMessagePresenter.postRoomMessageAsync(text, mediaPath, type);
             }
             return;
         }
