@@ -1,5 +1,8 @@
 package com.blogspot.sontx.bottle.system;
 
+import android.content.Context;
+
+import com.blogspot.sontx.bottle.App;
 import com.blogspot.sontx.bottle.Constants;
 import com.blogspot.sontx.bottle.model.bean.BottleUser;
 import com.blogspot.sontx.bottle.model.bean.UserSetting;
@@ -34,8 +37,13 @@ public final class BottleContextWrapper {
             return currentBottleUser != null && currentBottleUser.getToken() != null;
         }
 
+        @Override
+        public Context getAppContext() {
+            return App.getInstance().getApplicationContext();
+        }
+
         BottleContextImpl() {
-            resource = new Resource(System.getProperty(Constants.BOTTLE_FS_BASE_URL_KEY));
+            resource = new Resource(System.getProperty(Constants.BOTTLE_FS_STORAGE_URL_KEY));
         }
     }
 }

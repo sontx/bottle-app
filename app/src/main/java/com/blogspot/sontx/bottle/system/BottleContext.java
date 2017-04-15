@@ -1,5 +1,7 @@
 package com.blogspot.sontx.bottle.system;
 
+import android.content.Context;
+
 import com.blogspot.sontx.bottle.model.bean.BottleUser;
 import com.blogspot.sontx.bottle.model.bean.UserSetting;
 import com.blogspot.sontx.bottle.system.provider.Auth2Provider;
@@ -22,4 +24,7 @@ public abstract class BottleContext {
 
     @Getter
     protected Resource resource;
+
+    @Getter
+    protected Context appContext;
 }

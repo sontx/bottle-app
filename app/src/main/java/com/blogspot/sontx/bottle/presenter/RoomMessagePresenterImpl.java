@@ -4,12 +4,16 @@ import com.blogspot.sontx.bottle.App;
 import com.blogspot.sontx.bottle.model.bean.PublicProfile;
 import com.blogspot.sontx.bottle.model.bean.Room;
 import com.blogspot.sontx.bottle.model.bean.RoomMessage;
+import com.blogspot.sontx.bottle.model.bean.UploadResult;
 import com.blogspot.sontx.bottle.model.service.Callback;
 import com.blogspot.sontx.bottle.model.service.FirebaseServicePool;
+import com.blogspot.sontx.bottle.model.service.interfaces.BottleFileStreamService;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerMessageService;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerRoomService;
 import com.blogspot.sontx.bottle.model.service.interfaces.PublicProfileService;
 import com.blogspot.sontx.bottle.presenter.interfaces.RoomMessagePresenter;
+import com.blogspot.sontx.bottle.system.Resource;
+import com.blogspot.sontx.bottle.utils.StringUtils;
 import com.blogspot.sontx.bottle.view.interfaces.ListRoomMessageView;
 
 import java.util.List;
@@ -18,6 +22,7 @@ public class RoomMessagePresenterImpl extends PresenterBase implements RoomMessa
     private final ListRoomMessageView listRoomMessageView;
     private final BottleServerMessageService bottleServerMessageService;
     private final BottleServerRoomService bottleServerRoomService;
+    private final BottleFileStreamService bottleFileStreamService;
     private final PublicProfileService publicProfileService;
     private int currentPage = 0;
     private Room currentRoom;
@@ -27,6 +32,7 @@ public class RoomMessagePresenterImpl extends PresenterBase implements RoomMessa
         this.listRoomMessageView = listRoomMessageView;
         bottleServerMessageService = FirebaseServicePool.getInstance().getBottleServerMessageService();
         bottleServerRoomService = FirebaseServicePool.getInstance().getBottleServerRoomService();
+        bottleFileStreamService = FirebaseServicePool.getInstance().getBottleFileStreamService();
         publicProfileService = FirebaseServicePool.getInstance().getPublicProfileService();
         getCurrentPublicProfileAsync();
     }
@@ -90,10 +96,36 @@ public class RoomMessagePresenterImpl extends PresenterBase implements RoomMessa
         final RoomMessage tempRoomMessage = new RoomMessage();
         tempRoomMessage.setText(text);
         tempRoomMessage.setOwner(currentPublicProfile);
+        tempRoomMessage.setMediaUrl(mediaPath);
 
         if (currentPublicProfile != null)
             listRoomMessageView.addRoomMessage(tempRoomMessage);
 
+        if (StringUtils.isEmpty(mediaPath)) {
+            postRoomMessageAsync(tempRoomMessage);
+        } else {
+            Resource resource = App.getInstance().getBottleContext().getResource();
+            // link, we don't need to upload them
+            if (resource.isLink(mediaPath)) {
+                postRoomMessageAsync(tempRoomMessage);
+            } else {
+                bottleFileStreamService.uploadAsync(mediaPath, new Callback<UploadResult>() {
+                    @Override
+                    public void onSuccess(UploadResult result) {
+                        tempRoomMessage.setMediaUrl(result.getName());
+                        postRoomMessageAsync(tempRoomMessage);
+                    }
+
+                    @Override
+                    public void onError(Throwable what) {
+                        listRoomMessageView.showErrorMessage(what.getMessage());
+                    }
+                });
+            }
+        }
+    }
+
+    private void postRoomMessageAsync(final RoomMessage tempRoomMessage) {
         bottleServerRoomService.postRoomMessageAsync(currentRoom.getId(), tempRoomMessage, new Callback<RoomMessage>() {
             @Override
             public void onSuccess(RoomMessage result) {
