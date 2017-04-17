@@ -153,7 +153,7 @@ public class ListRoomMessageFragment extends FragmentBase implements ListRoomMes
             public void run() {
                 List<RoomMessage> values = roomMessageRecyclerViewAdapter.getValues();
                 values.add(0, roomMessage);
-                roomMessageRecyclerViewAdapter.notifyItemInserted(0);
+                roomMessageRecyclerViewAdapter.notifyDataSetChanged();
             }
         });
     }

@@ -2,6 +2,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:paddingBottom="@dimen/half_item_padding"
+    android:paddingLeft="@dimen/half_item_padding"
+    android:paddingRight="@dimen/half_item_padding"
+    android:paddingTop="@dimen/half_item_padding"
     android:orientation="vertical">
 
     <LinearLayout

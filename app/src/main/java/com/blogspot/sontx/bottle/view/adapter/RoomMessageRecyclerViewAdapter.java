@@ -8,9 +8,12 @@ import android.widget.TextView;
 
 import com.blogspot.sontx.bottle.App;
 import com.blogspot.sontx.bottle.R;
+import com.blogspot.sontx.bottle.model.bean.MessageBase;
 import com.blogspot.sontx.bottle.model.bean.PublicProfile;
 import com.blogspot.sontx.bottle.model.bean.RoomMessage;
 import com.blogspot.sontx.bottle.system.Resource;
+import com.blogspot.sontx.bottle.view.custom.AutoSizeImageView;
+import com.blogspot.sontx.bottle.view.custom.RichVideoView;
 import com.blogspot.sontx.bottle.view.fragment.ListRoomMessageFragment;
 import com.squareup.picasso.Picasso;
 
@@ -21,7 +24,11 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import it.slyce.messaging.utils.DateTimeUtils;
 import lombok.Getter;
 
-public class RoomMessageRecyclerViewAdapter extends RecyclerView.Adapter<RoomMessageRecyclerViewAdapter.ViewHolder> {
+public class RoomMessageRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+    private static final int TYPE_TEXT = 0;
+    private static final int TYPE_PHOTO = 1;
+    private static final int TYPE_VIDEO = 2;
 
     private final ListRoomMessageFragment.OnListRoomMessageInteractionListener listener;
     @Getter
@@ -35,32 +42,64 @@ public class RoomMessageRecyclerViewAdapter extends RecyclerView.Adapter<RoomMes
     }
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_room_message_text, parent, false);
-        return new ViewHolder(view);
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        if (viewType == TYPE_TEXT) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_room_message_text, parent, false);
+            return new TextViewHolder(view);
+        } else if (viewType == TYPE_PHOTO) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_room_message_photo, parent, false);
+            return new PhotoViewHolder(view);
+        } else if (viewType == TYPE_VIDEO) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_room_message_video, parent, false);
+            return new VideoViewHolder(view);
+        }
+        return null;
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, int position) {
+    public int getItemViewType(int position) {
+        RoomMessage roomMessage = values.get(position);
+        if (MessageBase.PHOTO.equalsIgnoreCase(roomMessage.getType()))
+            return TYPE_PHOTO;
+        if (MessageBase.VIDEO.equalsIgnoreCase(roomMessage.getType()))
+            return TYPE_VIDEO;
+        return TYPE_TEXT;
+    }
+
+    @Override
+    public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
         RoomMessage roomMessage = values.get(position);
         PublicProfile owner = roomMessage.getOwner();
-        holder.item = roomMessage;
 
-        holder.displayNameView.setText(owner.getDisplayName());
+        // apply for all message types
+        final TextViewHolder textViewHolder = (TextViewHolder) holder;
+
+        textViewHolder.item = roomMessage;
+        textViewHolder.displayNameView.setText(owner.getDisplayName());
         String url = resource.absoluteUrl(owner.getAvatarUrl());
-        Picasso.with(holder.root.getContext()).load(url).into(holder.avatarView);
-        holder.timestampView.setText(DateTimeUtils.getTimestamp(holder.root.getContext(), roomMessage.getTimestamp()));
-        holder.textContentView.setText(roomMessage.getText());
+        Picasso.with(textViewHolder.root.getContext()).load(url).into(textViewHolder.avatarView);
+        textViewHolder.timestampView.setText(DateTimeUtils.getTimestamp(textViewHolder.root.getContext(), roomMessage.getTimestamp()));
+        textViewHolder.textContentView.setText(roomMessage.getText());
 
-        holder.root.setOnClickListener(new View.OnClickListener() {
+        textViewHolder.root.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (null != listener) {
-                    listener.onListRoomMessageInteraction(holder.item);
+                    listener.onListRoomMessageInteraction(textViewHolder.item);
                 }
             }
         });
+
+        // message type is photo
+        if (holder.getItemViewType() == TYPE_PHOTO) {
+            PhotoViewHolder photoViewHolder = (PhotoViewHolder) holder;
+            url = resource.absoluteUrl(roomMessage.getMediaUrl());
+            photoViewHolder.autoSizeImageView.setImageUrl(url);
+        } else if (holder.getItemViewType() == TYPE_VIDEO) {
+            VideoViewHolder videoViewHolder = (VideoViewHolder) holder;
+            url = resource.absoluteUrl(roomMessage.getMediaUrl());
+            videoViewHolder.richVideoView.setVideoUrl(url);
+        }
     }
 
     @Override
@@ -68,7 +107,7 @@ public class RoomMessageRecyclerViewAdapter extends RecyclerView.Adapter<RoomMes
         return values.size();
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder {
+    private static class TextViewHolder extends RecyclerView.ViewHolder {
         final View root;
         final CircleImageView avatarView;
         final TextView displayNameView;
@@ -77,13 +116,31 @@ public class RoomMessageRecyclerViewAdapter extends RecyclerView.Adapter<RoomMes
 
         RoomMessage item;
 
-        ViewHolder(View view) {
+        TextViewHolder(View view) {
             super(view);
             root = view;
             displayNameView = ButterKnife.findById(view, R.id.display_name_view);
             timestampView = ButterKnife.findById(view, R.id.timestamp_view);
             avatarView = ButterKnife.findById(view, R.id.avatar_view);
             textContentView = ButterKnife.findById(view, R.id.text_content_view);
+        }
+    }
+
+    private static class PhotoViewHolder extends TextViewHolder {
+        final AutoSizeImageView autoSizeImageView;
+
+        PhotoViewHolder(View view) {
+            super(view);
+            autoSizeImageView = ButterKnife.findById(view, R.id.image_view);
+        }
+    }
+
+    private static class VideoViewHolder extends TextViewHolder {
+        final RichVideoView richVideoView;
+
+        VideoViewHolder(View view) {
+            super(view);
+            richVideoView = ButterKnife.findById(view, R.id.video_view);
         }
     }
 }

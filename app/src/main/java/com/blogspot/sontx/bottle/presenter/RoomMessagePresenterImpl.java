@@ -1,6 +1,7 @@
 package com.blogspot.sontx.bottle.presenter;
 
 import com.blogspot.sontx.bottle.App;
+import com.blogspot.sontx.bottle.model.bean.MessageBase;
 import com.blogspot.sontx.bottle.model.bean.PublicProfile;
 import com.blogspot.sontx.bottle.model.bean.Room;
 import com.blogspot.sontx.bottle.model.bean.RoomMessage;
@@ -12,7 +13,6 @@ import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerMessageSer
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerRoomService;
 import com.blogspot.sontx.bottle.model.service.interfaces.PublicProfileService;
 import com.blogspot.sontx.bottle.presenter.interfaces.RoomMessagePresenter;
-import com.blogspot.sontx.bottle.system.Resource;
 import com.blogspot.sontx.bottle.utils.StringUtils;
 import com.blogspot.sontx.bottle.view.interfaces.ListRoomMessageView;
 
@@ -105,9 +105,8 @@ public class RoomMessagePresenterImpl extends PresenterBase implements RoomMessa
         if (StringUtils.isEmpty(mediaPath)) {
             postRoomMessageAsync(tempRoomMessage);
         } else {
-            Resource resource = App.getInstance().getBottleContext().getResource();
             // link, we don't need to upload them
-            if (resource.isLink(mediaPath)) {
+            if (type.equalsIgnoreCase(MessageBase.LINK)) {
                 postRoomMessageAsync(tempRoomMessage);
             } else {
                 bottleFileStreamService.uploadAsync(mediaPath, new Callback<UploadResult>() {
