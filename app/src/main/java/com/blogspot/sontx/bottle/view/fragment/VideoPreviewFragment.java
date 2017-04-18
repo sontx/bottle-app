@@ -4,13 +4,17 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.MediaController;
 import android.widget.VideoView;
 
 import com.blogspot.sontx.bottle.R;
 
+import butterknife.BindView;
+
 public class VideoPreviewFragment extends PreviewFragmentBase {
-    //@BindView(R.id.video_preview)
-    VideoView previewImage;
+    @BindView(R.id.video_preview)
+    VideoView previewVideoView;
+    private MediaController mediaController;
 
     private String videoPath;
 
@@ -28,9 +32,12 @@ public class VideoPreviewFragment extends PreviewFragmentBase {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view =  inflater.inflate(R.layout.fragment_photo_preview, container, false);
+        View view = inflater.inflate(R.layout.fragment_video_preview, container, false);
         setupView(view);
-        previewImage.setVideoPath(videoPath);
+        mediaController = new MediaController(getContext());
+        previewVideoView.setMediaController(mediaController);
+        if (videoPath != null)
+            showVideo();
         return view;
     }
 
@@ -38,12 +45,16 @@ public class VideoPreviewFragment extends PreviewFragmentBase {
     public void onStart() {
         super.onStart();
         if (videoPath != null)
-            previewImage.setVideoPath(videoPath);
+            previewVideoView.setVideoPath(videoPath);
+    }
+
+    private void showVideo() {
+        previewVideoView.setVideoPath(videoPath);
     }
 
     public void setVideoPath(String videoPath) {
         this.videoPath = videoPath;
-        if (previewImage != null)
-            previewImage.setVideoPath(videoPath);
+        if (previewVideoView != null)
+            showVideo();
     }
 }

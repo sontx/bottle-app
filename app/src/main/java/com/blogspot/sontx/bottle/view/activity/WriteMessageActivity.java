@@ -1,9 +1,12 @@
 package com.blogspot.sontx.bottle.view.activity;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,7 +21,6 @@ import com.blogspot.sontx.bottle.R;
 import com.blogspot.sontx.bottle.model.service.SimpleCallback;
 import com.blogspot.sontx.bottle.presenter.WriteMessagePresenterImpl;
 import com.blogspot.sontx.bottle.presenter.interfaces.WriteMessagePresenter;
-import com.blogspot.sontx.bottle.utils.DelayJobUtils;
 import com.blogspot.sontx.bottle.utils.TempUtils;
 import com.blogspot.sontx.bottle.view.custom.OnBackPressedListener;
 import com.blogspot.sontx.bottle.view.custom.RichEmojiEditText;
@@ -29,10 +31,7 @@ import com.blogspot.sontx.bottle.view.interfaces.WriteMessageView;
 import com.mvc.imagepicker.ImagePicker;
 import com.vanniktech.emoji.EmojiPopup;
 
-import net.alhazmy13.mediapicker.Video.VideoPicker;
-
 import java.io.File;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -45,6 +44,8 @@ public class WriteMessageActivity extends ActivityBase
     public static final String MESSAGE_TEXT = "message-text";
     public static final String MESSAGE_MEDIA = "message-media";
     public static final String MESSAGE_TYPE = "message-type";
+
+    private static final int REQUEST_CODE_GALLERY_VIDEO = 1;
 
     @BindView(R.id.type_view)
     ImageView typeView;
@@ -145,12 +146,14 @@ public class WriteMessageActivity extends ActivityBase
         }
 
         // video
-        if (requestCode == VideoPicker.VIDEO_PICKER_REQUEST_CODE && resultCode == RESULT_OK) {
-            @SuppressWarnings("unchecked")
-            List<String> paths = (List<String>) data.getSerializableExtra(VideoPicker.EXTRA_VIDEO_PATH);
-            String videoPath = paths.get(0);
-            writeMessagePresenter.setMediaAsVideo(videoPath);
-            displayVideoPreview(videoPath);
+        if (requestCode == REQUEST_CODE_GALLERY_VIDEO) {
+            if (resultCode == RESULT_OK) {
+                String selectedVideoPath = getRealVideoPathFromURI(data.getData());
+                if (selectedVideoPath != null) {
+                    writeMessagePresenter.setMediaAsVideo(selectedVideoPath);
+                    displayVideoPreview(selectedVideoPath);
+                }
+            }
             return;
         }
 
@@ -164,12 +167,8 @@ public class WriteMessageActivity extends ActivityBase
 
     @OnClick({R.id.video_button, R.id.video_button1})
     void onVideoClick() {
-        new VideoPicker.Builder(this)
-                .mode(VideoPicker.Mode.CAMERA_AND_GALLERY)
-                .directory(VideoPicker.Directory.DEFAULT)
-                .extension(VideoPicker.Extension.MP4)
-                .enableDebuggingMode(true)
-                .build();
+        Intent i = new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(i, REQUEST_CODE_GALLERY_VIDEO);
     }
 
     @OnClick({R.id.recording_button, R.id.recording_button1})
@@ -299,17 +298,8 @@ public class WriteMessageActivity extends ActivityBase
     private void displayVideoPreview(final String videoPath) {
         showPreviewLayoutIfNecessary(true);
         VideoPreviewFragment videoPreviewFragment = VideoPreviewFragment.newInstance();
-        replaceFragment(R.id.preview_container, videoPreviewFragment);
         videoPreviewFragment.setVideoPath(videoPath);
-        if (firstTime) {
-            firstTime = false;
-            DelayJobUtils.delay(new Runnable() {
-                @Override
-                public void run() {
-                    displayVideoPreview(videoPath);
-                }
-            }, 600);
-        }
+        replaceFragment(R.id.preview_container, videoPreviewFragment);
     }
 
     private void displayPhotoPreview(final String photoPath) {
@@ -326,6 +316,20 @@ public class WriteMessageActivity extends ActivityBase
     private void showSoftKeyboard() {
         InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
         inputMethodManager.showSoftInput(messageText, InputMethodManager.SHOW_IMPLICIT);
+    }
+
+    private String getRealVideoPathFromURI(Uri contentURI) {
+        String result;
+        Cursor cursor = getContentResolver().query(contentURI, null, null, null, null);
+        if (cursor == null) {
+            result = contentURI.getPath();
+        } else {
+            cursor.moveToFirst();
+            int idx = cursor.getColumnIndex(MediaStore.Video.Media.DATA);
+            result = cursor.getString(idx);
+            cursor.close();
+        }
+        return result;
     }
 
     private enum InputType {
