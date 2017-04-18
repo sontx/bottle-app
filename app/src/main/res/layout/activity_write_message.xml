@@ -115,6 +115,7 @@
                             app:srcCompat="@drawable/ic_photo_black_24dp" />
 
                         <ImageView
+                            android:visibility="gone"
                             android:id="@+id/video_button1"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -123,6 +124,7 @@
                             app:srcCompat="@drawable/ic_camera_black_24dp" />
 
                         <ImageView
+                            android:visibility="gone"
                             android:id="@+id/recording_button1"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -131,6 +133,7 @@
                             app:srcCompat="@drawable/ic_record_voice_over_black_24dp" />
 
                         <ImageView
+                            android:visibility="gone"
                             android:id="@+id/drawing_button1"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -139,6 +142,7 @@
                             app:srcCompat="@drawable/ic_color_lens_black_24dp" />
 
                         <ImageView
+                            android:visibility="gone"
                             android:id="@+id/link_button1"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -223,6 +227,7 @@
                     android:background="@color/divider" />
 
                 <LinearLayout
+                    android:visibility="gone"
                     android:id="@+id/video_button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -248,11 +253,13 @@
                 </LinearLayout>
 
                 <View
+                    android:visibility="gone"
                     android:layout_width="fill_parent"
                     android:layout_height="0.5dp"
                     android:background="@color/divider" />
 
                 <LinearLayout
+                    android:visibility="gone"
                     android:id="@+id/recording_button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -278,11 +285,13 @@
                 </LinearLayout>
 
                 <View
+                    android:visibility="gone"
                     android:layout_width="fill_parent"
                     android:layout_height="0.5dp"
                     android:background="@color/divider" />
 
                 <LinearLayout
+                    android:visibility="gone"
                     android:id="@+id/drawing_button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -308,11 +317,13 @@
                 </LinearLayout>
 
                 <View
+                    android:visibility="gone"
                     android:layout_width="fill_parent"
                     android:layout_height="0.5dp"
                     android:background="@color/divider" />
 
                 <LinearLayout
+                    android:visibility="gone"
                     android:id="@+id/link_button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
