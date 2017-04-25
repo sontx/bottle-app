@@ -16,7 +16,9 @@ public interface ChannelService extends ServiceBase {
 
     Channel createChannel(String anotherMemberId);
 
-    void cacheChannelsAsync(Callback<List<Channel>> callback);
+    void registerChannelEvents();
+
+    void unregisterChannelEvents();
 
     boolean isCachedChannels();
 }

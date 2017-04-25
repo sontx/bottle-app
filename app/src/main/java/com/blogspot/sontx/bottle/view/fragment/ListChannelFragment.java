@@ -38,6 +38,8 @@ public class ListChannelFragment extends FragmentBase implements ListChannelView
 
         listChannelPresenter = new ListChannelPresenterImpl(this);
         listChannelPresenter.updateChannelsIfNecessary();
+
+        listChannelPresenter.registerEvents();
     }
 
     @Override
@@ -54,6 +56,7 @@ public class ListChannelFragment extends FragmentBase implements ListChannelView
         return view;
     }
 
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -67,6 +70,7 @@ public class ListChannelFragment extends FragmentBase implements ListChannelView
     @Override
     public void onDetach() {
         super.onDetach();
+        listChannelPresenter.unregisterEvents();
         listener = null;
     }
 

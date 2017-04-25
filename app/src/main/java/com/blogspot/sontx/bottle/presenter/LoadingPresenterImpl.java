@@ -6,8 +6,8 @@ import android.util.Log;
 
 import com.blogspot.sontx.bottle.App;
 import com.blogspot.sontx.bottle.model.bean.BottleUser;
+import com.blogspot.sontx.bottle.model.bean.PublicProfile;
 import com.blogspot.sontx.bottle.model.bean.UserSetting;
-import com.blogspot.sontx.bottle.model.bean.chat.Channel;
 import com.blogspot.sontx.bottle.model.service.Callback;
 import com.blogspot.sontx.bottle.model.service.FirebaseServicePool;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerAuthService;
@@ -15,6 +15,7 @@ import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerMessageSer
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerUserSettingService;
 import com.blogspot.sontx.bottle.model.service.interfaces.ChannelService;
 import com.blogspot.sontx.bottle.model.service.interfaces.ChatServerLoginService;
+import com.blogspot.sontx.bottle.model.service.interfaces.PublicProfileService;
 import com.blogspot.sontx.bottle.presenter.interfaces.LoadingPresenter;
 import com.blogspot.sontx.bottle.system.event.ChangeCurrentUserEvent;
 import com.blogspot.sontx.bottle.system.event.ServiceState;
@@ -28,12 +29,10 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.util.List;
-
 /**
  * [Login to firebase server] -> fetch user access token from firebase server -> login to bottle server
- * -> fetch user setting from bottle server[init context] -> cache chat channels -> cache messages ->
- * prepare UI
+ * -> fetch user setting from bottle server[init context] -> cache current user public profile
+ * -> cache chat channels -> cache messages -> prepare UI
  */
 public class LoadingPresenterImpl extends PresenterBase implements LoadingPresenter {
     private final LoadingView loadingView;
@@ -99,12 +98,24 @@ public class LoadingPresenterImpl extends PresenterBase implements LoadingPresen
                 bottleServerUserSettingService.getUserSettingAsync(new CacheUserSettingTask());
                 break;
 
-            case CACHE_USER_SETTING:// cache list channel
+            case CACHE_USER_SETTING:// cache current user public profile
                 updateUserSetting();
+
+                Log.d(TAG, "cache current user public profile");
+                bottleServerAuthService = FirebaseServicePool.getInstance().getBottleServerAuthService();
+                String currentUserId = bottleServerAuthService.getCurrentBottleUser().getUid();
+                PublicProfileService publicProfileService = FirebaseServicePool.getInstance().getPublicProfileService();
+                publicProfileService.getPublicProfileAsync(currentUserId, new CachePublicProfileTask());
+                break;
+
+            case CACHE_PUBLIC_PROFILE:// cache list channel
+                updateCurrentPublicProfile((PublicProfile) result);
 
                 Log.d(TAG, "cache list channel");
                 ChannelService channelService = FirebaseServicePool.getInstance().getChannelService();
-                channelService.cacheChannelsAsync(new CacheListChannelTask());
+                channelService.registerChannelEvents();
+
+                onTaskCompleted(Task.CACHE_LIST_CHANNEL, null);
                 break;
 
             case CACHE_LIST_CHANNEL:// fetch room/geo messages
@@ -129,6 +140,10 @@ public class LoadingPresenterImpl extends PresenterBase implements LoadingPresen
         }
     }
 
+    private void updateCurrentPublicProfile(PublicProfile publicProfile) {
+        App.getInstance().getBottleContextWrapper().setCurrentPublicProfile(publicProfile);
+    }
+
     private void updateUserSetting() {
         BottleServerUserSettingService bottleServerUserSettingService = FirebaseServicePool.getInstance().getBottleServerUserSettingService();
         UserSetting currentUserSetting = bottleServerUserSettingService.getCurrentUserSetting();
@@ -146,6 +161,7 @@ public class LoadingPresenterImpl extends PresenterBase implements LoadingPresen
         FETCH_USER_TOKEN,
         LOGIN_BOTTLE_SERVER,
         CACHE_USER_SETTING,
+        CACHE_PUBLIC_PROFILE,
         CACHE_LIST_CHANNEL,
         CACHE_MESSAGES,
         PREPARE_UI
@@ -176,11 +192,11 @@ public class LoadingPresenterImpl extends PresenterBase implements LoadingPresen
 
     }
 
-    private class CacheListChannelTask extends TaskBase<List<Channel>> implements Callback<List<Channel>> {
+    private class CachePublicProfileTask extends TaskBase<PublicProfile> implements Callback<PublicProfile> {
 
         @Override
-        public void onSuccess(List<Channel> result) {
-            onTaskCompleted(Task.CACHE_LIST_CHANNEL, result);
+        public void onSuccess(PublicProfile result) {
+            onTaskCompleted(Task.CACHE_PUBLIC_PROFILE, result);
         }
     }
 
@@ -206,6 +222,7 @@ public class LoadingPresenterImpl extends PresenterBase implements LoadingPresen
         @Override
         public void onError(Throwable what) {
             loadingView.navigateToErrorActivity(what.getMessage());
+            Log.e(TAG, what.getMessage());
         }
     }
 }

@@ -14,6 +14,8 @@ import com.blogspot.sontx.bottle.model.bean.chat.ChannelMember;
 import com.blogspot.sontx.bottle.model.bean.chat.ChatMessage;
 import com.blogspot.sontx.bottle.model.service.interfaces.ChannelService;
 import com.blogspot.sontx.bottle.model.service.interfaces.PublicProfileService;
+import com.blogspot.sontx.bottle.system.BottleContext;
+import com.blogspot.sontx.bottle.system.event.ChatChannelAddedEvent;
 import com.blogspot.sontx.bottle.utils.DateTimeUtils;
 import com.blogspot.sontx.bottle.utils.ThreadUtils;
 import com.google.firebase.database.DataSnapshot;
@@ -21,6 +23,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -141,129 +145,100 @@ class FirebaseChannelService extends FirebaseServiceBase implements ChannelServi
     }
 
     @Override
-    public void cacheChannelsAsync(final Callback<List<Channel>> callback) {
-        BottleUser bottleUser = App.getInstance().getBottleContext().getCurrentBottleUser();
+    public void registerChannelEvents() {
+        BottleContext bottleContext = App.getInstance().getBottleContext();
+        BottleUser bottleUser = bottleContext.getCurrentBottleUser();
         final String currentUserId = bottleUser.getUid();
+        final PublicProfile currentPublicProfile = bottleContext.getCurrentPublicProfile();
 
-        userChannelRef.child(currentUserId).addListenerForSingleValueEvent(new ValueEventListener() {
+        cachedChannels = new ArrayList<>();
+
+        userChannelRef.child(currentUserId).addChildEventListener(new ChildEventAdapter() {
             @Override
-            public void onDataChange(final DataSnapshot dataSnapshot) {
-                final boolean[] childThreadResults = {true};
-
-                final boolean hasChannel = dataSnapshot != null && dataSnapshot.exists();
-
-                if (hasChannel) {
-                    publicProfileService.getPublicProfileAsync(currentUserId, new Callback<PublicProfile>() {
-                        @Override
-                        public void onSuccess(final PublicProfile result) {
-                            ThreadUtils.run(new Runnable() {
-                                @Override
-                                public void run() {
-                                    collectChannelInfo(dataSnapshot, childThreadResults, result);
-                                    if (childThreadResults[0])
-                                        callback.onSuccess(cachedChannels);
-                                }
-                            });
-                        }
-
-                        @Override
-                        public void onError(Throwable what) {
-                            callback.onError(what);
-                        }
-                    });
-
-                } else {
-                    callback.onSuccess(cachedChannels = new ArrayList<>());
-                }
+            public synchronized void onChildAdded(final DataSnapshot dataSnapshot, String s) {
+                ThreadUtils.run(new Runnable() {
+                    @Override
+                    public void run() {
+                        collectChannelInfo(dataSnapshot);
+                    }
+                });
             }
 
-            private void collectChannelInfo(DataSnapshot dataSnapshot, final boolean[] childThreadResults, final PublicProfile currentUserProfile) {
-                final CountDownLatch countDownLatch = new CountDownLatch((int) (dataSnapshot.getChildrenCount() * 3));// detail + members + 1 another public profile
+            private void collectChannelInfo(DataSnapshot dataSnapshot) {
+                final CountDownLatch countDownLatch = new CountDownLatch(3);// detail + members + 1 another public profile
 
-                cachedChannels = new ArrayList<>();
+                final Channel channel = dataSnapshot.getValue(Channel.class);
 
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    final Channel channel = snapshot.getValue(Channel.class);
-                    cachedChannels.add(channel);
+                getChannelDetailAsync(channel.getId(), new Callback<ChannelDetail>() {
+                    @Override
+                    public void onSuccess(ChannelDetail result) {
+                        channel.setDetail(result);
+                        countDownLatch.countDown();
+                    }
 
-                    getChannelDetailAsync(channel.getId(), new Callback<ChannelDetail>() {
-                        @Override
-                        public void onSuccess(ChannelDetail result) {
-                            channel.setDetail(result);
-                            countDownLatch.countDown();
-                        }
+                    @Override
+                    public void onError(Throwable what) {
+                        Log.e(TAG, what.getMessage());
+                        countDownLatch.countDown();
+                    }
+                });
 
-                        @Override
-                        public void onError(Throwable what) {
-                            callback.onError(what);
-                            childThreadResults[0] = false;
-                            countDownLatch.countDown();
-                        }
-                    });
+                getChannelMembersAsync(channel.getId(), new Callback<List<ChannelMember>>() {
+                    @Override
+                    public void onSuccess(List<ChannelMember> result) {
+                        channel.setMemberList(result);
 
-                    getChannelMembersAsync(channel.getId(), new Callback<List<ChannelMember>>() {
-                        @Override
-                        public void onSuccess(List<ChannelMember> result) {
-                            channel.setMemberList(result);
+                        ChannelMember currentUser = channel.getCurrentUser();
+                        if (currentUser != null)
+                            currentUser.setPublicProfile(currentPublicProfile);
 
-                            final Members members = new Members().analysis(channel);
-                            members.currentUser.setPublicProfile(currentUserProfile);
-                            publicProfileService.getPublicProfileAsync(members.anotherGuy.getId(), new Callback<PublicProfile>() {
+                        final ChannelMember anotherGuy = channel.getAnotherGuy();
+
+                        if (anotherGuy != null) {
+                            publicProfileService.getPublicProfileAsync(anotherGuy.getId(), new Callback<PublicProfile>() {
                                 @Override
                                 public void onSuccess(PublicProfile result) {
-                                    members.anotherGuy.setPublicProfile(result);
+                                    anotherGuy.setPublicProfile(result);
                                     countDownLatch.countDown();
                                 }
 
                                 @Override
                                 public void onError(Throwable what) {
-                                    callback.onError(what);
-                                    childThreadResults[0] = false;
+                                    Log.e(TAG, what.getMessage());
                                     countDownLatch.countDown();
                                 }
                             });
-                            countDownLatch.countDown();
-
-                        }
-
-                        @Override
-                        public void onError(Throwable what) {
-                            callback.onError(what);
-                            childThreadResults[0] = false;
+                        } else {
                             countDownLatch.countDown();
                         }
-                    });
-                }
+
+                        countDownLatch.countDown();
+                    }
+
+                    @Override
+                    public void onError(Throwable what) {
+                        Log.e(TAG, what.getMessage());
+                        countDownLatch.countDown();
+                    }
+                });
 
                 try {
-                    countDownLatch.await(60, TimeUnit.SECONDS);
+                    countDownLatch.await(10, TimeUnit.SECONDS);
+                    if (channel.isFullMembersInfo() && channel.getDetail() != null) {
+                        cachedChannels.add(channel);
+                        broadcastAddChannelEvent(channel);
+                    }
                 } catch (InterruptedException e) {
                     Log.d(TAG, e.getMessage());
                 }
             }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                callback.onError(databaseError.toException());
-            }
-
-            class Members {
-                ChannelMember currentUser;
-                ChannelMember anotherGuy;
-
-                Members analysis(Channel channel) {
-                    List<ChannelMember> memberList = channel.getMemberList();
-                    if (memberList.get(0).getId().equalsIgnoreCase(currentUserId)) {
-                        currentUser = memberList.get(0);
-                        anotherGuy = memberList.get(1);
-                    } else {
-                        currentUser = memberList.get(1);
-                        anotherGuy = memberList.get(0);
-                    }
-                    return this;
-                }
-            }
         });
+    }
+
+    @Override
+    public void unregisterChannelEvents() {
+        BottleUser bottleUser = App.getInstance().getBottleContext().getCurrentBottleUser();
+        final String currentUserId = bottleUser.getUid();
     }
 
     @Override
@@ -311,5 +286,11 @@ class FirebaseChannelService extends FirebaseServiceBase implements ChannelServi
 
         currentUserChannelRef.setValue(channel);
         return channel;
+    }
+
+    private void broadcastAddChannelEvent(Channel channel) {
+        ChatChannelAddedEvent chatChannelAddedEvent = new ChatChannelAddedEvent();
+        chatChannelAddedEvent.setChannel(channel);
+        EventBus.getDefault().post(chatChannelAddedEvent);
     }
 }

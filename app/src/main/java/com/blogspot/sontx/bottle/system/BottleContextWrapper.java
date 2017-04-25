@@ -5,6 +5,7 @@ import android.content.Context;
 import com.blogspot.sontx.bottle.App;
 import com.blogspot.sontx.bottle.Constants;
 import com.blogspot.sontx.bottle.model.bean.BottleUser;
+import com.blogspot.sontx.bottle.model.bean.PublicProfile;
 import com.blogspot.sontx.bottle.model.bean.UserSetting;
 import com.blogspot.sontx.bottle.system.provider.Auth2Provider;
 
@@ -29,6 +30,10 @@ public final class BottleContextWrapper {
 
     public void setCurrentAuth2Provider(Auth2Provider currentAuth2Provider) {
         bottleContext.currentAuth2Provider = currentAuth2Provider;
+    }
+
+    public void setCurrentPublicProfile(PublicProfile publicProfile) {
+        bottleContext.currentPublicProfile = publicProfile;
     }
 
     private static class BottleContextImpl extends BottleContext {

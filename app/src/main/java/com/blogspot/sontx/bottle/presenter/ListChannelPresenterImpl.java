@@ -13,19 +13,24 @@ import com.blogspot.sontx.bottle.model.service.interfaces.ChannelService;
 import com.blogspot.sontx.bottle.model.service.interfaces.ChatService;
 import com.blogspot.sontx.bottle.model.service.interfaces.PublicProfileService;
 import com.blogspot.sontx.bottle.presenter.interfaces.ListChannelPresenter;
+import com.blogspot.sontx.bottle.system.event.ChatChannelAddedEvent;
 import com.blogspot.sontx.bottle.view.interfaces.ListChannelView;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.List;
 
 public class ListChannelPresenterImpl extends PresenterBase implements ListChannelPresenter {
-    private final ListChannelView ListChannelView;
+    private final ListChannelView listChannelView;
     private final ChannelService channelService;
     private final PublicProfileService publicProfileService;
     private List<Channel> channels;
     private boolean isUpdatedChannels = false;
 
     public ListChannelPresenterImpl(ListChannelView ListChannelView) {
-        this.ListChannelView = ListChannelView;
+        this.listChannelView = ListChannelView;
         this.channelService = FirebaseServicePool.getInstance().getChannelService();
         this.publicProfileService = FirebaseServicePool.getInstance().getPublicProfileService();
     }
@@ -38,14 +43,14 @@ public class ListChannelPresenterImpl extends PresenterBase implements ListChann
         if (!App.getInstance().getBottleContext().isLogged())
             return;
 
-        ListChannelView.clearChannels();
+        listChannelView.clearChannels();
 
         channelService.getCurrentChannelsAsync(new Callback<List<Channel>>() {
             @Override
             public void onSuccess(List<Channel> result) {
                 channels = result;
                 if (channelService.isCachedChannels()) {
-                    ListChannelView.showChannels(channels);
+                    listChannelView.showChannels(channels);
                 } else if (!channels.isEmpty()) {
                     for (Channel channel : channels) {
                         getChannelDetailAsync(channel);
@@ -62,9 +67,19 @@ public class ListChannelPresenterImpl extends PresenterBase implements ListChann
 
             @Override
             public void onError(Throwable what) {
-                ListChannelView.showErrorMessage(what.getMessage());
+                listChannelView.showErrorMessage(what.getMessage());
             }
         });
+    }
+
+    @Override
+    public void registerEvents() {
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void unregisterEvents() {
+        EventBus.getDefault().unregister(this);
     }
 
     @Override
@@ -81,19 +96,24 @@ public class ListChannelPresenterImpl extends PresenterBase implements ListChann
         }
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onAddChatChannelEvent(ChatChannelAddedEvent chatChannelAddedEvent) {
+        listChannelView.showChannel(chatChannelAddedEvent.getChannel());
+    }
+
     private void getPublicProfileAsync(final ChannelMember channelMember, @Nullable final Channel channel) {
         publicProfileService.getPublicProfileAsync(channelMember.getId(), new Callback<PublicProfile>() {
             @Override
             public void onSuccess(PublicProfile result) {
                 channelMember.setPublicProfile(result);
                 if (channel != null) {
-                    ListChannelView.showChannel(channel);
+                    listChannelView.showChannel(channel);
                 }
             }
 
             @Override
             public void onError(Throwable what) {
-                ListChannelView.showErrorMessage(what.getMessage());
+                listChannelView.showErrorMessage(what.getMessage());
             }
         });
     }
@@ -111,7 +131,7 @@ public class ListChannelPresenterImpl extends PresenterBase implements ListChann
 
             @Override
             public void onError(Throwable what) {
-                ListChannelView.showErrorMessage(what.getMessage());
+                listChannelView.showErrorMessage(what.getMessage());
             }
         });
     }
@@ -121,12 +141,12 @@ public class ListChannelPresenterImpl extends PresenterBase implements ListChann
             @Override
             public void onSuccess(ChannelDetail result) {
                 channel.setDetail(result);
-                ListChannelView.showChannel(channel);
+                listChannelView.showChannel(channel);
             }
 
             @Override
             public void onError(Throwable what) {
-                ListChannelView.showErrorMessage(what.getMessage());
+                listChannelView.showErrorMessage(what.getMessage());
             }
         });
     }

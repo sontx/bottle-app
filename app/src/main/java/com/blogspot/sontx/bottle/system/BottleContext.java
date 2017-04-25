@@ -3,6 +3,7 @@ package com.blogspot.sontx.bottle.system;
 import android.content.Context;
 
 import com.blogspot.sontx.bottle.model.bean.BottleUser;
+import com.blogspot.sontx.bottle.model.bean.PublicProfile;
 import com.blogspot.sontx.bottle.model.bean.UserSetting;
 import com.blogspot.sontx.bottle.system.provider.Auth2Provider;
 
@@ -18,6 +19,9 @@ public abstract class BottleContext {
 
     @Getter
     protected UserSetting currentUserSetting;
+
+    @Getter
+    protected PublicProfile currentPublicProfile;
 
     @Getter
     protected Auth2Provider currentAuth2Provider;
