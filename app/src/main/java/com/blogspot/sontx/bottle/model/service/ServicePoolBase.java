@@ -5,6 +5,7 @@ import android.content.Context;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleFileStreamService;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerAuthService;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerCategoryService;
+import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerChatService;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerMessageService;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerRoomService;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerUserSettingService;
@@ -30,6 +31,9 @@ abstract class ServicePoolBase implements ServicePool {
     @Getter
     private BottleFileStreamService bottleFileStreamService;
 
+    @Getter
+    private BottleServerChatService bottleServerChatService;
+
     @Override
     public void initialize(Context context) {
         bottleServerAuthService = new BottleServerAuthImpl();
@@ -38,5 +42,6 @@ abstract class ServicePoolBase implements ServicePool {
         bottleServerMessageService = new BottleServerMessageServiceImpl();
         bottleServerUserSettingService = new BottleServerUserSettingServiceImpl();
         bottleFileStreamService = new BottleFileStreamServiceImpl();
+        bottleServerChatService = new BottleServerChatServiceImpl();
     }
 }

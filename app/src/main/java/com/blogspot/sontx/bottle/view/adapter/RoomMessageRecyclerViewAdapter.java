@@ -4,6 +4,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.blogspot.sontx.bottle.App;
@@ -89,6 +90,13 @@ public class RoomMessageRecyclerViewAdapter extends RecyclerView.Adapter<Recycle
                 }
             }
         });
+        textViewHolder.directMessageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (null != listener)
+                    listener.onDirectMessageClick(textViewHolder.item);
+            }
+        });
 
         // message type is photo
         if (holder.getItemViewType() == TYPE_PHOTO) {
@@ -113,6 +121,7 @@ public class RoomMessageRecyclerViewAdapter extends RecyclerView.Adapter<Recycle
         final TextView displayNameView;
         final TextView timestampView;
         final TextView textContentView;
+        final ImageView directMessageView;
 
         RoomMessage item;
 
@@ -123,6 +132,7 @@ public class RoomMessageRecyclerViewAdapter extends RecyclerView.Adapter<Recycle
             timestampView = ButterKnife.findById(view, R.id.timestamp_view);
             avatarView = ButterKnife.findById(view, R.id.avatar_view);
             textContentView = ButterKnife.findById(view, R.id.text_content_view);
+            directMessageView = ButterKnife.findById(view, R.id.direct_message_view);
         }
     }
 

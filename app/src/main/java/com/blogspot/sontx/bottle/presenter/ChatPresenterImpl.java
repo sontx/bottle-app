@@ -4,6 +4,8 @@ import com.blogspot.sontx.bottle.model.bean.PublicProfile;
 import com.blogspot.sontx.bottle.model.bean.chat.Channel;
 import com.blogspot.sontx.bottle.model.bean.chat.ChannelMember;
 import com.blogspot.sontx.bottle.model.bean.chat.ChatMessage;
+import com.blogspot.sontx.bottle.model.service.Callback;
+import com.blogspot.sontx.bottle.presenter.interfaces.ChannelPresenter;
 import com.blogspot.sontx.bottle.presenter.interfaces.ChatPresenter;
 import com.blogspot.sontx.bottle.system.event.ChatMessageChangedEvent;
 import com.blogspot.sontx.bottle.system.event.ChatMessageReceivedEvent;
@@ -29,7 +31,6 @@ import java.util.List;
 import it.slyce.messaging.message.Message;
 import it.slyce.messaging.message.MessageSource;
 import it.slyce.messaging.message.TextMessage;
-import lombok.Setter;
 
 public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
     private static final int MAX_INITIAL_MESSAGES = 15;
@@ -39,7 +40,6 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
     private String currentUserId;
     private long oldestMessageTimestamp = 0;
     private boolean isFirstLoadChatMessagesHistory = false;
-    @Setter
     private Channel channel;
 
     public ChatPresenterImpl(ChatView chatView, String currentUserId) {
@@ -98,6 +98,27 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
     @Override
     public void requestLoadMoreMessages() {
         requestChatMessagesHistory(MAX_LOAD_MORE_MESSAGES);
+    }
+
+    @Override
+    public void setChannel(Channel channel) {
+        startChat(channel);
+    }
+
+    @Override
+    public void setChannelId(String channelId) {
+        ChannelPresenter channelPresenter = new ChannelPresenterImpl();
+        channelPresenter.resolveChannelAsync(channelId, new Callback<Channel>() {
+            @Override
+            public void onSuccess(Channel result) {
+                startChat(result);
+            }
+
+            @Override
+            public void onError(Throwable what) {
+                chatView.showErrorMessage(what.getMessage());
+            }
+        });
     }
 
     /**
@@ -181,6 +202,11 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
         updateChatMessageStateEvent.setChatMessageList(chatMessageList);
         updateChatMessageStateEvent.setNewState(ChatMessage.STATE_SEEN);
         EventBus.getDefault().post(updateChatMessageStateEvent);
+    }
+
+    private void startChat(Channel channel) {
+        this.channel = channel;
+        chatView.updateUI();
     }
 
     private void requestChatMessagesHistory(int count) {

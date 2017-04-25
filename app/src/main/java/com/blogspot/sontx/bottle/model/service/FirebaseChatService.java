@@ -1,6 +1,7 @@
 package com.blogspot.sontx.bottle.model.service;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.blogspot.sontx.bottle.App;
 import com.blogspot.sontx.bottle.Constants;
@@ -49,6 +50,8 @@ class FirebaseChatService extends FirebaseServiceBase implements ChatService {
 
     @Override
     public void getMoreMessages(final String channelId, long startAt, int limit, final Callback<List<ChatMessage>> callback) {
+        Log.d(TAG, "getMoreMessages -> " + channelId);
+
         messagesRef.child(channelId).orderByChild("timestamp").endAt(startAt).limitToLast(limit).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -75,11 +78,14 @@ class FirebaseChatService extends FirebaseServiceBase implements ChatService {
         if (registerChannelsRef.containsKey(channelId))
             return;
 
+        Log.d(TAG, "registerChannel -> " + channelId);
+
         DatabaseReference registerChannelRef = messagesRef.child(channelId);
 
         ChildEventListener addChildEventListener = new ChildEventAdapter() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Log.d(TAG, "added new message");
                 if (onNewChatMessage != null) {
                     ChatMessage chatMessage = dataSnapshot.getValue(ChatMessage.class);
                     chatMessage.setChannelId(channelId);
@@ -92,6 +98,7 @@ class FirebaseChatService extends FirebaseServiceBase implements ChatService {
         ChildEventListener updateChildEventListener = new ChildEventAdapter() {
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                Log.d(TAG, "updated message");
                 if (onChatMessageChanged != null) {
                     ChatMessage chatMessage = dataSnapshot.getValue(ChatMessage.class);
                     chatMessage.setChannelId(channelId);
@@ -195,8 +202,8 @@ class FirebaseChatService extends FirebaseServiceBase implements ChatService {
     private void updateReceivedMessageStateIfNecessary(DatabaseReference databaseReference, ChatMessage chatMessage) {
         BottleUser bottleUser = App.getInstance().getBottleContext().getCurrentBottleUser();
         String currentUserId = bottleUser.getUid();
-        
-        if (!chatMessage.getSenderId().equalsIgnoreCase(currentUserId))
+
+        if (chatMessage.getSenderId() != null && !chatMessage.getSenderId().equalsIgnoreCase(currentUserId))
             databaseReference.child("state").setValue(ChatMessage.STATE_RECEIVED);
     }
 

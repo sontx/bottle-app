@@ -17,4 +17,6 @@ public interface ChatPresenter {
     PublicProfile getCurrentPublicProfile();
 
     void requestLoadMoreMessages();
+
+    void setChannelId(String channelId);
 }

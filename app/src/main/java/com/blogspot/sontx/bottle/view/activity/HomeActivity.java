@@ -59,9 +59,21 @@ public class HomeActivity extends ActivityBase
     }
 
     @Override
+    public void onDirectMessageClick(RoomMessage item) {
+        homePresenter.directMessage(item);
+    }
+
+    @Override
     public void startChat(Channel channel) {
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra(ChatActivity.CHANNEL_KEY, channel);
+        startActivity(intent);
+    }
+
+    @Override
+    public void startChat(String channelId) {
+        Intent intent = new Intent(this, ChatActivity.class);
+        intent.putExtra(ChatActivity.CHANNEL_ID_KEY, channelId);
         startActivity(intent);
     }
 

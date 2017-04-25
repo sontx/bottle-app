@@ -22,6 +22,17 @@ public class Channel implements Serializable {
     private List<ChannelMember> memberList;
 
     @Exclude
+    public boolean isFullMembersInfo() {
+        if (memberList == null)
+            return false;
+        for (ChannelMember channelMember : memberList) {
+            if (channelMember.getPublicProfile() == null)
+                return false;
+        }
+        return true;
+    }
+
+    @Exclude
     @Nullable
     public ChannelMember getCurrentUser() {
         if (memberList == null)

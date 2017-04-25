@@ -47,12 +47,15 @@ public class ListChannelPresenterImpl extends PresenterBase implements ListChann
                 if (channelService.isCachedChannels()) {
                     ListChannelView.showChannels(channels);
                 } else if (!channels.isEmpty()) {
-                    ChatService chatService = FirebaseServicePool.getInstance().getChatService();
                     for (Channel channel : channels) {
-                        chatService.registerChannel(channel.getId());
                         getChannelDetailAsync(channel);
                         getChannelMembersAsync(channel);
                     }
+                }
+
+                ChatService chatService = FirebaseServicePool.getInstance().getChatService();
+                for (Channel channel : channels) {
+                    chatService.registerChannel(channel.getId());
                 }
                 isUpdatedChannels = true;
             }

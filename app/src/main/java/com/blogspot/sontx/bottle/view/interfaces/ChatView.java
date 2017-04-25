@@ -10,4 +10,6 @@ public interface ChatView extends ViewBase {
     void onHasMoreMessages(List<Message> messages);
 
     void updateChatMessage(Message message, boolean refresh);
+
+    void updateUI();
 }

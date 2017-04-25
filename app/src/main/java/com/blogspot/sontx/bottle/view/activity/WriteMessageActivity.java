@@ -61,7 +61,6 @@ public class WriteMessageActivity extends ActivityBase
     private WriteMessagePresenter writeMessagePresenter;
     private InputType inputType;
     private EmojiPopup emojiPopup;
-    private boolean firstTime = true;
     private boolean minimized = false;
 
     @Override

@@ -1,5 +1,6 @@
 package com.blogspot.sontx.bottle.view.activity;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,6 +22,7 @@ import it.slyce.messaging.message.Message;
 
 public class ChatActivity extends ActivityBase implements ChatView, UserSendsMessageListener, LoadMoreMessagesListener {
     static final String CHANNEL_KEY = "channel";
+    static final String CHANNEL_ID_KEY = "channel-id";
 
     private ChatPresenter chatPresenter;
     private SlyceMessagingFragment slyceMessagingFragment;
@@ -32,14 +34,21 @@ public class ChatActivity extends ActivityBase implements ChatView, UserSendsMes
 
         slyceMessagingFragment = (SlyceMessagingFragment) getFragmentManager().findFragmentById(R.id.fragment_for_slyce_messaging);
 
-        if (getIntent() != null) {
-            Channel channel = (Channel) getIntent().getSerializableExtra(CHANNEL_KEY);
+        Intent intent = getIntent();
+        if (intent != null) {
             String currentUserId = App.getInstance().getBottleContext().getCurrentBottleUser().getUid();
-
             chatPresenter = new ChatPresenterImpl(this, currentUserId);
-            chatPresenter.setChannel(channel);
 
-            initializeChatFragment();
+            if (intent.hasExtra(CHANNEL_KEY)) {
+                Channel channel = (Channel) intent.getSerializableExtra(CHANNEL_KEY);
+                chatPresenter.setChannel(channel);
+            } else if (intent.hasExtra(CHANNEL_ID_KEY)) {
+                String channelId = intent.getStringExtra(CHANNEL_ID_KEY);
+                chatPresenter.setChannelId(channelId);
+            } else {
+                finish();
+            }
+
         } else {
             finish();
         }
@@ -49,7 +58,6 @@ public class ChatActivity extends ActivityBase implements ChatView, UserSendsMes
     protected void onStart() {
         super.onStart();
         chatPresenter.registerListeners();
-        chatPresenter.fetchChatMessages();
     }
 
     @Override
@@ -85,12 +93,20 @@ public class ChatActivity extends ActivityBase implements ChatView, UserSendsMes
     }
 
     @Override
+    public void updateUI() {
+        initializeChatFragment();
+        chatPresenter.fetchChatMessages();
+    }
+
+    @Override
     public void requestLoadMoreMessages() {
         chatPresenter.requestLoadMoreMessages();
     }
 
     private void initializeChatFragment() {
         PublicProfile currentUserProfile = chatPresenter.getCurrentPublicProfile();
+        if (currentUserProfile == null)
+            return;
 
         slyceMessagingFragment.setStyle(R.style.ChatFragmentStyle);
 
