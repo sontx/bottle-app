@@ -266,6 +266,11 @@ public class SlyceMessagingFragment extends Fragment implements OnClickListener 
                     }
                 }
             });
+
+            if (Build.VERSION.SDK_INT <= 21) {
+                if (loadMoreMessagesListener != null)
+                    loadMoreMessagesListener.requestLoadMoreMessages();
+            }
         }
     }
 

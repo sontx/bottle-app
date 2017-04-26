@@ -99,7 +99,10 @@ public class ListChannelPresenterImpl extends PresenterBase implements ListChann
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onChatChannelAddedEvent(ChatChannelAddedEvent chatChannelAddedEvent) {
-        listChannelView.showChannel(chatChannelAddedEvent.getChannel());
+        Channel channel = chatChannelAddedEvent.getChannel();
+        ChatService chatService = FirebaseServicePool.getInstance().getChatService();
+        chatService.registerChannel(channel);
+        listChannelView.showChannel(channel);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

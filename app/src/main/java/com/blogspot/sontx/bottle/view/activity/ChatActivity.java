@@ -45,6 +45,8 @@ public class ChatActivity extends ActivityBase implements ChatView, UserSendsMes
             String currentUserId = App.getInstance().getBottleContext().getCurrentBottleUser().getUid();
             chatPresenter = new ChatPresenterImpl(this, currentUserId);
 
+            initializeChatFragment();
+
             if (intent.hasExtra(CHANNEL_KEY)) {
                 Channel channel = (Channel) intent.getSerializableExtra(CHANNEL_KEY);
                 chatPresenter.setChannel(channel);
@@ -61,8 +63,6 @@ public class ChatActivity extends ActivityBase implements ChatView, UserSendsMes
         } else {
             finish();
         }
-
-        initializeChatFragment();
     }
 
     @Override
