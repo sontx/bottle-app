@@ -22,7 +22,7 @@ import butterknife.ButterKnife;
 
 public class HomeActivity extends ActivityBase
         implements ListRoomMessageFragment.OnListRoomMessageInteractionListener,
-        ListChannelFragment.OnChannelInteractionListener, HomeView, OnTabSelectListener {
+        ListChannelFragment.OnChannelInteractionListener, HomeView, OnTabSelectListener, ViewPager.OnPageChangeListener {
 
     @BindView(R.id.vp_horizontal_ntb)
     ViewPager viewPager;
@@ -39,10 +39,17 @@ public class HomeActivity extends ActivityBase
         ButterKnife.bind(this);
 
         viewPager.setAdapter(new HomeFragmentPagerAdapter(getSupportFragmentManager()));
+        viewPager.addOnPageChangeListener(this);
 
         bottomBar.setOnTabSelectListener(this);
 
         homePresenter = new HomePresenterImpl(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        viewPager.removeOnPageChangeListener(this);
+        super.onDestroy();
     }
 
     @Override
@@ -92,4 +99,16 @@ public class HomeActivity extends ActivityBase
         }
     }
 
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+        bottomBar.selectTabAtPosition(position, true);
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+    }
 }
