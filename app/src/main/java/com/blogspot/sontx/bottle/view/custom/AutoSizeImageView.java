@@ -58,7 +58,7 @@ public class AutoSizeImageView extends AppCompatImageView {
 
                 ViewGroup.LayoutParams layoutParams = getLayoutParams();
                 if (imageWidth > imageHeight)
-                    layoutParams.height = layoutParams.width * imageHeight / imageWidth;
+                    layoutParams.height = width * imageHeight / imageWidth;
                 else
                     layoutParams.height = width;
 
@@ -76,6 +76,12 @@ public class AutoSizeImageView extends AppCompatImageView {
             }
         };
         setTag(target);
-        Picasso.with(getContext()).load(url).resize(width, 0).into(target);
+        Picasso.with(getContext()).load(url).resize(width, 0).centerCrop().into(target);
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        setTag(null);
     }
 }
