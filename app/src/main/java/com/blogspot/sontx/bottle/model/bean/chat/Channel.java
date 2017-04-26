@@ -33,6 +33,11 @@ public class Channel implements Serializable {
     }
 
     @Exclude
+    public boolean isValid() {
+        return detail != null && isFullMembersInfo();
+    }
+
+    @Exclude
     @Nullable
     public ChannelMember getCurrentUser() {
         if (memberList == null)

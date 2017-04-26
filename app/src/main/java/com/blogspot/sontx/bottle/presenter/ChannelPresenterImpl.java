@@ -48,7 +48,7 @@ public class ChannelPresenterImpl extends PresenterBase implements ChannelPresen
                         public void onSuccess(PublicProfile result) {
                             synchronized (lock) {
                                 channelMember.setPublicProfile(result);
-                                if (channel.getDetail() != null && channel.isFullMembersInfo())
+                                if (channel.isValid())
                                     callback.onSuccess(channel);
                             }
                         }

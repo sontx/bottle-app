@@ -26,6 +26,7 @@ import it.slyce.messaging.message.Message;
 public class ChatActivity extends ActivityBase implements ChatView, UserSendsMessageListener, LoadMoreMessagesListener {
     static final String CHANNEL_KEY = "channel";
     static final String CHANNEL_ID_KEY = "channel-id";
+    static final String ANOTHER_GUY_ID_KEY = "another-guy-id";
 
     private ChatPresenter chatPresenter;
     private SlyceMessagingFragment slyceMessagingFragment;
@@ -50,6 +51,9 @@ public class ChatActivity extends ActivityBase implements ChatView, UserSendsMes
             } else if (intent.hasExtra(CHANNEL_ID_KEY)) {
                 String channelId = intent.getStringExtra(CHANNEL_ID_KEY);
                 chatPresenter.setChannelId(channelId);
+            } else if (intent.hasExtra(ANOTHER_GUY_ID_KEY)) {
+                String anotherGuyId = intent.getStringExtra(ANOTHER_GUY_ID_KEY);
+                chatPresenter.chatWith(anotherGuyId);
             } else {
                 finish();
             }
@@ -57,6 +61,8 @@ public class ChatActivity extends ActivityBase implements ChatView, UserSendsMes
         } else {
             finish();
         }
+
+        initializeChatFragment();
     }
 
     @Override
@@ -107,12 +113,6 @@ public class ChatActivity extends ActivityBase implements ChatView, UserSendsMes
     }
 
     @Override
-    public void updateUI() {
-        initializeChatFragment();
-        chatPresenter.fetchChatMessages();
-    }
-
-    @Override
     public void setChatTitle(String displayName) {
         super.setTitle(displayName);
     }
@@ -133,8 +133,6 @@ public class ChatActivity extends ActivityBase implements ChatView, UserSendsMes
 
     private void initializeChatFragment() {
         PublicProfile currentUserProfile = chatPresenter.getCurrentPublicProfile();
-        if (currentUserProfile == null)
-            return;
 
         slyceMessagingFragment.setStyle(R.style.ChatFragmentStyle);
 

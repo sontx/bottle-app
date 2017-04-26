@@ -11,7 +11,5 @@ public interface ChatView extends ViewBase {
 
     void updateChatMessage(Message message, boolean refresh);
 
-    void updateUI();
-
     void setChatTitle(String displayName);
 }

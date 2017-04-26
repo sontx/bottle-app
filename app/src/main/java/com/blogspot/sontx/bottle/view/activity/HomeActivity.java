@@ -73,16 +73,23 @@ public class HomeActivity extends ActivityBase
     }
 
     @Override
-    public void startChat(Channel channel) {
+    public void startChatWithExistingChannel(Channel channel) {
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra(ChatActivity.CHANNEL_KEY, channel);
         startActivity(intent);
     }
 
     @Override
-    public void startChat(String channelId) {
+    public void startChatWithExistingChannel(String channelId) {
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra(ChatActivity.CHANNEL_ID_KEY, channelId);
+        startActivity(intent);
+    }
+
+    @Override
+    public void startChatWithAnotherGuy(String anotherGuyId) {
+        Intent intent = new Intent(this, ChatActivity.class);
+        intent.putExtra(ChatActivity.ANOTHER_GUY_ID_KEY, anotherGuyId);
         startActivity(intent);
     }
 

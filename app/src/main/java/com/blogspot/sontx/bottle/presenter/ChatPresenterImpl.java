@@ -1,10 +1,16 @@
 package com.blogspot.sontx.bottle.presenter;
 
+import android.util.Log;
+
+import com.blogspot.sontx.bottle.App;
 import com.blogspot.sontx.bottle.model.bean.PublicProfile;
 import com.blogspot.sontx.bottle.model.bean.chat.Channel;
 import com.blogspot.sontx.bottle.model.bean.chat.ChannelMember;
 import com.blogspot.sontx.bottle.model.bean.chat.ChatMessage;
+import com.blogspot.sontx.bottle.model.bean.chat.CreateChannelResult;
 import com.blogspot.sontx.bottle.model.service.Callback;
+import com.blogspot.sontx.bottle.model.service.FirebaseServicePool;
+import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerChatService;
 import com.blogspot.sontx.bottle.presenter.interfaces.ChannelPresenter;
 import com.blogspot.sontx.bottle.presenter.interfaces.ChatPresenter;
 import com.blogspot.sontx.bottle.system.event.ChatMessageChangedEvent;
@@ -25,8 +31,10 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 
 import it.slyce.messaging.message.Message;
 import it.slyce.messaging.message.MessageSource;
@@ -41,6 +49,7 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
     private long oldestMessageTimestamp = 0;
     private boolean isFirstLoadChatMessagesHistory = false;
     private Channel channel;
+    private Queue<TempMessage> tempMessages = new ArrayDeque<>();
 
     public ChatPresenterImpl(ChatView chatView, String currentUserId) {
         this.chatView = chatView;
@@ -70,29 +79,27 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
 
     @Override
     public void sendAsync(String text, int tempId) {
-        SendChatTextMessageEvent sendChatTextMessageEvent = new SendChatTextMessageEvent();
-        sendChatTextMessageEvent.setId(tempId);
-        sendChatTextMessageEvent.setChannelId(channel.getId());
-        sendChatTextMessageEvent.setText(text);
-        EventBus.getDefault().post(sendChatTextMessageEvent);
+        if (canSend()) {
+            SendChatTextMessageEvent sendChatTextMessageEvent = new SendChatTextMessageEvent();
+            sendChatTextMessageEvent.setId(tempId);
+            sendChatTextMessageEvent.setChannelId(channel.getId());
+            sendChatTextMessageEvent.setText(text);
+            EventBus.getDefault().post(sendChatTextMessageEvent);
 
-        long now = DateTimeUtils.utc();
-        if (oldestMessageTimestamp < now)
-            oldestMessageTimestamp = now;
+            long now = DateTimeUtils.utc();
+            if (oldestMessageTimestamp < now)
+                oldestMessageTimestamp = now;
+        } else {
+            TempMessage tempMessage = new TempMessage();
+            tempMessage.text = text;
+            tempMessage.tempId = tempId;
+            tempMessages.add(tempMessage);
+        }
     }
 
     @Override
     public PublicProfile getCurrentPublicProfile() {
-        if (channel != null) {
-            List<ChannelMember> memberList = channel.getMemberList();
-            if (memberList != null) {
-                for (ChannelMember member : memberList) {
-                    if (member.getId().equalsIgnoreCase(currentUserId))
-                        return member.getPublicProfile();
-                }
-            }
-        }
-        return null;
+        return App.getInstance().getBottleContext().getCurrentPublicProfile();
     }
 
     @Override
@@ -112,6 +119,22 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
             @Override
             public void onSuccess(Channel result) {
                 startChat(result);
+            }
+
+            @Override
+            public void onError(Throwable what) {
+                chatView.showErrorMessage(what.getMessage());
+            }
+        });
+    }
+
+    @Override
+    public void chatWith(String anotherGuyId) {
+        BottleServerChatService bottleServerChatService = FirebaseServicePool.getInstance().getBottleServerChatService();
+        bottleServerChatService.createChannelAsync(anotherGuyId, new Callback<CreateChannelResult>() {
+            @Override
+            public void onSuccess(CreateChannelResult result) {
+                setChannelId(result.getId());
             }
 
             @Override
@@ -196,6 +219,9 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
      * --------------------------------- end subscribe methods ----------------------------------
      **/
 
+    private boolean canSend() {
+        return channel != null && channel.isValid();
+    }
 
     private void updateSeenStateForChatMessagesIfNecessary(List<ChatMessage> chatMessageList) {
         UpdateChatMessageStateEvent updateChatMessageStateEvent = new UpdateChatMessageStateEvent();
@@ -206,10 +232,18 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
 
     private void startChat(Channel channel) {
         this.channel = channel;
-        chatView.updateUI();
+        fetchChatMessages();
         ChannelMember anotherGuy = channel.getAnotherGuy();
         if (anotherGuy != null)
             chatView.setChatTitle(anotherGuy.getPublicProfile().getDisplayName());
+
+        if (!tempMessages.isEmpty()) {
+            Log.d(TAG, "send temp messages...");
+            TempMessage tempMessage;
+            while ((tempMessage = tempMessages.poll()) != null) {
+                sendAsync(tempMessage.text, tempMessage.tempId);
+            }
+        }
     }
 
     private void requestChatMessagesHistory(int count) {
@@ -286,5 +320,10 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
             }
         }
         return null;
+    }
+
+    private static class TempMessage {
+        private String text;
+        private int tempId;
     }
 }

@@ -19,4 +19,6 @@ public interface ChatPresenter {
     void requestLoadMoreMessages();
 
     void setChannelId(String channelId);
+
+    void chatWith(String anotherGuyId);
 }

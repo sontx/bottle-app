@@ -11,6 +11,7 @@ import com.blogspot.sontx.bottle.R;
 import com.blogspot.sontx.bottle.model.bean.MessageBase;
 import com.blogspot.sontx.bottle.model.bean.PublicProfile;
 import com.blogspot.sontx.bottle.model.bean.RoomMessage;
+import com.blogspot.sontx.bottle.system.BottleContext;
 import com.blogspot.sontx.bottle.system.Resource;
 import com.blogspot.sontx.bottle.view.custom.AutoSizeImageView;
 import com.blogspot.sontx.bottle.view.custom.RichVideoView;
@@ -34,11 +35,15 @@ public class RoomMessageRecyclerViewAdapter extends RecyclerView.Adapter<Recycle
     @Getter
     private List<RoomMessage> values;
     private Resource resource;
+    private String currentUserId;
 
     public RoomMessageRecyclerViewAdapter(List<RoomMessage> items, ListRoomMessageFragment.OnListRoomMessageInteractionListener listener) {
         values = items;
         this.listener = listener;
-        resource = App.getInstance().getBottleContext().getResource();
+
+        BottleContext bottleContext = App.getInstance().getBottleContext();
+        resource = bottleContext.getResource();
+        currentUserId = bottleContext.getCurrentBottleUser().getUid();
     }
 
     @Override
@@ -104,6 +109,11 @@ public class RoomMessageRecyclerViewAdapter extends RecyclerView.Adapter<Recycle
             }
         });
 
+        if (roomMessage.getOwner().getId().equals(currentUserId))
+            textViewHolder.interactionView.setVisibility(View.GONE);
+        else
+            textViewHolder.interactionView.setVisibility(View.VISIBLE);
+
         // message type is photo
         if (holder.getItemViewType() == TYPE_PHOTO) {
             PhotoViewHolder photoViewHolder = (PhotoViewHolder) holder;
@@ -129,6 +139,7 @@ public class RoomMessageRecyclerViewAdapter extends RecyclerView.Adapter<Recycle
         final TextView textContentView;
         final View directMessageView;
         final View voteMessageView;
+        final View interactionView;
 
         RoomMessage item;
 
@@ -141,6 +152,7 @@ public class RoomMessageRecyclerViewAdapter extends RecyclerView.Adapter<Recycle
             textContentView = ButterKnife.findById(view, R.id.text_content_view);
             directMessageView = ButterKnife.findById(view, R.id.direct_message_view);
             voteMessageView = ButterKnife.findById(view, R.id.vote_message_view);
+            interactionView = ButterKnife.findById(view, R.id.interaction_layout);
         }
     }
 

@@ -224,7 +224,7 @@ class FirebaseChannelService extends FirebaseServiceBase implements ChannelServi
 
                 try {
                     countDownLatch.await(10, TimeUnit.SECONDS);
-                    if (channel.isFullMembersInfo() && channel.getDetail() != null) {
+                    if (channel.isValid()) {
                         cachedChannels.add(channel);
                         broadcastAddChannelEvent(channel);
                     }
