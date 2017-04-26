@@ -17,7 +17,7 @@
         android:layout_alignParentTop="true"
         android:elevation="1dp"
         app:bb_activeTabColor="@color/background_primary"
-        app:bb_behavior="underNavbar"
+        app:bb_behavior="shifting"
         app:bb_inActiveTabColor="@color/background_gray"
         app:bb_showShadow="false"
         app:bb_tabXmlResource="@xml/main_bottombar_tabs" />
