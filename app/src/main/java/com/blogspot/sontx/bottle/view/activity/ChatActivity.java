@@ -3,7 +3,10 @@ package com.blogspot.sontx.bottle.view.activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 
 import com.blogspot.sontx.bottle.App;
 import com.blogspot.sontx.bottle.R;
@@ -32,6 +35,8 @@ public class ChatActivity extends ActivityBase implements ChatView, UserSendsMes
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
+        setupToolbar();
+
         slyceMessagingFragment = (SlyceMessagingFragment) getFragmentManager().findFragmentById(R.id.fragment_for_slyce_messaging);
 
         Intent intent = getIntent();
@@ -52,6 +57,15 @@ public class ChatActivity extends ActivityBase implements ChatView, UserSendsMes
         } else {
             finish();
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -99,8 +113,22 @@ public class ChatActivity extends ActivityBase implements ChatView, UserSendsMes
     }
 
     @Override
+    public void setChatTitle(String displayName) {
+        super.setTitle(displayName);
+    }
+
+    @Override
     public void requestLoadMoreMessages() {
         chatPresenter.requestLoadMoreMessages();
+    }
+
+    private void setupToolbar() {
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        ActionBar supportActionBar = getSupportActionBar();
+        if (supportActionBar != null) {
+            supportActionBar.setDisplayHomeAsUpEnabled(true);
+        }
     }
 
     private void initializeChatFragment() {

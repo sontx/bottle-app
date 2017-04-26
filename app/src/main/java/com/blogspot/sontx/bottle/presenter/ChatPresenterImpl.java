@@ -207,6 +207,9 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
     private void startChat(Channel channel) {
         this.channel = channel;
         chatView.updateUI();
+        ChannelMember anotherGuy = channel.getAnotherGuy();
+        if (anotherGuy != null)
+            chatView.setChatTitle(anotherGuy.getPublicProfile().getDisplayName());
     }
 
     private void requestChatMessagesHistory(int count) {
