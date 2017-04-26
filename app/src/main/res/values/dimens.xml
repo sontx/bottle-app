@@ -5,6 +5,8 @@
     <dimen name="container_margin">10dp</dimen>
     <dimen name="item_margin">8dp</dimen>
     <dimen name="half_item_padding">8dp</dimen>
+    <dimen name="message_bottom_bar_padding">0dp</dimen>
+    <dimen name="message_bottom_bar_item_padding">8dp</dimen>
     <dimen name="small_toolbar_horizontal_margin">12dp</dimen>
     <dimen name="small_toolbar_vertical_margin">8dp</dimen>
 

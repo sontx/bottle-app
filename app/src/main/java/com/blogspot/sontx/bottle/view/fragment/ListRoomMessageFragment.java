@@ -212,5 +212,7 @@ public class ListRoomMessageFragment extends FragmentBase implements ListRoomMes
         void onListRoomMessageInteraction(RoomMessage item);
 
         void onDirectMessageClick(RoomMessage item);
+
+        void onVoteMessageClick(RoomMessage item);
     }
 }

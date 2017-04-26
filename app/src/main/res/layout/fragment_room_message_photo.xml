@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="8dp"
     android:foreground="?android:attr/selectableItemBackground"
+    app:cardElevation="0dp"
     android:orientation="vertical">
 
     <LinearLayout
@@ -18,8 +20,10 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/header_image_height"
             android:layout_marginTop="@dimen/media_content_margin_top"
-            android:background="@color/background_gray"
+            android:background="@color/background_gray_lightest"
             android:visibility="visible" />
+
+        <include layout="@layout/fragment_room_message_bar" />
     </LinearLayout>
 
 </android.support.v7.widget.CardView>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <LinearLayout
+        android:id="@+id/vote_message_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/selectableItemBackground"
+        android:orientation="horizontal"
+        android:paddingBottom="@dimen/message_bottom_bar_padding"
+        android:paddingLeft="@dimen/message_bottom_bar_padding"
+        android:paddingRight="@dimen/message_bottom_bar_item_padding"
+        android:paddingTop="@dimen/message_bottom_bar_padding">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_favorite_border"
+            android:tint="@color/accent" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:text="@string/vote" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/direct_message_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/selectableItemBackground"
+        android:orientation="horizontal"
+        android:paddingBottom="@dimen/message_bottom_bar_padding"
+        android:paddingLeft="@dimen/message_bottom_bar_padding"
+        android:paddingRight="@dimen/message_bottom_bar_item_padding"
+        android:paddingTop="@dimen/message_bottom_bar_padding">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_chat_bubble_outline"
+            android:tint="@color/primary_dark" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:text="@string/chat" />
+    </LinearLayout>
+</LinearLayout>
