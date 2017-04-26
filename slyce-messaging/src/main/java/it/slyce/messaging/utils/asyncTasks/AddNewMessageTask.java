@@ -1,15 +1,10 @@
 package it.slyce.messaging.utils.asyncTasks;
 
 import android.content.Context;
-import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
 import java.util.List;
 
-import it.slyce.messaging.R;
 import it.slyce.messaging.message.Message;
 import it.slyce.messaging.message.MessageSource;
 import it.slyce.messaging.message.messageItem.MessageItem;
@@ -82,23 +77,23 @@ public class AddNewMessageTask extends AsyncTaskBase {
             if (isAtTop) {
                 ScrollUtils.scrollToTopAfterDelay(mRecyclerView, mRecyclerAdapter);
             }
-            Snackbar snackbar = Snackbar.make(mRecyclerView, context.getText(R.string.message_new), Snackbar.LENGTH_SHORT)
-                    .setAction(context.getText(R.string.message_view), new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            mRecyclerView.smoothScrollToPosition(mRecyclerAdapter.getItemCount() - 1);
-                        }
-                    }).setActionTextColor(customSettings.snackbarButtonColor);
-            ViewGroup group = (ViewGroup) snackbar.getView();
-            for (int i = 0; i < group.getChildCount(); i++) {
-                View v = group.getChildAt(i);
-                if (v instanceof TextView) {
-                    TextView textView = (TextView) v;
-                    textView.setTextColor(customSettings.snackbarTitleColor);
-                }
-            }
-            snackbar.getView().setBackgroundColor(customSettings.snackbarBackground);
-            snackbar.show();
+//            Snackbar snackbar = Snackbar.make(mRecyclerView, context.getText(R.string.message_new), Snackbar.LENGTH_SHORT)
+//                    .setAction(context.getText(R.string.message_view), new View.OnClickListener() {
+//                        @Override
+//                        public void onClick(View view) {
+//                            mRecyclerView.smoothScrollToPosition(mRecyclerAdapter.getItemCount() - 1);
+//                        }
+//                    }).setActionTextColor(customSettings.snackbarButtonColor);
+//            ViewGroup group = (ViewGroup) snackbar.getView();
+//            for (int i = 0; i < group.getChildCount(); i++) {
+//                View v = group.getChildAt(i);
+//                if (v instanceof TextView) {
+//                    TextView textView = (TextView) v;
+//                    textView.setTextColor(customSettings.snackbarTitleColor);
+//                }
+//            }
+//            snackbar.getView().setBackgroundColor(customSettings.snackbarBackground);
+//            snackbar.show();
         }
 
         if (onTaskCompletedListener != null) {
