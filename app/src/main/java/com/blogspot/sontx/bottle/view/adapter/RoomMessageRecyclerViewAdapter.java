@@ -140,6 +140,7 @@ public class RoomMessageRecyclerViewAdapter extends RecyclerView.Adapter<Recycle
         final View directMessageView;
         final View voteMessageView;
         final View interactionView;
+        final View moreOptionView;
 
         RoomMessage item;
 
@@ -153,6 +154,7 @@ public class RoomMessageRecyclerViewAdapter extends RecyclerView.Adapter<Recycle
             directMessageView = ButterKnife.findById(view, R.id.direct_message_view);
             voteMessageView = ButterKnife.findById(view, R.id.vote_message_view);
             interactionView = ButterKnife.findById(view, R.id.interaction_layout);
+            moreOptionView = ButterKnife.findById(view, R.id.more_option_message_view);
         }
     }
 
