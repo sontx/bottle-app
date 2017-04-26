@@ -21,7 +21,7 @@ public class MessageInternalUserTextItem extends MessageTextItem {
     @Override
     public void buildMessageItem(MessageViewHolder messageViewHolder) {
         super.buildMessageItem(messageViewHolder);
-        if (message != null && messageViewHolder != null) {
+        if (message != null && messageViewHolder != null && messageViewHolder instanceof MessageInternalUserTextViewHolder) {
             String state = StringUtils.toUppercaseFirstCharacter(message.getState());
 
             TextView stateView = ((MessageInternalUserTextViewHolder) messageViewHolder).state;

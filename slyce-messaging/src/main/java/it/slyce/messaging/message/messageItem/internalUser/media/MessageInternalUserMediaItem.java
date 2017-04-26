@@ -21,7 +21,7 @@ public class MessageInternalUserMediaItem extends MessageMediaItem {
     @Override
     public void buildMessageItem(MessageViewHolder messageViewHolder) {
         super.buildMessageItem(messageViewHolder);
-        if (message != null && messageViewHolder != null) {
+        if (message != null && messageViewHolder != null && messageViewHolder instanceof MessageInternalUserMediaViewHolder) {
             String state = StringUtils.toUppercaseFirstCharacter(message.getState());
 
             TextView stateView = ((MessageInternalUserMediaViewHolder) messageViewHolder).state;
