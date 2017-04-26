@@ -80,6 +80,7 @@ public class SlyceMessagingFragment extends Fragment implements OnClickListener 
     private File file;
     private Uri outputFileUri;
     private boolean isLoadInFirstTime = true;
+    private volatile boolean enableScrollToLoadMore = true;
 
     public void setPictureButtonVisible(final boolean bool) {
         if (getActivity() != null)
@@ -129,12 +130,22 @@ public class SlyceMessagingFragment extends Fragment implements OnClickListener 
     }
 
     public void addNewMessages(List<Message> messages) {
+        enableScrollToLoadMore = false;
+
         mMessages.addAll(messages);
         AddNewMessageTask task = new AddNewMessageTask(messages, mMessageItems, mRecyclerAdapter, mRecyclerView, getActivity().getApplicationContext(), customSettings);
         task.setOnTaskCompletedListener(new OnTaskCompletedListener() {
             @Override
             public void onTaskCompleted() {
                 scrollToBottom();
+                ScheduledExecutorService scheduleTaskExecutor = Executors.newScheduledThreadPool(1);
+                scheduleTaskExecutor.schedule(new Runnable() {
+                    @Override
+                    public void run() {
+                        enableScrollToLoadMore = true;
+                    }
+                }, 500, TimeUnit.MILLISECONDS);
+
             }
         });
         task.execute();
@@ -207,7 +218,7 @@ public class SlyceMessagingFragment extends Fragment implements OnClickListener 
         mRefresher = new Refresher(false);
         setStyle(R.style.MyTheme);
 
-        startLoadMoreMessagesListener();
+        setupScrollToLoadMore();
 
         if (ContextCompat.checkSelfPermission(getActivity().getApplicationContext(),
                 Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
@@ -242,14 +253,14 @@ public class SlyceMessagingFragment extends Fragment implements OnClickListener 
         }, 0, 62, TimeUnit.SECONDS);
     }
 
-    private void startLoadMoreMessagesListener() {
+    private void setupScrollToLoadMore() {
         if (Build.VERSION.SDK_INT >= 23) {
             mRecyclerView.setOnScrollChangeListener(new View.OnScrollChangeListener() {
                 @Override
                 public void onScrollChange(View view, int i, int i1, int i2, int i3) {
                     int firstVisibleItem = mLinearLayoutManager.findFirstCompletelyVisibleItemPosition();
 
-                    if (firstVisibleItem == 0 && loadMoreMessagesListener != null) {
+                    if (enableScrollToLoadMore && firstVisibleItem == 0 && loadMoreMessagesListener != null) {
                         loadMoreMessagesListener.requestLoadMoreMessages();
                     }
                 }
@@ -261,7 +272,7 @@ public class SlyceMessagingFragment extends Fragment implements OnClickListener 
                     super.onScrolled(recyclerView, dx, dy);
                     int firstVisibleItem = mLinearLayoutManager.findFirstCompletelyVisibleItemPosition();
 
-                    if (firstVisibleItem == 0 && loadMoreMessagesListener != null) {
+                    if (enableScrollToLoadMore && firstVisibleItem == 0 && loadMoreMessagesListener != null) {
                         loadMoreMessagesListener.requestLoadMoreMessages();
                     }
                 }
