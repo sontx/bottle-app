@@ -7,6 +7,7 @@ import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -122,8 +123,14 @@ public class WriteMessageActivity extends ActivityBase
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int selectedItem = item.getItemId();
+        if (selectedItem == android.R.id.home) {
+            setResult(RESULT_CANCELED);
+            finish();
+            return true;
+        }
         if (selectedItem == R.id.menu_item_post) {
             writeMessagePresenter.requestPostMessage();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -227,6 +234,10 @@ public class WriteMessageActivity extends ActivityBase
     private void setupToolbar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        ActionBar supportActionBar = getSupportActionBar();
+        if (supportActionBar != null) {
+            supportActionBar.setDisplayHomeAsUpEnabled(true);
+        }
     }
 
     private void setupEmoji() {
