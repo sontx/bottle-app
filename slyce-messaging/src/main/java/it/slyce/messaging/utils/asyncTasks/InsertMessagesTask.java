@@ -13,16 +13,16 @@ import it.slyce.messaging.utils.Refresher;
 public class InsertMessagesTask extends AsyncTaskBase {
     private List<Message> mMessages;
     private List<MessageItem> mMessageItems;
+    private final List<Message> insertMessages;
     private MessageRecyclerAdapter mRecyclerAdapter;
     private Context context;
     private Refresher mRefresher;
-    private int upTo;
     private OnTaskCompletedListener onTaskCompletedListener;
 
-    public InsertMessagesTask(List<Message> messages, List<MessageItem> messageItems, MessageRecyclerAdapter mRecyclerAdapter, Context context, Refresher refresher, int upTo) {
-        this.mMessages = messages;
+    public InsertMessagesTask(List<Message> mMessages, List<Message> insertMessages, List<MessageItem> messageItems, MessageRecyclerAdapter mRecyclerAdapter, Context context, Refresher refresher) {
+        this.mMessages = mMessages;
+        this.insertMessages = insertMessages;
         this.mRecyclerAdapter = mRecyclerAdapter;
-        this.upTo = upTo;
         this.mRefresher = refresher;
         this.mMessageItems = messageItems;
         this.context = context;
@@ -43,10 +43,32 @@ public class InsertMessagesTask extends AsyncTaskBase {
         if (context == null)
             return null;
 
+        int addedItemCount = 0;
+
         synchronized (getLock()) {
-            for (int i = upTo - 1; i >= 0; i--) {
-                Message message = mMessages.get(i);
-                mMessageItems.add(0, message.toMessageItem(context)); // this call is why we need the AsyncTask
+            int upTo = insertMessages.size();
+
+            for (int i = upTo - 1, from = 0; i >= 0; i--) {
+                Message message = insertMessages.get(i);
+
+                // check if message already exists
+                boolean exist = false;
+                int maxCheck = Math.min(upTo + from, mMessages.size());
+                for (int j = from; j < maxCheck; j++) {
+                    Message existMessage = mMessages.get(j);
+                    String existMessageId = existMessage.getId();
+                    if (existMessageId != null && existMessageId.equals(message.getId())) {
+                        exist = true;
+                        break;
+                    }
+                }
+
+                if (!exist) {
+                    mMessages.add(0, message);
+                    mMessageItems.add(0, message.toMessageItem(context)); // this call is why we need the AsyncTask
+                    from++;
+                    addedItemCount++;
+                }
             }
         }
 
@@ -54,12 +76,12 @@ public class InsertMessagesTask extends AsyncTaskBase {
             MessageUtils.markMessageItemAtIndexIfFirstOrLastFromSource(i, mMessageItems);
         }
 
-        return null;
+        return addedItemCount;
     }
 
     @Override
     protected void onPostExecute(Object o) {
-        super.onPostExecute(o);
+        int upTo = (int) o;
 
         if (upTo >= 0 && upTo < mMessageItems.size()) {
             mRecyclerAdapter.notifyItemRangeInserted(0, upTo);

@@ -50,6 +50,7 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
     private boolean isFirstLoadChatMessagesHistory = false;
     private Channel channel;
     private Queue<TempMessage> tempMessages = new ArrayDeque<>();
+    private volatile boolean canLoadMore = true;
 
     public ChatPresenterImpl(ChatView chatView, String currentUserId) {
         this.chatView = chatView;
@@ -85,10 +86,6 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
             sendChatTextMessageEvent.setChannelId(channel.getId());
             sendChatTextMessageEvent.setText(text);
             EventBus.getDefault().post(sendChatTextMessageEvent);
-
-            long now = DateTimeUtils.utc();
-            if (oldestMessageTimestamp < now)
-                oldestMessageTimestamp = now;
         } else {
             TempMessage tempMessage = new TempMessage();
             tempMessage.text = text;
@@ -197,6 +194,9 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
     public void onResponseChatMessagesEvent(ResponseChatMessagesEvent responseChatMessagesEvent) {
         if (responseChatMessagesEvent.getChannelId().equalsIgnoreCase(channel.getId())) {
             List<ChatMessage> chatMessageList = responseChatMessagesEvent.getChatMessageList();
+
+            canLoadMore = true;
+
             if (chatMessageList.isEmpty()) {
 
             } else {
@@ -247,6 +247,11 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
     }
 
     private void requestChatMessagesHistory(int count) {
+        if (!canLoadMore)
+            return;
+
+        canLoadMore = false;
+
         long startAt = oldestMessageTimestamp <= 0 ? DateTimeUtils.utc() : oldestMessageTimestamp - 1;
 
         RequestChatMessagesEvent requestChatMessagesEvent = new RequestChatMessagesEvent();

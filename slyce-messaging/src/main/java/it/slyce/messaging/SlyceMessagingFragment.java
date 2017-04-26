@@ -291,19 +291,12 @@ public class SlyceMessagingFragment extends Fragment implements OnClickListener 
     }
 
     public void loadMoreMessages(List<Message> messages) {
-        mRefresher.setIsRefreshing(true);
-        int upTo = messages.size();
-        for (int i = messages.size() - 1; i >= 0; i--) {
-            Message message = messages.get(i);
-            mMessages.add(0, message);
-        }
-        mRefresher.setIsRefreshing(false);
-        replaceMessages(mMessages, upTo);
+        replaceMessages(mMessages, messages);
     }
 
-    private void replaceMessages(List<Message> messages, int upTo) {
+    private void replaceMessages(List<Message> mMessages, List<Message> insertMessages) {
         if (getActivity() != null) {
-            InsertMessagesTask task = new InsertMessagesTask(messages, mMessageItems, mRecyclerAdapter, getActivity().getApplicationContext(), mRefresher, upTo);
+            InsertMessagesTask task = new InsertMessagesTask(mMessages, insertMessages, mMessageItems, mRecyclerAdapter, getActivity().getApplicationContext(), mRefresher);
             task.setOnTaskCompletedListener(new OnTaskCompletedListener() {
                 @Override
                 public void onTaskCompleted() {
