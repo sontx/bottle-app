@@ -81,14 +81,15 @@ public class SlyceMessagingFragment extends Fragment implements OnClickListener 
     private Uri outputFileUri;
     private boolean isLoadInFirstTime = true;
     private volatile boolean enableScrollToLoadMore = true;
+    private ImageView mSendButton;
+    private ImageView mSnapButton;
 
     public void setPictureButtonVisible(final boolean bool) {
         if (getActivity() != null)
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    ImageView imageView = (ImageView) rootView.findViewById(R.id.slyce_messaging_image_view_snap);
-                    imageView.setVisibility(bool ? View.VISIBLE : View.GONE);
+                    mSnapButton.setVisibility(bool ? View.VISIBLE : View.GONE);
                 }
             });
     }
@@ -126,7 +127,16 @@ public class SlyceMessagingFragment extends Fragment implements OnClickListener 
         this.customSettings.snackbarBackground = ta.getColor(R.styleable.SlyceMessagingTheme_snackbarBackground, Color.WHITE);
         this.customSettings.snackbarButtonColor = ta.getColor(R.styleable.SlyceMessagingTheme_snackbarButtonColor, Color.WHITE);
         this.customSettings.snackbarTitleColor = ta.getColor(R.styleable.SlyceMessagingTheme_snackbarTitleColor, Color.WHITE);
+        this.customSettings.buttonTintColor = ta.getColor(R.styleable.SlyceMessagingTheme_buttonTintColor, Color.GRAY);
+
+        applyStyle(customSettings);
+
         ta.recycle();
+    }
+
+    private void applyStyle(CustomSettings customSettings) {
+        mSendButton.setColorFilter(customSettings.buttonTintColor);
+        mSnapButton.setColorFilter(customSettings.buttonTintColor);
     }
 
     public void addNewMessages(List<Message> messages) {
@@ -172,8 +182,8 @@ public class SlyceMessagingFragment extends Fragment implements OnClickListener 
 
         // Setup views
         mEntryField = (EditText) rootView.findViewById(R.id.slyce_messaging_edit_text_entry_field);
-        ImageView mSendButton = (ImageView) rootView.findViewById(R.id.slyce_messaging_image_view_send);
-        ImageView mSnapButton = (ImageView) rootView.findViewById(R.id.slyce_messaging_image_view_snap);
+        mSendButton = (ImageView) rootView.findViewById(R.id.slyce_messaging_image_view_send);
+        mSnapButton = (ImageView) rootView.findViewById(R.id.slyce_messaging_image_view_snap);
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.slyce_messaging_recycler_view);
 
         // Add interfaces

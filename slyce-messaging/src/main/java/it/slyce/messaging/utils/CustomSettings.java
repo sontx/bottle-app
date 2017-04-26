@@ -16,6 +16,7 @@ public class CustomSettings {
     public int snackbarBackground;
     public int snackbarTitleColor;
     public int snackbarButtonColor;
+    public int buttonTintColor;
 
     public UserClicksAvatarPictureListener userClicksAvatarPictureListener;
 }

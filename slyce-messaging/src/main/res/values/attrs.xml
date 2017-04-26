@@ -42,5 +42,6 @@
         <attr name="snackbarBackground" format="color" />
         <attr name="snackbarTitleColor" format="color" />
         <attr name="snackbarButtonColor" format="color" />
+        <attr name="buttonTintColor" format="color" />
     </declare-styleable>
 </resources>

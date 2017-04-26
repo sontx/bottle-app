@@ -73,5 +73,7 @@
         <item name="snackbarBackground">@color/background_gray_darkest</item>
         <item name="snackbarTitleColor">@color/text_black</item>
         <item name="snackbarButtonColor">@color/accent</item>
+
+        <item name="buttonTintColor">@color/primary</item>
     </style>
 </resources>
