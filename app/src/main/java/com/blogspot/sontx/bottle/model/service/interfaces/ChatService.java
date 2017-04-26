@@ -1,5 +1,6 @@
 package com.blogspot.sontx.bottle.model.service.interfaces;
 
+import com.blogspot.sontx.bottle.model.bean.chat.Channel;
 import com.blogspot.sontx.bottle.model.bean.chat.ChatMessage;
 import com.blogspot.sontx.bottle.model.service.Callback;
 import com.blogspot.sontx.bottle.model.service.SimpleCallback;
@@ -9,7 +10,7 @@ import java.util.List;
 public interface ChatService extends ServiceBase {
     void getMoreMessages(String channelId, long startAt, int limit, Callback<List<ChatMessage>> callback);
 
-    void registerChannel(String channelId);
+    void registerChannel(Channel channel);
 
     void unregisterChannel(String channelId);
 

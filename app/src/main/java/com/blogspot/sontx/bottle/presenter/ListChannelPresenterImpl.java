@@ -14,6 +14,7 @@ import com.blogspot.sontx.bottle.model.service.interfaces.ChatService;
 import com.blogspot.sontx.bottle.model.service.interfaces.PublicProfileService;
 import com.blogspot.sontx.bottle.presenter.interfaces.ListChannelPresenter;
 import com.blogspot.sontx.bottle.system.event.ChatChannelAddedEvent;
+import com.blogspot.sontx.bottle.system.event.ChatChannelChangedEvent;
 import com.blogspot.sontx.bottle.view.interfaces.ListChannelView;
 
 import org.greenrobot.eventbus.EventBus;
@@ -60,7 +61,7 @@ public class ListChannelPresenterImpl extends PresenterBase implements ListChann
 
                 ChatService chatService = FirebaseServicePool.getInstance().getChatService();
                 for (Channel channel : channels) {
-                    chatService.registerChannel(channel.getId());
+                    chatService.registerChannel(channel);
                 }
                 isUpdatedChannels = true;
             }
@@ -97,8 +98,13 @@ public class ListChannelPresenterImpl extends PresenterBase implements ListChann
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onAddChatChannelEvent(ChatChannelAddedEvent chatChannelAddedEvent) {
+    public void onChatChannelAddedEvent(ChatChannelAddedEvent chatChannelAddedEvent) {
         listChannelView.showChannel(chatChannelAddedEvent.getChannel());
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onChatChannelChangedEvent(ChatChannelChangedEvent chatChannelChangedEvent) {
+        listChannelView.showChannel(chatChannelChangedEvent.getChannel());
     }
 
     private void getPublicProfileAsync(final ChannelMember channelMember, @Nullable final Channel channel) {

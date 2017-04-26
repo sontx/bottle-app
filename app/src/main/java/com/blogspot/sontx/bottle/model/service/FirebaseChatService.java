@@ -6,9 +6,11 @@ import android.util.Log;
 import com.blogspot.sontx.bottle.App;
 import com.blogspot.sontx.bottle.Constants;
 import com.blogspot.sontx.bottle.model.bean.BottleUser;
+import com.blogspot.sontx.bottle.model.bean.chat.Channel;
 import com.blogspot.sontx.bottle.model.bean.chat.ChannelDetail;
 import com.blogspot.sontx.bottle.model.bean.chat.ChatMessage;
 import com.blogspot.sontx.bottle.model.service.interfaces.ChatService;
+import com.blogspot.sontx.bottle.system.event.ChatChannelChangedEvent;
 import com.blogspot.sontx.bottle.utils.BeanUtils;
 import com.blogspot.sontx.bottle.utils.DateTimeUtils;
 import com.google.firebase.database.ChildEventListener;
@@ -18,6 +20,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -74,57 +78,74 @@ class FirebaseChatService extends FirebaseServiceBase implements ChatService {
     }
 
     @Override
-    public void registerChannel(final String channelId) {
-        if (registerChannelsRef.containsKey(channelId))
+    public void registerChannel(final Channel channel) {
+        if (registerChannelsRef.containsKey(channel.getId()))
             return;
 
-        Log.d(TAG, "registerChannel -> " + channelId);
+        Log.d(TAG, "registerChannel -> " + channel);
 
-        DatabaseReference registerChannelRef = messagesRef.child(channelId);
-
-        ChildEventListener addChildEventListener = new ChildEventAdapter() {
+        ChildEventListener chatMessageAddedEvent = new ChildEventAdapter() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Log.d(TAG, "added new message");
                 if (onNewChatMessage != null) {
                     ChatMessage chatMessage = dataSnapshot.getValue(ChatMessage.class);
-                    chatMessage.setChannelId(channelId);
+                    chatMessage.setChannelId(channel.getId());
                     chatMessage.setId(dataSnapshot.getKey());
                     onNewChatMessage.onCallback(chatMessage);
                     updateReceivedMessageStateIfNecessary(dataSnapshot.getRef(), chatMessage);
                 }
             }
         };
-        ChildEventListener updateChildEventListener = new ChildEventAdapter() {
+        ChildEventListener chatMessageChangedEvent = new ChildEventAdapter() {
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                 Log.d(TAG, "updated message");
                 if (onChatMessageChanged != null) {
                     ChatMessage chatMessage = dataSnapshot.getValue(ChatMessage.class);
-                    chatMessage.setChannelId(channelId);
+                    chatMessage.setChannelId(channel.getId());
                     chatMessage.setId(dataSnapshot.getKey());
                     onChatMessageChanged.onCallback(chatMessage);
                 }
             }
         };
+        ChildEventListener channelDetailChangedEvent = new ChildEventAdapter() {
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                String name = dataSnapshot.getKey();
+                Object value = dataSnapshot.getValue();
+                BeanUtils.updateBean(name, value, channel.getDetail());
 
-        registerChannelRef.orderByChild("timestamp").startAt(DateTimeUtils.utc()).addChildEventListener(addChildEventListener);
-        registerChannelRef.orderByChild("timestamp").addChildEventListener(updateChildEventListener);
+                ChatChannelChangedEvent chatChannelChangedEvent = new ChatChannelChangedEvent();
+                chatChannelChangedEvent.setChannel(channel);
+                EventBus.getDefault().post(chatChannelChangedEvent);
+            }
+        };
+
+        DatabaseReference registerChannelRef = messagesRef.child(channel.getId());
+        registerChannelRef.orderByChild("timestamp").startAt(DateTimeUtils.utc()).addChildEventListener(chatMessageAddedEvent);
+        registerChannelRef.orderByChild("timestamp").addChildEventListener(chatMessageChangedEvent);
+
+        DatabaseReference registerChannelDetailRef = detailsRef.child(channel.getId());
+        registerChannelDetailRef.addChildEventListener(channelDetailChangedEvent);
 
         DatabaseRefWrapper databaseRefWrapper = new DatabaseRefWrapper();
-        databaseRefWrapper.addChildEventListener = addChildEventListener;
-        databaseRefWrapper.updateChildEventListener = updateChildEventListener;
-        databaseRefWrapper.databaseReference = registerChannelRef;
+        databaseRefWrapper.chatMessageAddedEvent = chatMessageAddedEvent;
+        databaseRefWrapper.chatMessageChangedEvent = chatMessageChangedEvent;
+        databaseRefWrapper.channelDetailChangedEvent = channelDetailChangedEvent;
+        databaseRefWrapper.messageRef = registerChannelRef;
+        databaseRefWrapper.channelDetailRef = registerChannelDetailRef;
 
-        registerChannelsRef.put(channelId, databaseRefWrapper);
+        registerChannelsRef.put(channel.getId(), databaseRefWrapper);
     }
 
     @Override
     public void unregisterChannel(String channelId) {
         DatabaseRefWrapper databaseRefWrapper = registerChannelsRef.remove(channelId);
         if (databaseRefWrapper != null) {
-            databaseRefWrapper.databaseReference.removeEventListener(databaseRefWrapper.addChildEventListener);
-            databaseRefWrapper.databaseReference.removeEventListener(databaseRefWrapper.updateChildEventListener);
+            databaseRefWrapper.messageRef.removeEventListener(databaseRefWrapper.chatMessageAddedEvent);
+            databaseRefWrapper.messageRef.removeEventListener(databaseRefWrapper.chatMessageChangedEvent);
+            databaseRefWrapper.channelDetailRef.removeEventListener(databaseRefWrapper.channelDetailChangedEvent);
         }
     }
 
@@ -133,8 +154,9 @@ class FirebaseChatService extends FirebaseServiceBase implements ChatService {
         Enumeration<DatabaseRefWrapper> elements = registerChannelsRef.elements();
         while (elements.hasMoreElements()) {
             DatabaseRefWrapper databaseRefWrapper = elements.nextElement();
-            databaseRefWrapper.databaseReference.removeEventListener(databaseRefWrapper.addChildEventListener);
-            databaseRefWrapper.databaseReference.removeEventListener(databaseRefWrapper.updateChildEventListener);
+            databaseRefWrapper.messageRef.removeEventListener(databaseRefWrapper.chatMessageAddedEvent);
+            databaseRefWrapper.messageRef.removeEventListener(databaseRefWrapper.chatMessageChangedEvent);
+            databaseRefWrapper.channelDetailRef.removeEventListener(databaseRefWrapper.channelDetailChangedEvent);
         }
     }
 
@@ -208,8 +230,10 @@ class FirebaseChatService extends FirebaseServiceBase implements ChatService {
     }
 
     private static class DatabaseRefWrapper {
-        private DatabaseReference databaseReference;
-        private ChildEventListener addChildEventListener;
-        private ChildEventListener updateChildEventListener;
+        private DatabaseReference messageRef;
+        private DatabaseReference channelDetailRef;
+        private ChildEventListener chatMessageAddedEvent;
+        private ChildEventListener chatMessageChangedEvent;
+        private ChildEventListener channelDetailChangedEvent;
     }
 }
