@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:name="com.blogspot.sontx.bottle.view.fragment.ListRoomMessageFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_primary1"
+    tools:context="com.blogspot.sontx.bottle.view.fragment.ListRoomMessageFragment">
+
+    <com.google.android.gms.maps.MapView
+        android:id="@+id/map_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <com.roughike.bottombar.BottomBar
+        android:id="@+id/bottom_bar"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_gravity="bottom"
+        app:bb_activeTabColor="@color/primary_dark"
+        app:bb_behavior="shy|iconsOnly"
+        app:bb_inActiveTabColor="@color/primary_dark"
+        app:bb_tabXmlResource="@xml/room_bottombar_tabs" />
+</android.support.design.widget.CoordinatorLayout>
