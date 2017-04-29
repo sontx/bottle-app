@@ -1,5 +1,7 @@
 package com.blogspot.sontx.bottle.model.service;
 
+import android.util.Log;
+
 import com.blogspot.sontx.bottle.model.bean.BottleUser;
 import com.blogspot.sontx.bottle.model.bean.LoginData;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerAuthService;
@@ -25,8 +27,13 @@ class BottleServerAuthImpl extends BottleServerServiceBase implements BottleServ
         call.enqueue(new retrofit2.Callback<BottleUser>() {
             @Override
             public void onResponse(Call<BottleUser> call, Response<BottleUser> response) {
-                currentBottleUser = response.body();
-                resultCallback.onSuccess(currentBottleUser);
+                if (response.code() == 200) {
+                    currentBottleUser = response.body();
+                    resultCallback.onSuccess(currentBottleUser);
+                } else {
+                    Log.e(TAG, "loginWithTokenAsync: error code = " + response.code());
+                    resultCallback.onError(new Exception(""));
+                }
             }
 
             @Override
