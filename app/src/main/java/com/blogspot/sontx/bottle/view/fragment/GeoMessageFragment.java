@@ -16,6 +16,7 @@ import com.blogspot.sontx.bottle.model.bean.GeoMessage;
 import com.blogspot.sontx.bottle.model.bean.UserSetting;
 import com.blogspot.sontx.bottle.presenter.MapMessagePresenterImpl;
 import com.blogspot.sontx.bottle.presenter.interfaces.MapMessagePresenter;
+import com.blogspot.sontx.bottle.view.adapter.GeoMessageInfoWindowAdapter;
 import com.blogspot.sontx.bottle.view.interfaces.MapMessageView;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -27,7 +28,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.List;
 
 public class GeoMessageFragment extends FragmentBase implements OnMapReadyCallback, MapMessageView, GoogleMap.OnCameraIdleListener {
@@ -99,12 +102,14 @@ public class GeoMessageFragment extends FragmentBase implements OnMapReadyCallba
         UserSetting userSetting = App.getInstance().getBottleContext().getCurrentUserSetting();
         Coordination currentLocation = userSetting.getCurrentLocation();
         LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 17);
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 11);
         map.moveCamera(cameraUpdate);
         map.addMarker(new MarkerOptions()
                 .position(latLng)
                 .title("Your Location")
                 .draggable(true));
+
+        map.setInfoWindowAdapter(new GeoMessageInfoWindowAdapter(getActivity()));
     }
 
     @Override
@@ -120,7 +125,7 @@ public class GeoMessageFragment extends FragmentBase implements OnMapReadyCallba
         mapMessagePresenter.getMapMessagesAroundMyLocationAsync(latitudeRadius, longitudeRadius);
     }
 
-    private static class MarkerCreatorTask extends AsyncTask<Void, Void, List<MarkerOptions>> {
+    private static class MarkerCreatorTask extends AsyncTask<Void, Void, Dictionary<MarkerOptions, GeoMessage>> {
         private final GoogleMap map;
         private final List<GeoMessage> geoMessages;
 
@@ -130,24 +135,27 @@ public class GeoMessageFragment extends FragmentBase implements OnMapReadyCallba
         }
 
         @Override
-        protected List<MarkerOptions> doInBackground(Void... params) {
-            List<MarkerOptions> markers = new ArrayList<>(geoMessages.size());
+        protected Dictionary<MarkerOptions, GeoMessage> doInBackground(Void... params) {
+            Dictionary<MarkerOptions, GeoMessage> markers = new Hashtable<>(geoMessages.size());
 
             for (GeoMessage geoMessage : geoMessages) {
                 MarkerOptions markerOptions = new MarkerOptions()
                         .position(new LatLng(geoMessage.getLatitude(), geoMessage.getLongitude()))
                         .title(geoMessage.getOwner().getDisplayName())
                         .snippet(geoMessage.getText());
-                markers.add(markerOptions);
+                markers.put(markerOptions, geoMessage);
             }
 
             return markers;
         }
 
         @Override
-        protected void onPostExecute(List<MarkerOptions> markers) {
-            for (MarkerOptions marker : markers) {
-                map.addMarker(marker);
+        protected void onPostExecute(Dictionary<MarkerOptions, GeoMessage> markers) {
+            Enumeration<MarkerOptions> markerOptionsEnumeration = markers.keys();
+            while (markerOptionsEnumeration.hasMoreElements()) {
+                MarkerOptions markerOptions = markerOptionsEnumeration.nextElement();
+                GeoMessage geoMessage = markers.get(markerOptions);
+                map.addMarker(markerOptions).setTag(geoMessage);
             }
             super.onPostExecute(markers);
         }

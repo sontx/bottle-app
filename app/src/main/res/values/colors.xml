@@ -23,4 +23,5 @@
     <color name="tab_room_color">#5D4037</color>
     <color name="tab_map_color">#7B1FA2</color>
     <color name="tab_setting_color">#303F9F</color>
+    <color name="blur_background">#95000000</color>
 </resources>

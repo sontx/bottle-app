@@ -10,10 +10,18 @@ import android.util.AttributeSet;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 
+import com.blogspot.sontx.bottle.R;
+import com.google.android.gms.maps.model.Marker;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
+import lombok.Getter;
+
 public class AutoSizeImageView extends AppCompatImageView {
+    private Marker marker;
+    @Getter
+    private boolean loaded = false;
 
     public AutoSizeImageView(Context context) {
         super(context);
@@ -23,8 +31,57 @@ public class AutoSizeImageView extends AppCompatImageView {
         super(context, attrs);
     }
 
+    private void autoSize(final String url, final int width, int height) {
+        final Target target = new Target() {
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                int imageWidth = bitmap.getWidth();
+                int imageHeight = bitmap.getHeight();
+
+                ViewGroup.LayoutParams layoutParams = getLayoutParams();
+                if (imageWidth > imageHeight)
+                    layoutParams.height = width * imageHeight / imageWidth;
+                else
+                    layoutParams.height = width;
+
+                if (marker == null)
+                    Picasso.with(getContext()).load(url).resize(width, layoutParams.height).centerCrop().into(AutoSizeImageView.this);
+                else
+                    Picasso.with(getContext()).load(url).resize(width, layoutParams.height).centerCrop().into(AutoSizeImageView.this, new Callback() {
+                        @Override
+                        public void onSuccess() {
+                            marker.showInfoWindow();
+                            marker = null;
+                        }
+
+                        @Override
+                        public void onError() {
+
+                        }
+                    });
+            }
+
+            @Override
+            public void onBitmapFailed(Drawable errorDrawable) {
+
+            }
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+            }
+        };
+        setTag(target);
+        Picasso.with(getContext()).load(url).into(target);
+    }
+
     public AutoSizeImageView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+    }
+
+    public void setImageUrl(String url, Marker marker) {
+        this.marker = marker;
+        setImageUrl(url);
     }
 
     public void setImageUrl(final String url) {
@@ -49,20 +106,16 @@ public class AutoSizeImageView extends AppCompatImageView {
         }
     }
 
-    private void autoSize(final String url, final int width, int height) {
+    public void fixImage(final String url, Marker marker) {
+        loaded = false;
+        this.marker = marker;
         final Target target = new Target() {
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                int imageWidth = bitmap.getWidth();
-                int imageHeight = bitmap.getHeight();
-
-                ViewGroup.LayoutParams layoutParams = getLayoutParams();
-                if (imageWidth > imageHeight)
-                    layoutParams.height = width * imageHeight / imageWidth;
-                else
-                    layoutParams.height = width;
-
-                Picasso.with(getContext()).load(url).resize(width, layoutParams.height).centerCrop().into(AutoSizeImageView.this);
+                setImageBitmap(bitmap);
+                loaded = true;
+                AutoSizeImageView.this.marker.showInfoWindow();
+                AutoSizeImageView.this.marker = null;
             }
 
             @Override
@@ -76,7 +129,9 @@ public class AutoSizeImageView extends AppCompatImageView {
             }
         };
         setTag(target);
-        Picasso.with(getContext()).load(url).resize(width, 0).centerCrop().into(target);
+        int width = getResources().getDimensionPixelSize(R.dimen.geo_message_width);
+        int height = getResources().getDimensionPixelSize(R.dimen.geo_message_height);
+        Picasso.with(getContext()).load(url).resize(width, height).centerCrop().into(target);
     }
 
     @Override
