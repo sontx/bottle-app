@@ -7,7 +7,7 @@ public interface ViewBase {
 
     void hideProcess();
 
-    void showErrorMessage(String message);
+    void showErrorMessage(Object message);
 
     void showSuccessMessage(String message);
 

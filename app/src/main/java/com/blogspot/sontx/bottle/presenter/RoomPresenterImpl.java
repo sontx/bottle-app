@@ -32,7 +32,7 @@ public class RoomPresenterImpl extends PresenterBase implements RoomPresenter {
 
             @Override
             public void onError(Throwable what) {
-                listRoomView.showErrorMessage(what.getMessage());
+                listRoomView.showErrorMessage(what);
             }
         });
 
@@ -47,7 +47,7 @@ public class RoomPresenterImpl extends PresenterBase implements RoomPresenter {
 
             @Override
             public void onError(Throwable what) {
-                listRoomView.showErrorMessage(what.getMessage());
+                listRoomView.showErrorMessage(what);
             }
         });
     }
@@ -62,7 +62,7 @@ public class RoomPresenterImpl extends PresenterBase implements RoomPresenter {
 
             @Override
             public void onError(Throwable what) {
-                listRoomView.showErrorMessage(what.getMessage());
+                listRoomView.showErrorMessage(what);
             }
         });
     }

@@ -120,7 +120,7 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
 
             @Override
             public void onError(Throwable what) {
-                chatView.showErrorMessage(what.getMessage());
+                chatView.showErrorMessage(what);
             }
         });
     }
@@ -136,7 +136,7 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
 
             @Override
             public void onError(Throwable what) {
-                chatView.showErrorMessage(what.getMessage());
+                chatView.showErrorMessage(what);
             }
         });
     }

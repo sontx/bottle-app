@@ -50,7 +50,7 @@ public class RoomMessagePresenterImpl extends PresenterBase implements RoomMessa
 
             @Override
             public void onError(Throwable what) {
-                listRoomMessageView.showErrorMessage(what.getMessage());
+                listRoomMessageView.showErrorMessage(what);
             }
         });
     }
@@ -68,7 +68,7 @@ public class RoomMessagePresenterImpl extends PresenterBase implements RoomMessa
 
             @Override
             public void onError(Throwable what) {
-                listRoomMessageView.showErrorMessage(what.getMessage());
+                listRoomMessageView.showErrorMessage(what);
             }
         });
     }
@@ -100,7 +100,7 @@ public class RoomMessagePresenterImpl extends PresenterBase implements RoomMessa
 
                     @Override
                     public void onError(Throwable what) {
-                        listRoomMessageView.showErrorMessage(what.getMessage());
+                        listRoomMessageView.showErrorMessage(what);
                     }
                 });
             }
@@ -116,7 +116,7 @@ public class RoomMessagePresenterImpl extends PresenterBase implements RoomMessa
 
             @Override
             public void onError(Throwable what) {
-                listRoomMessageView.showErrorMessage(what.getMessage());
+                listRoomMessageView.showErrorMessage(what);
             }
         });
     }

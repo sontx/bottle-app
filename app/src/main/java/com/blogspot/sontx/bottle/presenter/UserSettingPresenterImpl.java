@@ -26,7 +26,7 @@ public class UserSettingPresenterImpl implements UserSettingPresenter {
 
             @Override
             public void onError(Throwable what) {
-                userSettingView.showErrorMessage(what.getMessage());
+                userSettingView.showErrorMessage(what);
             }
         });
     }

@@ -68,7 +68,7 @@ public class ListChannelPresenterImpl extends PresenterBase implements ListChann
 
             @Override
             public void onError(Throwable what) {
-                listChannelView.showErrorMessage(what.getMessage());
+                listChannelView.showErrorMessage(what);
             }
         });
     }
@@ -122,7 +122,7 @@ public class ListChannelPresenterImpl extends PresenterBase implements ListChann
 
             @Override
             public void onError(Throwable what) {
-                listChannelView.showErrorMessage(what.getMessage());
+                listChannelView.showErrorMessage(what);
             }
         });
     }
@@ -140,7 +140,7 @@ public class ListChannelPresenterImpl extends PresenterBase implements ListChann
 
             @Override
             public void onError(Throwable what) {
-                listChannelView.showErrorMessage(what.getMessage());
+                listChannelView.showErrorMessage(what);
             }
         });
     }
@@ -155,7 +155,7 @@ public class ListChannelPresenterImpl extends PresenterBase implements ListChann
 
             @Override
             public void onError(Throwable what) {
-                listChannelView.showErrorMessage(what.getMessage());
+                listChannelView.showErrorMessage(what);
             }
         });
     }

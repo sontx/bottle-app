@@ -44,7 +44,7 @@ public class PublicProfilePresenterImpl extends PresenterBase implements PublicP
                 @Override
                 public void onError(Throwable what) {
                     publicProfileView.hideProcess();
-                    publicProfileView.showErrorMessage(what.getMessage());
+                    publicProfileView.showErrorMessage(what);
                     publicProfileView.onUpdatedPublicProfile(null);
                 }
             });
@@ -69,7 +69,7 @@ public class PublicProfilePresenterImpl extends PresenterBase implements PublicP
                 @Override
                 public void onError(Throwable what) {
                     publicProfileView.hideProcess();
-                    publicProfileView.showErrorMessage(what.getMessage());
+                    publicProfileView.showErrorMessage(what);
                 }
             });
         } else {

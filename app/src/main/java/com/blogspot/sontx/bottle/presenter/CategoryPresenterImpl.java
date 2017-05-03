@@ -28,7 +28,7 @@ public class CategoryPresenterImpl extends PresenterBase implements CategoryPres
 
             @Override
             public void onError(Throwable what) {
-                listCategoryView.showErrorMessage(what.getMessage());
+                listCategoryView.showErrorMessage(what);
             }
         });
     }

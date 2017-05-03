@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -84,11 +85,20 @@ abstract class ActivityBase extends AppCompatActivity implements ViewBase {
     }
 
     @Override
-    public void showErrorMessage(final String message) {
+    public void showErrorMessage(final Object message) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(ActivityBase.this, message, Toast.LENGTH_LONG).show();
+                if (message instanceof String) {
+                    Toast.makeText(ActivityBase.this, (String) message, Toast.LENGTH_LONG).show();
+                } else if (message instanceof Throwable) {
+                    Throwable throwable = (Throwable) message;
+                    String msg = throwable.getMessage();
+                    if (msg == null || "".equals(msg))
+                        msg = throwable.toString();
+                    Toast.makeText(ActivityBase.this, msg, Toast.LENGTH_LONG).show();
+                    Log.e(TAG, throwable.toString());
+                }
             }
         });
     }

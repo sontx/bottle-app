@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.blogspot.sontx.bottle.view.dialog.ProcessDialog;
@@ -62,13 +63,22 @@ abstract class FragmentBase extends Fragment implements ViewBase {
     }
 
     @Override
-    public void showErrorMessage(final String message) {
+    public void showErrorMessage(final Object message) {
         final FragmentActivity activity = getActivity();
         if (activity != null) {
             activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
+                    if (message instanceof String) {
+                        Toast.makeText(activity, (String) message, Toast.LENGTH_LONG).show();
+                    } else if (message instanceof Throwable) {
+                        Throwable throwable = (Throwable) message;
+                        String msg = throwable.getMessage();
+                        if (msg == null || "".equals(msg))
+                            msg = throwable.toString();
+                        Toast.makeText(activity, msg, Toast.LENGTH_LONG).show();
+                        Log.e(TAG, throwable.toString());
+                    }
                 }
             });
         }

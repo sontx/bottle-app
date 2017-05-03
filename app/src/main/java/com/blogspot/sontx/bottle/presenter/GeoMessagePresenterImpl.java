@@ -54,7 +54,7 @@ public class GeoMessagePresenterImpl implements GeoMessagePresenter {
 
                     @Override
                     public void onError(Throwable what) {
-                        mapMessageView.showErrorMessage(what.getMessage());
+                        mapMessageView.showErrorMessage(what);
                     }
                 });
     }
@@ -89,7 +89,7 @@ public class GeoMessagePresenterImpl implements GeoMessagePresenter {
 
                     @Override
                     public void onError(Throwable what) {
-                        mapMessageView.showErrorMessage(what.getMessage());
+                        mapMessageView.showErrorMessage(what);
                     }
                 });
             }
@@ -106,7 +106,7 @@ public class GeoMessagePresenterImpl implements GeoMessagePresenter {
 
             @Override
             public void onError(Throwable what) {
-                mapMessageView.showErrorMessage(what.getMessage());
+                mapMessageView.showErrorMessage(what);
             }
         });
     }
@@ -124,7 +124,7 @@ public class GeoMessagePresenterImpl implements GeoMessagePresenter {
 
             @Override
             public void onError(Throwable what) {
-                mapMessageView.showErrorMessage(what.getMessage());
+                mapMessageView.showErrorMessage(what);
             }
         });
     }
@@ -138,7 +138,7 @@ public class GeoMessagePresenterImpl implements GeoMessagePresenter {
 
             @Override
             public void onError(Throwable what) {
-                mapMessageView.showErrorMessage(what.getMessage());
+                mapMessageView.showErrorMessage(what);
             }
         });
     }
