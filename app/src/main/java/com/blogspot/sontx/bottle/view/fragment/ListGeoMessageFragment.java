@@ -38,6 +38,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.LinkedList;
 import java.util.List;
 
 import butterknife.ButterKnife;
@@ -57,6 +58,7 @@ public class ListGeoMessageFragment extends FragmentBase implements
     private Marker currentMarker;
     private LatLngBounds lastLatLngBounds;
     private boolean preventUpdateMoreMessages = false;
+    private List<GeoMessage> showingMessages = new LinkedList<>();
     private MapView mapView;
     private GoogleMap map;
     private FloatingActionButton fab;
@@ -174,7 +176,7 @@ public class ListGeoMessageFragment extends FragmentBase implements
     @Override
     public void showMapMessages(List<GeoMessage> geoMessageList) {
         String currentUserId = App.getInstance().getBottleContext().getCurrentBottleUser().getUid();
-        new MarkerCreatorTask(map, geoMessageList, currentUserId).execute();
+        new MarkerCreatorTask(map, geoMessageList, showingMessages, currentUserId).execute();
     }
 
     @Override
@@ -291,11 +293,13 @@ public class ListGeoMessageFragment extends FragmentBase implements
     private static class MarkerCreatorTask extends AsyncTask<Void, Void, Dictionary<MarkerOptions, GeoMessage>> {
         private final GoogleMap map;
         private final List<GeoMessage> geoMessages;
+        private final List<GeoMessage> showingMessages;
         private final String currentUserId;
 
-        private MarkerCreatorTask(GoogleMap map, List<GeoMessage> geoMessages, String currentUserId) {
+        private MarkerCreatorTask(GoogleMap map, List<GeoMessage> geoMessages, List<GeoMessage> showingMessages, String currentUserId) {
             this.map = map;
             this.geoMessages = geoMessages;
+            this.showingMessages = showingMessages;
             this.currentUserId = currentUserId;
         }
 
@@ -304,6 +308,19 @@ public class ListGeoMessageFragment extends FragmentBase implements
             Dictionary<MarkerOptions, GeoMessage> markers = new Hashtable<>(geoMessages.size());
 
             for (GeoMessage geoMessage : geoMessages) {
+                boolean exist = false;
+                for (GeoMessage _geoMessage : showingMessages) {
+                    if (_geoMessage.getId() == geoMessage.getId()) {
+                        exist = true;
+                        break;
+                    }
+                }
+
+                if (exist)
+                    continue;
+
+                showingMessages.add(geoMessage);
+
                 MarkerOptions markerOptions;
                 if (geoMessage.getOwner().getId().equalsIgnoreCase(currentUserId)) {
                     markerOptions = createCurrentUserMarker(geoMessage);
@@ -321,8 +338,6 @@ public class ListGeoMessageFragment extends FragmentBase implements
 
         @Override
         protected void onPostExecute(Dictionary<MarkerOptions, GeoMessage> markers) {
-            map.clear();
-            showMyLocation(map);
             Enumeration<MarkerOptions> markerOptionsEnumeration = markers.keys();
             while (markerOptionsEnumeration.hasMoreElements()) {
                 MarkerOptions markerOptions = markerOptionsEnumeration.nextElement();
