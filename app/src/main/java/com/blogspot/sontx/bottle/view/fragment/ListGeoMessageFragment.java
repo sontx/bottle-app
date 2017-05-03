@@ -1,6 +1,7 @@
 package com.blogspot.sontx.bottle.view.fragment;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -26,6 +27,7 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.Dictionary;
@@ -33,16 +35,22 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
 
-public class GeoMessageFragment extends FragmentBase implements OnMapReadyCallback, MapMessageView, GoogleMap.OnCameraIdleListener {
+public class ListGeoMessageFragment extends FragmentBase implements
+        OnMapReadyCallback,
+        MapMessageView,
+        GoogleMap.OnCameraIdleListener,
+        GoogleMap.OnInfoWindowClickListener {
+
+    private OnListGeoMessageInteractionListener listener;
     private MapMessagePresenter mapMessagePresenter;
     private MapView mapView;
     private GoogleMap map;
 
-    public GeoMessageFragment() {
+    public ListGeoMessageFragment() {
     }
 
-    public static GeoMessageFragment newInstance() {
-        return new GeoMessageFragment();
+    public static ListGeoMessageFragment newInstance() {
+        return new ListGeoMessageFragment();
     }
 
     @Override
@@ -75,6 +83,22 @@ public class GeoMessageFragment extends FragmentBase implements OnMapReadyCallba
     }
 
     @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnListGeoMessageInteractionListener) {
+            listener = (OnListGeoMessageInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString() + " must implement OnListGeoMessageInteractionListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        listener = null;
+    }
+
+    @Override
     public void onLowMemory() {
         super.onLowMemory();
         mapView.onLowMemory();
@@ -93,6 +117,7 @@ public class GeoMessageFragment extends FragmentBase implements OnMapReadyCallba
             return;
 
         map.setOnCameraIdleListener(this);
+        map.setOnInfoWindowClickListener(this);
 
         map.getUiSettings().setMyLocationButtonEnabled(false);
 
@@ -102,7 +127,7 @@ public class GeoMessageFragment extends FragmentBase implements OnMapReadyCallba
         UserSetting userSetting = App.getInstance().getBottleContext().getCurrentUserSetting();
         Coordination currentLocation = userSetting.getCurrentLocation();
         LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 11);
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 11.5F);
         map.moveCamera(cameraUpdate);
         map.addMarker(new MarkerOptions()
                 .position(latLng)
@@ -123,6 +148,14 @@ public class GeoMessageFragment extends FragmentBase implements OnMapReadyCallba
         double latitudeRadius = latLngBounds.northeast.latitude - latLngBounds.southwest.latitude;
         double longitudeRadius = latLngBounds.northeast.longitude - latLngBounds.southwest.longitude;
         mapMessagePresenter.getMapMessagesAroundMyLocationAsync(latitudeRadius, longitudeRadius);
+    }
+
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+        GeoMessage geoMessage = (GeoMessage) marker.getTag();
+        if (listener != null)
+            listener.onGeoMessageClick(geoMessage);
+        marker.hideInfoWindow();
     }
 
     private static class MarkerCreatorTask extends AsyncTask<Void, Void, Dictionary<MarkerOptions, GeoMessage>> {
@@ -159,5 +192,9 @@ public class GeoMessageFragment extends FragmentBase implements OnMapReadyCallba
             }
             super.onPostExecute(markers);
         }
+    }
+
+    public interface OnListGeoMessageInteractionListener {
+        void onGeoMessageClick(GeoMessage item);
     }
 }

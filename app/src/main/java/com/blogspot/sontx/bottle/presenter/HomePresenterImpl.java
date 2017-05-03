@@ -2,8 +2,8 @@ package com.blogspot.sontx.bottle.presenter;
 
 import android.util.Log;
 
+import com.blogspot.sontx.bottle.model.bean.MessageBase;
 import com.blogspot.sontx.bottle.model.bean.PublicProfile;
-import com.blogspot.sontx.bottle.model.bean.RoomMessage;
 import com.blogspot.sontx.bottle.model.bean.chat.Channel;
 import com.blogspot.sontx.bottle.model.service.Callback;
 import com.blogspot.sontx.bottle.model.service.FirebaseServicePool;
@@ -27,12 +27,12 @@ public class HomePresenterImpl extends PresenterBase implements HomePresenter {
     }
 
     @Override
-    public void directMessage(final RoomMessage roomMessage) {
+    public void directMessage(final MessageBase message) {
         final ChannelService channelService = FirebaseServicePool.getInstance().getChannelService();
         channelService.getCurrentChannelsAsync(new Callback<List<Channel>>() {
             @Override
             public void onSuccess(List<Channel> channels) {
-                String anotherGuyId = roomMessage.getOwner().getId();
+                String anotherGuyId = message.getOwner().getId();
 
                 for (Channel channel : channels) {
                     PublicProfile anotherGuyPublicProfile = channel.getAnotherGuy().getPublicProfile();
