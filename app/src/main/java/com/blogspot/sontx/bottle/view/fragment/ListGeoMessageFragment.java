@@ -243,6 +243,14 @@ public class ListGeoMessageFragment extends FragmentBase implements
             geoMessage.setLatitude(currentMarker.getPosition().latitude);
             geoMessage.setLongitude(currentMarker.getPosition().longitude);
             geoMessagePresenter.editGeoMessageAsync(geoMessage);
+        } else {
+            LatLng myLocation = marker.getPosition();
+
+            Coordination currentLocation = new Coordination();
+            currentLocation.setLatitude(myLocation.latitude);
+            currentLocation.setLongitude(myLocation.longitude);
+
+            geoMessagePresenter.updateCurrentUserLocationAsync(currentLocation);
         }
     }
 

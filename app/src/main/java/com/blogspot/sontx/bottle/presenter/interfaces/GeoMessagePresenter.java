@@ -9,4 +9,6 @@ public interface GeoMessagePresenter {
     void postGeoMessageAsync(String text, Coordination coordination, String mediaPath, String type);
 
     void editGeoMessageAsync(GeoMessage geoMessage);
+
+    void updateCurrentUserLocationAsync(Coordination currentLocation);
 }

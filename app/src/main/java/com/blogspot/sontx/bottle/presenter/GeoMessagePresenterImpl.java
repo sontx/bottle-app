@@ -12,6 +12,7 @@ import com.blogspot.sontx.bottle.model.service.FirebaseServicePool;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleFileStreamService;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerGeoService;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerMessageService;
+import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerUserSettingService;
 import com.blogspot.sontx.bottle.presenter.interfaces.GeoMessagePresenter;
 import com.blogspot.sontx.bottle.utils.StringUtils;
 import com.blogspot.sontx.bottle.view.interfaces.MapMessageView;
@@ -23,6 +24,7 @@ public class GeoMessagePresenterImpl implements GeoMessagePresenter {
     private final BottleServerGeoService bottleServerGeoService;
     private final BottleServerMessageService bottleServerMessageService;
     private final BottleFileStreamService bottleFileStreamService;
+    private final BottleServerUserSettingService bottleServerUserSettingService;
     private final PublicProfile currentPublicProfile;
 
     public GeoMessagePresenterImpl(MapMessageView mapMessageView) {
@@ -30,6 +32,7 @@ public class GeoMessagePresenterImpl implements GeoMessagePresenter {
         bottleServerMessageService = FirebaseServicePool.getInstance().getBottleServerMessageService();
         bottleFileStreamService = FirebaseServicePool.getInstance().getBottleFileStreamService();
         bottleServerGeoService = FirebaseServicePool.getInstance().getBottleServerGeoService();
+        bottleServerUserSettingService = FirebaseServicePool.getInstance().getBottleServerUserSettingService();
         currentPublicProfile = App.getInstance().getBottleContext().getCurrentPublicProfile();
     }
 
@@ -99,6 +102,24 @@ public class GeoMessagePresenterImpl implements GeoMessagePresenter {
             @Override
             public void onSuccess(GeoMessage result) {
                 // nothing
+            }
+
+            @Override
+            public void onError(Throwable what) {
+                mapMessageView.showErrorMessage(what.getMessage());
+            }
+        });
+    }
+
+    @Override
+    public void updateCurrentUserLocationAsync(Coordination currentLocation) {
+        UserSetting currentUserSetting = App.getInstance().getBottleContext().getCurrentUserSetting();
+        currentUserSetting.setCurrentLocation(currentLocation);
+
+        bottleServerUserSettingService.updateUserSettingAsync(new Callback<UserSetting>() {
+            @Override
+            public void onSuccess(UserSetting result) {
+                // do nothing
             }
 
             @Override
