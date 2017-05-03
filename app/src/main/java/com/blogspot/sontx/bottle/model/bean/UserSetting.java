@@ -6,4 +6,5 @@ import lombok.Data;
 public class UserSetting {
     private int currentRoomId;
     private Coordination currentLocation;
+    private int messageId;
 }

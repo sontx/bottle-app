@@ -6,6 +6,7 @@ import com.blogspot.sontx.bottle.model.service.interfaces.BottleFileStreamServic
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerAuthService;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerCategoryService;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerChatService;
+import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerGeoService;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerMessageService;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerRoomService;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerUserSettingService;
@@ -18,6 +19,9 @@ abstract class ServicePoolBase implements ServicePool {
 
     @Getter
     private BottleServerCategoryService bottleServerCategoryService;
+
+    @Getter
+    private BottleServerGeoService bottleServerGeoService;
 
     @Getter
     private BottleServerRoomService bottleServerRoomService;
@@ -38,6 +42,7 @@ abstract class ServicePoolBase implements ServicePool {
     public void initialize(Context context) {
         bottleServerAuthService = new BottleServerAuthImpl();
         bottleServerCategoryService = new BottleServerCategoryServiceImpl();
+        bottleServerGeoService = new BottleServerGeoServiceImpl();
         bottleServerRoomService = new BottleServerRoomServiceImpl();
         bottleServerMessageService = new BottleServerMessageServiceImpl();
         bottleServerUserSettingService = new BottleServerUserSettingServiceImpl();
