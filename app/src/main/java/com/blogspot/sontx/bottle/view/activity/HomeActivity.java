@@ -6,12 +6,15 @@ import android.support.annotation.IdRes;
 import android.support.v4.view.ViewPager;
 
 import com.blogspot.sontx.bottle.R;
+import com.blogspot.sontx.bottle.model.bean.GeoMessage;
 import com.blogspot.sontx.bottle.model.bean.RoomMessage;
 import com.blogspot.sontx.bottle.model.bean.chat.Channel;
 import com.blogspot.sontx.bottle.presenter.HomePresenterImpl;
 import com.blogspot.sontx.bottle.presenter.interfaces.HomePresenter;
 import com.blogspot.sontx.bottle.view.adapter.HomeFragmentPagerAdapter;
+import com.blogspot.sontx.bottle.view.dialog.GeoMessageDialog;
 import com.blogspot.sontx.bottle.view.fragment.ListChannelFragment;
+import com.blogspot.sontx.bottle.view.fragment.ListGeoMessageFragment;
 import com.blogspot.sontx.bottle.view.fragment.ListRoomMessageFragment;
 import com.blogspot.sontx.bottle.view.interfaces.HomeView;
 import com.roughike.bottombar.BottomBar;
@@ -20,9 +23,13 @@ import com.roughike.bottombar.OnTabSelectListener;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class HomeActivity extends ActivityBase
-        implements ListRoomMessageFragment.OnListRoomMessageInteractionListener,
-        ListChannelFragment.OnChannelInteractionListener, HomeView, OnTabSelectListener, ViewPager.OnPageChangeListener {
+public class HomeActivity extends ActivityBase implements
+        ListRoomMessageFragment.OnListRoomMessageInteractionListener,
+        ListGeoMessageFragment.OnListGeoMessageInteractionListener,
+        ListChannelFragment.OnChannelInteractionListener,
+        HomeView,
+        OnTabSelectListener,
+        ViewPager.OnPageChangeListener {
 
     @BindView(R.id.vp_horizontal_ntb)
     ViewPager viewPager;
@@ -70,6 +77,16 @@ public class HomeActivity extends ActivityBase
     @Override
     public void onVoteMessageClick(RoomMessage item) {
 
+    }
+
+    @Override
+    public void onGeoMessageClick(GeoMessage item) {
+        GeoMessageDialog dialog = new GeoMessageDialog(this, item, new GeoMessageDialog.OnGeoMessageDialogInteractionListener() {
+            @Override
+            public void onDirectMessageClick(GeoMessage geoMessage) {
+                homePresenter.directMessage(geoMessage);
+            }
+        });
     }
 
     @Override

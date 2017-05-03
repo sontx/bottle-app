@@ -6,8 +6,8 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.util.SparseArray;
 import android.view.ViewGroup;
 
-import com.blogspot.sontx.bottle.view.fragment.GeoMessageFragment;
 import com.blogspot.sontx.bottle.view.fragment.ListChannelFragment;
+import com.blogspot.sontx.bottle.view.fragment.ListGeoMessageFragment;
 import com.blogspot.sontx.bottle.view.fragment.ListRoomMessageFragment;
 
 public class HomeFragmentPagerAdapter extends FragmentPagerAdapter {
@@ -34,7 +34,7 @@ public class HomeFragmentPagerAdapter extends FragmentPagerAdapter {
         if (position == 1)
             return ListRoomMessageFragment.newInstance(1);
         if (position == 2)
-            return GeoMessageFragment.newInstance();
+            return ListGeoMessageFragment.newInstance();
         return null;
     }
 

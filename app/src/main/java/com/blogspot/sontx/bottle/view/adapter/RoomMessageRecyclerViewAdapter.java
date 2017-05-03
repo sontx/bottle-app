@@ -23,6 +23,8 @@ import java.util.List;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 import it.slyce.messaging.utils.DateTimeUtils;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 public class RoomMessageRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -90,7 +92,7 @@ public class RoomMessageRecyclerViewAdapter extends RecyclerView.Adapter<Recycle
             @Override
             public void onClick(View v) {
                 if (null != listener) {
-                    listener.onListRoomMessageInteraction(textViewHolder.item);
+                    listener.onListRoomMessageInteraction((RoomMessage) textViewHolder.item);
                 }
             }
         });
@@ -98,14 +100,14 @@ public class RoomMessageRecyclerViewAdapter extends RecyclerView.Adapter<Recycle
             @Override
             public void onClick(View v) {
                 if (null != listener)
-                    listener.onDirectMessageClick(textViewHolder.item);
+                    listener.onDirectMessageClick((RoomMessage) textViewHolder.item);
             }
         });
         textViewHolder.voteMessageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (null != listener)
-                    listener.onVoteMessageClick(textViewHolder.item);
+                    listener.onVoteMessageClick((RoomMessage) textViewHolder.item);
             }
         });
 
@@ -131,7 +133,8 @@ public class RoomMessageRecyclerViewAdapter extends RecyclerView.Adapter<Recycle
         return values.size();
     }
 
-    private static class TextViewHolder extends RecyclerView.ViewHolder {
+    @Data
+    public static class TextViewHolder extends RecyclerView.ViewHolder {
         final View root;
         final CircleImageView avatarView;
         final TextView displayNameView;
@@ -142,9 +145,9 @@ public class RoomMessageRecyclerViewAdapter extends RecyclerView.Adapter<Recycle
         final View interactionView;
         final View moreOptionView;
 
-        RoomMessage item;
+        MessageBase item;
 
-        TextViewHolder(View view) {
+        public TextViewHolder(View view) {
             super(view);
             root = view;
             displayNameView = ButterKnife.findById(view, R.id.display_name_view);
@@ -158,16 +161,18 @@ public class RoomMessageRecyclerViewAdapter extends RecyclerView.Adapter<Recycle
         }
     }
 
-    private static class PhotoViewHolder extends TextViewHolder {
+    @EqualsAndHashCode(callSuper = false)
+    @Data
+    public static class PhotoViewHolder extends TextViewHolder {
         final AutoSizeImageView autoSizeImageView;
 
-        PhotoViewHolder(View view) {
+        public PhotoViewHolder(View view) {
             super(view);
             autoSizeImageView = ButterKnife.findById(view, R.id.image_view);
         }
     }
 
-    private static class VideoViewHolder extends TextViewHolder {
+    public static class VideoViewHolder extends TextViewHolder {
         final RichVideoView richVideoView;
 
         VideoViewHolder(View view) {

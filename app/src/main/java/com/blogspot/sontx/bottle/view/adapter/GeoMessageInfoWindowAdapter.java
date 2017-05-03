@@ -3,7 +3,6 @@ package com.blogspot.sontx.bottle.view.adapter;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.blogspot.sontx.bottle.App;
@@ -57,8 +56,6 @@ public class GeoMessageInfoWindowAdapter implements GoogleMap.InfoWindowAdapter 
         if (textViewHolder == null) {
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View view = inflater.inflate(R.layout.fragment_geo_message_text, null);
-            LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) view.getLayoutParams();
-
             textViewHolder = new TextViewHolder(view);
         }
 
