@@ -47,13 +47,16 @@ public class ListGeoMessageFragment extends FragmentBase implements
         MapMessageView,
         GoogleMap.OnCameraIdleListener,
         GoogleMap.OnInfoWindowClickListener,
-        View.OnClickListener, GoogleMap.OnMarkerDragListener {
+        View.OnClickListener,
+        GoogleMap.OnMarkerDragListener,
+        GoogleMap.OnMarkerClickListener, GoogleMap.OnInfoWindowCloseListener {
 
     private static final int REQUEST_CODE_NEW_ROOM_MESSAGE = 1;
     private OnListGeoMessageInteractionListener listener;
     private GeoMessagePresenter geoMessagePresenter;
     private Marker currentMarker;
     private LatLngBounds lastLatLngBounds;
+    private boolean preventUpdateMoreMessages = false;
     private MapView mapView;
     private GoogleMap map;
     private FloatingActionButton fab;
@@ -150,7 +153,9 @@ public class ListGeoMessageFragment extends FragmentBase implements
             return;
 
         map.setOnCameraIdleListener(this);
+        map.setOnMarkerClickListener(this);
         map.setOnInfoWindowClickListener(this);
+        map.setOnInfoWindowCloseListener(this);
         map.setOnMarkerDragListener(this);
 
         map.getUiSettings().setMyLocationButtonEnabled(false);
@@ -158,17 +163,9 @@ public class ListGeoMessageFragment extends FragmentBase implements
         map.setMyLocationEnabled(true);
         MapsInitializer.initialize(this.getActivity());
 
-        UserSetting userSetting = App.getInstance().getBottleContext().getCurrentUserSetting();
-        Coordination currentLocation = userSetting.getCurrentLocation();
-        LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 13.5F);
-        map.moveCamera(cameraUpdate);
-        map.addMarker(new MarkerOptions()
-                .position(latLng)
-                .title("Your Location")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
-                .draggable(true)).setTag("MY-LOCATION");
+        showMyLocation(map);
 
+        UserSetting userSetting = App.getInstance().getBottleContext().getCurrentUserSetting();
         map.setInfoWindowAdapter(new GeoMessageInfoWindowAdapter(getActivity()));
 
         fab.setVisibility(userSetting.getCurrentRoomId() > -1 ? View.GONE : View.VISIBLE);
@@ -200,6 +197,9 @@ public class ListGeoMessageFragment extends FragmentBase implements
 
     @Override
     public void onCameraIdle() {
+        if (preventUpdateMoreMessages)
+            return;
+
         LatLngBounds latLngBounds = map.getProjection().getVisibleRegion().latLngBounds;
 
         if (lastLatLngBounds == null || !lastLatLngBounds.equals(latLngBounds)) {
@@ -256,6 +256,30 @@ public class ListGeoMessageFragment extends FragmentBase implements
                 .zIndex(100);
     }
 
+    private static void showMyLocation(GoogleMap map) {
+        UserSetting userSetting = App.getInstance().getBottleContext().getCurrentUserSetting();
+        Coordination currentLocation = userSetting.getCurrentLocation();
+        LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 13.5F);
+        map.moveCamera(cameraUpdate);
+        map.addMarker(new MarkerOptions()
+                .position(latLng)
+                .title("Your Location")
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+                .draggable(true));
+    }
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        preventUpdateMoreMessages = true;
+        return false;
+    }
+
+    @Override
+    public void onInfoWindowClose(Marker marker) {
+        preventUpdateMoreMessages = false;
+    }
+
     private static class MarkerCreatorTask extends AsyncTask<Void, Void, Dictionary<MarkerOptions, GeoMessage>> {
         private final GoogleMap map;
         private final List<GeoMessage> geoMessages;
@@ -290,6 +314,7 @@ public class ListGeoMessageFragment extends FragmentBase implements
         @Override
         protected void onPostExecute(Dictionary<MarkerOptions, GeoMessage> markers) {
             map.clear();
+            showMyLocation(map);
             Enumeration<MarkerOptions> markerOptionsEnumeration = markers.keys();
             while (markerOptionsEnumeration.hasMoreElements()) {
                 MarkerOptions markerOptions = markerOptionsEnumeration.nextElement();
