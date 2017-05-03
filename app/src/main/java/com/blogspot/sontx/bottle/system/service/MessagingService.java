@@ -4,6 +4,7 @@ import android.app.NotificationManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.blogspot.sontx.bottle.App;
 import com.blogspot.sontx.bottle.R;
 import com.blogspot.sontx.bottle.model.bean.chat.ChatMessage;
 import com.blogspot.sontx.bottle.model.service.Callback;
@@ -99,10 +100,12 @@ public class MessagingService extends ServiceBase {
 
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
     public void onUpdateChatMessageStateEvent(UpdateChatMessageStateEvent updateChatMessageStateEvent) {
+        String currentUserId = App.getInstance().getBottleContext().getCurrentBottleUser().getUid();
+
         List<ChatMessage> chatMessageList = updateChatMessageStateEvent.getChatMessageList();
         String newState = updateChatMessageStateEvent.getNewState();
         for (ChatMessage chatMessage : chatMessageList) {
-            if (!chatMessage.getState().equalsIgnoreCase(newState)) {
+            if (!chatMessage.getSenderId().equals(currentUserId) && !chatMessage.getState().equalsIgnoreCase(newState)) {
                 chatService.updateChatMessageStateAsync(chatMessage.getChannelId(), chatMessage.getId(), newState);
             }
         }
