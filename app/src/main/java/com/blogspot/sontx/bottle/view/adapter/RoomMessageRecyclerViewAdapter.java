@@ -133,7 +133,6 @@ public class RoomMessageRecyclerViewAdapter extends RecyclerView.Adapter<Recycle
         return values.size();
     }
 
-    @EqualsAndHashCode(callSuper = true)
     @Data
     public static class TextViewHolder extends RecyclerView.ViewHolder {
         final View root;
