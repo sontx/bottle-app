@@ -68,7 +68,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/text_content_margin_top"
         android:text="Content..."
-        android:background="@android:color/transparent"
         android:textColor="@color/primary_text"
         app:emojiSize="@dimen/emoji_size" />
 
