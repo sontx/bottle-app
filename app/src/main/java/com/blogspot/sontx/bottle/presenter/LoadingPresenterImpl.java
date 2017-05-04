@@ -21,9 +21,9 @@ import com.blogspot.sontx.bottle.system.event.ChangeCurrentUserEvent;
 import com.blogspot.sontx.bottle.system.event.ServiceState;
 import com.blogspot.sontx.bottle.system.event.ServiceStateChangedEvent;
 import com.blogspot.sontx.bottle.system.service.MessagingService;
+import com.blogspot.sontx.bottle.view.custom.SupportVozEmojiProvider;
 import com.blogspot.sontx.bottle.view.interfaces.LoadingView;
 import com.vanniktech.emoji.EmojiManager;
-import com.vanniktech.emoji.one.EmojiOneProvider;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -212,7 +212,7 @@ public class LoadingPresenterImpl extends PresenterBase implements LoadingPresen
 
         @Override
         protected Void doInBackground(Void... params) {
-            EmojiManager.install(new EmojiOneProvider());
+            EmojiManager.install(new SupportVozEmojiProvider());
             onTaskCompleted(Task.PREPARE_UI, null);
             return null;
         }
