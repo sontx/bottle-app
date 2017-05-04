@@ -7,6 +7,7 @@ import android.support.v4.view.ViewPager;
 
 import com.blogspot.sontx.bottle.R;
 import com.blogspot.sontx.bottle.model.bean.GeoMessage;
+import com.blogspot.sontx.bottle.model.bean.MessageBase;
 import com.blogspot.sontx.bottle.model.bean.RoomMessage;
 import com.blogspot.sontx.bottle.model.bean.chat.Channel;
 import com.blogspot.sontx.bottle.presenter.HomePresenterImpl;
@@ -71,23 +72,18 @@ public class HomeActivity extends ActivityBase implements
     }
 
     @Override
-    public void onDirectMessageClick(RoomMessage item) {
+    public void onDirectMessageClick(MessageBase item) {
         homePresenter.directMessage(item);
     }
 
     @Override
-    public void onVoteMessageClick(RoomMessage item) {
+    public void onVoteMessageClick(MessageBase item) {
 
     }
 
     @Override
     public void onGeoMessageClick(GeoMessage item) {
-        GeoMessageDialog dialog = new GeoMessageDialog(this, item, new GeoMessageDialog.OnGeoMessageDialogInteractionListener() {
-            @Override
-            public void onDirectMessageClick(GeoMessage geoMessage) {
-                homePresenter.directMessage(geoMessage);
-            }
-        });
+        GeoMessageDialog dialog = new GeoMessageDialog(this, item);
     }
 
     @Override

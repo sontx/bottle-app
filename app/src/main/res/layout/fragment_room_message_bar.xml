@@ -66,4 +66,33 @@
         android:paddingTop="@dimen/message_bottom_bar_padding"
         android:src="@drawable/ic_more_horiz"
         android:tint="@color/secondary_text" />
+
+    <ImageView
+        android:visibility="gone"
+        android:id="@+id/apply_change_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:background="?android:attr/selectableItemBackground"
+        android:paddingBottom="@dimen/message_bottom_bar_padding"
+        android:paddingLeft="@dimen/message_bottom_bar_item_padding"
+        android:paddingRight="@dimen/message_bottom_bar_item_padding"
+        android:paddingTop="@dimen/message_bottom_bar_padding"
+        android:src="@drawable/ic_check"
+        android:tint="@color/primary_dark" />
+
+    <ImageView
+        android:visibility="gone"
+        android:id="@+id/ignore_change_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@+id/apply_change_view"
+        android:background="?android:attr/selectableItemBackground"
+        android:paddingBottom="@dimen/message_bottom_bar_padding"
+        android:paddingLeft="@dimen/message_bottom_bar_item_padding"
+        android:paddingRight="@dimen/message_bottom_bar_item_padding"
+        android:paddingTop="@dimen/message_bottom_bar_padding"
+        android:src="@drawable/ic_close"
+        android:tint="@color/secondary_text" />
 </RelativeLayout>

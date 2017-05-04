@@ -9,57 +9,38 @@ import com.blogspot.sontx.bottle.App;
 import com.blogspot.sontx.bottle.R;
 import com.blogspot.sontx.bottle.model.bean.GeoMessage;
 import com.blogspot.sontx.bottle.model.bean.MessageBase;
-import com.blogspot.sontx.bottle.model.bean.PublicProfile;
 import com.blogspot.sontx.bottle.system.BottleContext;
 import com.blogspot.sontx.bottle.system.Resource;
+import com.blogspot.sontx.bottle.view.adapter.MessageAdapterHelper;
+import com.blogspot.sontx.bottle.view.fragment.OnMessageInteractionListener;
 import com.orhanobut.dialogplus.DialogPlus;
 import com.orhanobut.dialogplus.Holder;
 import com.orhanobut.dialogplus.OnClickListener;
 import com.orhanobut.dialogplus.ViewHolder;
-import com.squareup.picasso.Picasso;
-
-import it.slyce.messaging.utils.DateTimeUtils;
-
-import static com.blogspot.sontx.bottle.view.adapter.RoomMessageRecyclerViewAdapter.PhotoViewHolder;
-import static com.blogspot.sontx.bottle.view.adapter.RoomMessageRecyclerViewAdapter.TextViewHolder;
 
 public class GeoMessageDialog implements OnClickListener {
-    private final OnGeoMessageDialogInteractionListener listener;
-    private TextViewHolder textViewHolder = null;
+    private final OnMessageInteractionListener listener;
+    private final String currentUserId;
+    private MessageAdapterHelper.TextViewHolder textViewHolder = null;
 
-    public GeoMessageDialog(Context context, GeoMessage geoMessage, OnGeoMessageDialogInteractionListener listener) {
-        this.listener = listener;
+    public GeoMessageDialog(Context context, GeoMessage geoMessage) {
+        this.listener = (OnMessageInteractionListener) context;
         Holder holder;
 
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         if (geoMessage.getType().equalsIgnoreCase(MessageBase.TEXT))
-            textViewHolder = new TextViewHolder(inflater.inflate(R.layout.fragment_room_message_text, null));
+            textViewHolder = new MessageAdapterHelper.TextViewHolder(inflater.inflate(R.layout.fragment_room_message_text, null));
         else if (geoMessage.getType().equalsIgnoreCase(MessageBase.PHOTO))
-            textViewHolder = new PhotoViewHolder(inflater.inflate(R.layout.fragment_room_message_photo, null));
+            textViewHolder = new MessageAdapterHelper.PhotoViewHolder(inflater.inflate(R.layout.fragment_room_message_photo, null));
 
         BottleContext bottleContext = App.getInstance().getBottleContext();
         Resource resource = bottleContext.getResource();
+        currentUserId = bottleContext.getCurrentBottleUser().getUid();
 
-        PublicProfile owner = geoMessage.getOwner();
+        MessageAdapterHelper.bindMessageToTextViewHolder(geoMessage, textViewHolder, resource, currentUserId, listener);
 
-        textViewHolder.setItem(geoMessage);
-        textViewHolder.getDisplayNameView().setText(owner.getDisplayName());
-        String url = resource.absoluteUrl(owner.getAvatarUrl());
-        Picasso.with(textViewHolder.getRoot().getContext()).load(url).into(textViewHolder.getAvatarView());
-        textViewHolder.getTimestampView().setText(DateTimeUtils.getTimestamp(textViewHolder.getRoot().getContext(), geoMessage.getTimestamp()));
-        textViewHolder.getTextContentView().setText(geoMessage.getText());
-
-        String currentUserId = bottleContext.getCurrentBottleUser().getUid();
-        if (geoMessage.getOwner().getId().equals(currentUserId))
-            textViewHolder.getInteractionView().setVisibility(View.GONE);
-        else
-            textViewHolder.getInteractionView().setVisibility(View.VISIBLE);
-
-        if (textViewHolder instanceof PhotoViewHolder) {
-            PhotoViewHolder photoViewHolder = (PhotoViewHolder) textViewHolder;
-            url = resource.absoluteUrl(geoMessage.getMediaUrl());
-            photoViewHolder.getAutoSizeImageView().setImageUrl(url);
-        }
+        if (textViewHolder instanceof MessageAdapterHelper.PhotoViewHolder)
+            MessageAdapterHelper.bindMessageToPhotoViewHolder((MessageAdapterHelper.PhotoViewHolder) textViewHolder, geoMessage, resource);
 
         holder = new ViewHolder(textViewHolder.itemView);
 
@@ -74,14 +55,17 @@ public class GeoMessageDialog implements OnClickListener {
 
     @Override
     public void onClick(DialogPlus dialog, View view) {
-        if (view.getId() == R.id.direct_message_view) {
-            if (listener != null)
-                listener.onDirectMessageClick((GeoMessage) textViewHolder.getItem());
+        if (view.getId() == textViewHolder.directMessageView.getId()) {
+            MessageAdapterHelper.fireOnDirectMessageClick(listener, textViewHolder);
             dialog.dismiss();
+        } else if (view.getId() == textViewHolder.voteMessageView.getId()) {
+            MessageAdapterHelper.fireOnVoteMessageClick(listener, textViewHolder);
+        } else if (view.getId() == textViewHolder.moreOptionView.getId()) {
+            MessageAdapterHelper.fireOnEditMessageClick(textViewHolder, currentUserId);
+        } else if (view.getId() == textViewHolder.ignoreEditView.getId()) {
+            MessageAdapterHelper.fireOnIgnoreChangeClick(textViewHolder, currentUserId);
+        } else if (view.getId() == textViewHolder.applyEditView.getId()) {
+            MessageAdapterHelper.fireOnApplyChangeClick(textViewHolder, currentUserId);
         }
-    }
-
-    public interface OnGeoMessageDialogInteractionListener {
-        void onDirectMessageClick(GeoMessage geoMessage);
     }
 }

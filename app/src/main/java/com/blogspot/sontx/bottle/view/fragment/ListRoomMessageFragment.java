@@ -208,11 +208,7 @@ public class ListRoomMessageFragment extends FragmentBase implements ListRoomMes
         return false;
     }
 
-    public interface OnListRoomMessageInteractionListener {
+    public interface OnListRoomMessageInteractionListener extends OnMessageInteractionListener {
         void onListRoomMessageInteraction(RoomMessage item);
-
-        void onDirectMessageClick(RoomMessage item);
-
-        void onVoteMessageClick(RoomMessage item);
     }
 }

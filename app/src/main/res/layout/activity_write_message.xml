@@ -50,7 +50,7 @@
                     android:layout_height="match_parent"
                     android:background="@android:color/transparent"
                     android:gravity="top"
-                    app:emojiSize="26sp"
+                    app:emojiSize="@dimen/emoji_size"
                     android:inputType="textCapSentences|textMultiLine">
 
                     <requestFocus />
