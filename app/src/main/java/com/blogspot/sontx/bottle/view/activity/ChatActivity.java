@@ -7,6 +7,8 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 
 import com.blogspot.sontx.bottle.App;
 import com.blogspot.sontx.bottle.R;
@@ -15,21 +17,31 @@ import com.blogspot.sontx.bottle.model.bean.chat.Channel;
 import com.blogspot.sontx.bottle.presenter.ChatPresenterImpl;
 import com.blogspot.sontx.bottle.presenter.interfaces.ChatPresenter;
 import com.blogspot.sontx.bottle.view.interfaces.ChatView;
+import com.vanniktech.emoji.EmojiPopup;
 
 import java.util.List;
 
+import butterknife.ButterKnife;
 import it.slyce.messaging.SlyceMessagingFragment;
 import it.slyce.messaging.listeners.LoadMoreMessagesListener;
 import it.slyce.messaging.listeners.UserSendsMessageListener;
 import it.slyce.messaging.message.Message;
+import it.slyce.messaging.view.text.FontEditText;
 
-public class ChatActivity extends ActivityBase implements ChatView, UserSendsMessageListener, LoadMoreMessagesListener {
+public class ChatActivity extends ActivityBase implements
+        ChatView,
+        UserSendsMessageListener,
+        LoadMoreMessagesListener,
+        FontEditText.OnBackPressedListener {
+
     static final String CHANNEL_KEY = "channel";
     static final String CHANNEL_ID_KEY = "channel-id";
     static final String ANOTHER_GUY_ID_KEY = "another-guy-id";
 
     private ChatPresenter chatPresenter;
     private SlyceMessagingFragment slyceMessagingFragment;
+    private boolean isSoftKeyboardShowing = true;
+    private EmojiPopup emojiPopup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,7 +95,26 @@ public class ChatActivity extends ActivityBase implements ChatView, UserSendsMes
     @Override
     protected void onStop() {
         super.onStop();
+        if (emojiPopup != null)
+            emojiPopup.dismiss();
         chatPresenter.unregisterListeners();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (emojiPopup != null && emojiPopup.isShowing())
+            emojiPopup.dismiss();
+        else
+            super.onBackPressed();
+    }
+
+    @Override
+    public boolean onBackPressed(View view) {
+        if (emojiPopup != null && emojiPopup.isShowing()) {
+            setInputType(true);
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -95,6 +126,11 @@ public class ChatActivity extends ActivityBase implements ChatView, UserSendsMes
     @Override
     public void onUserSendsMediaMessage(Uri imageUri, int internalId) {
         Log.d(TAG, "send-media: " + imageUri);
+    }
+
+    @Override
+    public void onShowEmojiKeyboard(View view) {
+        setInputType(!isSoftKeyboardShowing);
     }
 
     @Override
@@ -122,6 +158,32 @@ public class ChatActivity extends ActivityBase implements ChatView, UserSendsMes
         chatPresenter.requestLoadMoreMessages();
     }
 
+    private void showSoftKeyboard() {
+        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+        FontEditText entryField = slyceMessagingFragment.getEntryField();
+        inputMethodManager.showSoftInput(entryField, InputMethodManager.SHOW_IMPLICIT);
+    }
+
+    private void setInputType(boolean isSoftKeyboardShowing) {
+        this.isSoftKeyboardShowing = isSoftKeyboardShowing;
+
+        if (isSoftKeyboardShowing) {
+            slyceMessagingFragment.setEmojiButtonToggleState(false);
+            emojiPopup.dismiss();
+            showSoftKeyboard();
+        } else {
+            slyceMessagingFragment.setEmojiButtonToggleState(true);
+            showSoftKeyboard();
+            emojiPopup.toggle();
+        }
+    }
+
+    private void setupEmoji() {
+        View rootView = ButterKnife.findById(this, R.id.root_view);
+        FontEditText entryField = slyceMessagingFragment.getEntryField();
+        emojiPopup = EmojiPopup.Builder.fromRootView(rootView).build(entryField);
+    }
+
     private void setupToolbar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -142,5 +204,12 @@ public class ChatActivity extends ActivityBase implements ChatView, UserSendsMes
 
         slyceMessagingFragment.setOnSendMessageListener(this);
         slyceMessagingFragment.setLoadMoreMessagesListener(this);
+
+        FontEditText entryField = slyceMessagingFragment.getEntryField();
+        entryField.setOnBackPressedListener(this);
+
+        slyceMessagingFragment.setEmojiButtonToggleState(false);
+
+        setupEmoji();
     }
 }

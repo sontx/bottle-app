@@ -53,6 +53,7 @@ import it.slyce.messaging.utils.asyncTasks.InsertMessagesTask;
 import it.slyce.messaging.utils.asyncTasks.OnTaskCompletedListener;
 import it.slyce.messaging.utils.asyncTasks.UpdateMessageTask;
 import it.slyce.messaging.view.ViewUtils;
+import it.slyce.messaging.view.text.FontEditText;
 
 /**
  * Created by John C. Hunchar on 1/12/16.
@@ -82,7 +83,20 @@ public class SlyceMessagingFragment extends Fragment implements OnClickListener 
     private boolean isLoadInFirstTime = true;
     private volatile boolean enableScrollToLoadMore = true;
     private ImageView mSendButton;
+    private ImageView mEmojiButton;
     private ImageView mSnapButton;
+
+    public FontEditText getEntryField() {
+        return (FontEditText) mEntryField;
+    }
+
+    public void setEmojiButtonToggleState(boolean isToggle) {
+        if (isToggle) {
+            mEmojiButton.setColorFilter(Color.TRANSPARENT);
+        } else {
+            mEmojiButton.setColorFilter(customSettings.buttonTintColor);
+        }
+    }
 
     public void setPictureButtonVisible(final boolean bool) {
         if (getActivity() != null)
@@ -183,11 +197,13 @@ public class SlyceMessagingFragment extends Fragment implements OnClickListener 
         // Setup views
         mEntryField = (EditText) rootView.findViewById(R.id.slyce_messaging_edit_text_entry_field);
         mSendButton = (ImageView) rootView.findViewById(R.id.slyce_messaging_image_view_send);
+        mEmojiButton = (ImageView) rootView.findViewById(R.id.slyce_messaging_image_view_emoji);
         mSnapButton = (ImageView) rootView.findViewById(R.id.slyce_messaging_image_view_snap);
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.slyce_messaging_recycler_view);
 
         // Add interfaces
         mSendButton.setOnClickListener(this);
+        mEmojiButton.setOnClickListener(this);
         mSnapButton.setOnClickListener(this);
 
         // Init variables for recycler view
@@ -339,6 +355,8 @@ public class SlyceMessagingFragment extends Fragment implements OnClickListener 
     public void onClick(View v) {
         if (v.getId() == R.id.slyce_messaging_image_view_send) {
             sendUserTextMessage();
+        } else if (v.getId() == R.id.slyce_messaging_image_view_emoji) {
+            listener.onShowEmojiKeyboard(mEntryField);
         } else if (v.getId() == R.id.slyce_messaging_image_view_snap) {
             mEntryField.setText("");
             final File mediaStorageDir = getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES);

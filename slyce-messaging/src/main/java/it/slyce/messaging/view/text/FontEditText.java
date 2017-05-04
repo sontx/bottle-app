@@ -5,15 +5,24 @@ import android.content.res.TypedArray;
 import android.graphics.Typeface;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.widget.EditText;
+import android.view.KeyEvent;
+import android.view.View;
+
+import com.vanniktech.emoji.EmojiEditText;
 
 import it.slyce.messaging.R;
 
 /**
  * Created by John C. Hunchar on 2/2/16.
  */
-public class FontEditText extends EditText {
+public class FontEditText extends EmojiEditText {
     private static final String VALUE_FONT_DIR_PREFIX = "fonts/";
+
+    private OnBackPressedListener onBackPressedListener;
+
+    public void setOnBackPressedListener(OnBackPressedListener listener) {
+        this.onBackPressedListener = listener;
+    }
 
     public FontEditText(Context context) {
         super(context);
@@ -27,8 +36,17 @@ public class FontEditText extends EditText {
     }
 
     public FontEditText(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
+        super(context, attrs);
         init(context, attrs, defStyleAttr, 0);
+    }
+
+    @Override
+    public boolean onKeyPreIme(int keyCode, KeyEvent event) {
+        if (onBackPressedListener != null && keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
+            if (onBackPressedListener.onBackPressed(this))
+                return true;
+        }
+        return super.onKeyPreIme(keyCode, event);
     }
 
     /**
@@ -60,5 +78,9 @@ public class FontEditText extends EditText {
 
             }
         }
+    }
+
+    public interface OnBackPressedListener {
+        boolean onBackPressed(View view);
     }
 }

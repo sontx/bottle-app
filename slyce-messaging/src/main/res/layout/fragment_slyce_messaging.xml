@@ -22,7 +22,6 @@
 
     </android.support.design.widget.CoordinatorLayout>
 
-
     <View
         android:id="@+id/slyce_messaging_view_horiz_divider"
         android:layout_width="match_parent"
@@ -36,7 +35,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:background="@color/background_white">
-
 
         <ImageView
             android:id="@+id/slyce_messaging_image_view_snap"
@@ -60,7 +58,7 @@
             android:layout_centerVertical="true"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
-            android:layout_toLeftOf="@+id/slyce_messaging_image_view_send"
+            android:layout_toLeftOf="@+id/slyce_messaging_image_view_emoji"
             android:layout_toRightOf="@+id/slyce_messaging_image_view_snap"
             android:background="@android:color/transparent"
             android:gravity="left"
@@ -73,6 +71,19 @@
             android:textSize="14sp"
             app:font="museo_sans_300.otf" />
 
+        <ImageView
+            android:id="@+id/slyce_messaging_image_view_emoji"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_toLeftOf="@+id/slyce_messaging_image_view_send"
+            android:layout_centerVertical="true"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp"
+            android:adjustViewBounds="true"
+            android:background="?android:attr/selectableItemBackground"
+            android:padding="4dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_banana" />
 
         <ImageView
             android:id="@+id/slyce_messaging_image_view_send"
@@ -81,12 +92,12 @@
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:layout_marginBottom="8dp"
-            android:layout_marginLeft="16dp"
+            android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
             android:layout_marginTop="8dp"
             android:adjustViewBounds="true"
             android:background="?android:attr/selectableItemBackground"
-            android:padding="8dp"
+            android:padding="4dp"
             android:scaleType="fitCenter"
             android:src="@mipmap/ic_send"
             android:tint="@color/background_navy" />
