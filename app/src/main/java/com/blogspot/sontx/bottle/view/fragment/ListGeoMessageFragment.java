@@ -80,6 +80,11 @@ public class ListGeoMessageFragment extends FragmentBase implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_geo_message_map, container, false);
 
+        showingMessages.clear();
+        currentMarker = null;
+        lastLatLngBounds = null;
+        preventUpdateMoreMessages = false;
+
         fab = ButterKnife.findById(view, R.id.fab);
         fab.setOnClickListener(this);
         fab.setVisibility(View.GONE);

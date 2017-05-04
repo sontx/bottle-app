@@ -47,6 +47,7 @@ public class HomeActivity extends ActivityBase implements
 
         viewPager.setAdapter(new HomeFragmentPagerAdapter(getSupportFragmentManager()));
         viewPager.addOnPageChangeListener(this);
+        viewPager.setOffscreenPageLimit(3);
 
         bottomBar.setOnTabSelectListener(this);
 
