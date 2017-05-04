@@ -7,4 +7,6 @@ public interface HomePresenter {
     void startChat(Channel channel);
 
     void directMessage(MessageBase message);
+
+    void updateMessageAsync(MessageBase messageBase);
 }

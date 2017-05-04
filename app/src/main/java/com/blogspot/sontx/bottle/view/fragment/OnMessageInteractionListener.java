@@ -6,4 +6,6 @@ public interface OnMessageInteractionListener {
     void onDirectMessageClick(MessageBase item);
 
     void onVoteMessageClick(MessageBase item);
+
+    void onUpdateMessageClick(MessageBase messageBase);
 }

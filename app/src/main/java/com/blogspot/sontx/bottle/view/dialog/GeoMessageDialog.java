@@ -61,11 +61,11 @@ public class GeoMessageDialog implements OnClickListener {
         } else if (view.getId() == textViewHolder.voteMessageView.getId()) {
             MessageAdapterHelper.fireOnVoteMessageClick(listener, textViewHolder);
         } else if (view.getId() == textViewHolder.moreOptionView.getId()) {
-            MessageAdapterHelper.fireOnEditMessageClick(textViewHolder, currentUserId);
+            MessageAdapterHelper.fireOnEditMessageClick(textViewHolder, currentUserId, listener);
         } else if (view.getId() == textViewHolder.ignoreEditView.getId()) {
             MessageAdapterHelper.fireOnIgnoreChangeClick(textViewHolder, currentUserId);
         } else if (view.getId() == textViewHolder.applyEditView.getId()) {
-            MessageAdapterHelper.fireOnApplyChangeClick(textViewHolder, currentUserId);
+            MessageAdapterHelper.fireOnApplyChangeClick(textViewHolder, currentUserId, listener);
         }
     }
 }

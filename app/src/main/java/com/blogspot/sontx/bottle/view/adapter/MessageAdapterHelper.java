@@ -58,12 +58,12 @@ public final class MessageAdapterHelper {
         textViewHolder.moreOptionView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fireOnEditMessageClick(textViewHolder, currentUserId);
+                fireOnEditMessageClick(textViewHolder, currentUserId, listener);
             }
         });
     }
 
-    public static void fireOnEditMessageClick(final TextViewHolder textViewHolder, final String currentUserId) {
+    public static void fireOnEditMessageClick(final TextViewHolder textViewHolder, final String currentUserId, final OnMessageInteractionListener listener) {
         showEditMode(textViewHolder, currentUserId, true);
 
         textViewHolder.ignoreEditView.setOnClickListener(new View.OnClickListener() {
@@ -75,15 +75,24 @@ public final class MessageAdapterHelper {
         textViewHolder.applyEditView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fireOnApplyChangeClick(textViewHolder, currentUserId);
+                fireOnApplyChangeClick(textViewHolder, currentUserId, listener);
             }
         });
     }
 
-    public static void fireOnApplyChangeClick(TextViewHolder textViewHolder, String currentUserId) {
-        fireOnIgnoreChangeClick(textViewHolder, currentUserId);
-        textViewHolder.textContentView.setText(textViewHolder.editTextContentView.getText());
-        Toast.makeText(textViewHolder.itemView.getContext(), "Apply!", Toast.LENGTH_SHORT).show();
+    public static void fireOnApplyChangeClick(TextViewHolder textViewHolder, String currentUserId, OnMessageInteractionListener listener) {
+        String text = textViewHolder.editTextContentView.getText().toString();
+        text = text.trim();
+
+        if (text.length() == 0) {
+            Toast.makeText(textViewHolder.itemView.getContext(), "Your message is empty!", Toast.LENGTH_SHORT).show();
+        } else {
+            fireOnIgnoreChangeClick(textViewHolder, currentUserId);
+            textViewHolder.textContentView.setText(text);
+            MessageBase messageBase = textViewHolder.item;
+            messageBase.setText(text);
+            listener.onUpdateMessageClick(messageBase);
+        }
     }
 
     public static void fireOnIgnoreChangeClick(TextViewHolder textViewHolder, String currentUserId) {

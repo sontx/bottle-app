@@ -9,6 +9,7 @@ import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
@@ -21,4 +22,7 @@ public interface ApiRoom {
 
     @POST("rooms/{roomId}/messages")
     Call<RoomMessage> postRoomMessage(@Path("roomId") int roomId, @Body RoomMessage roomMessage);
+
+    @PUT("rooms/messages/{messageId}")
+    Call<RoomMessage> editMessage(@Path("messageId") int messageId, @Body RoomMessage roomMessage);
 }

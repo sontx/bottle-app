@@ -82,6 +82,11 @@ public class HomeActivity extends ActivityBase implements
     }
 
     @Override
+    public void onUpdateMessageClick(MessageBase messageBase) {
+        homePresenter.updateMessageAsync(messageBase);
+    }
+
+    @Override
     public void onGeoMessageClick(GeoMessage item) {
         GeoMessageDialog dialog = new GeoMessageDialog(this, item);
     }
