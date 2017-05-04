@@ -48,6 +48,7 @@
             android:id="@+id/message_scout_text_text_view_text"
             style="@style/TextMessageStyle"
             android:gravity="left"
+            app:emojiSize="26sp"
             tools:text="Message" />
 
         <it.slyce.messaging.view.text.FontTextView
