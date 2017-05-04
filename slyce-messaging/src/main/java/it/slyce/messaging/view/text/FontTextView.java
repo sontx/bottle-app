@@ -7,14 +7,15 @@ import android.graphics.Typeface;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.widget.TextView;
+
+import com.vanniktech.emoji.EmojiTextView;
 
 import it.slyce.messaging.R;
 
 /**
  * Created by John C. Hunchar on 2/2/16.
  */
-public class FontTextView extends TextView {
+public class FontTextView extends EmojiTextView {
     private static final String VALUE_FONT_DIR_PREFIX = "fonts/";
 
     public FontTextView(Context context) {
@@ -29,13 +30,13 @@ public class FontTextView extends TextView {
     }
 
     public FontTextView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
+        super(context, attrs);
         init(context, attrs, defStyleAttr, 0);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public FontTextView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
+        super(context, attrs);
         init(context, attrs, defStyleAttr, defStyleRes);
     }
 
