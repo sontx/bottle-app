@@ -11,7 +11,7 @@
         android:orientation="vertical">
 
         <com.vanniktech.emoji.EmojiTextView
-            app:emojiSize="26sp"
+            app:emojiSize="@dimen/emoji_size"
             android:id="@+id/content_view"
             android:layout_width="@dimen/geo_message_width"
             android:layout_height="@dimen/geo_message_height"

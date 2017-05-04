@@ -52,7 +52,7 @@
     </LinearLayout>
 
     <com.vanniktech.emoji.EmojiTextView
-        app:emojiSize="26sp"
+        app:emojiSize="@dimen/emoji_size"
         android:id="@+id/text_content_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

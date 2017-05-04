@@ -70,7 +70,7 @@
             android:textColorHint="@color/text_navy_transparent_50"
             android:textSize="14sp"
             app:font="museo_sans_300.otf"
-            app:emojiSize="26sp" />
+            app:emojiSize="@dimen/emoji_size" />
 
         <ImageView
             android:id="@+id/slyce_messaging_image_view_emoji"
