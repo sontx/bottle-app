@@ -2,6 +2,7 @@ package com.blogspot.sontx.bottle.presenter;
 
 import com.blogspot.sontx.bottle.R;
 import com.blogspot.sontx.bottle.model.bean.MessageBase;
+import com.blogspot.sontx.bottle.model.dummy.DummyEmotions;
 import com.blogspot.sontx.bottle.presenter.interfaces.WriteMessagePresenter;
 import com.blogspot.sontx.bottle.view.interfaces.WriteMessageView;
 
@@ -34,11 +35,12 @@ public class WriteMessagePresenterImpl extends PresenterBase implements WriteMes
     @Override
     public void requestPostMessage() {
         String text = writeMessageView.getText();
+        int emotion = writeMessageView.getEmotion();
         if (text == null || (text.trim()).length() == 0) {
             writeMessageView.showErrorMessage(writeMessageView.getContext().getString(R.string.message_text_empty));
-        } else {
+        } else if (emotion >= 0 || emotion < DummyEmotions.getEmotions().size()) {
             String type = mediaObject != null ? mediaObject.type : MessageBase.TEXT;
-            writeMessageView.goBackWithSuccess(text.trim(), mediaObject != null ? mediaObject.resourcePath : null, type);
+            writeMessageView.goBackWithSuccess(text.trim(), mediaObject != null ? mediaObject.resourcePath : null, type, emotion);
         }
     }
 

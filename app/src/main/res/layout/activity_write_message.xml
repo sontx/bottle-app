@@ -107,6 +107,15 @@
                         android:gravity="right"
                         android:orientation="horizontal">
 
+                        <Spinner
+                            android:id="@+id/emotions_spinner1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_marginRight="@dimen/small_toolbar_horizontal_margin"
+                            android:background="#00000000"
+                            android:spinnerMode="dialog"
+                            tools:listitem="@layout/item_emotion_without_text" />
+
                         <ImageView
                             android:id="@+id/photo_button1"
                             android:layout_width="wrap_content"
@@ -190,6 +199,28 @@
                         android:layout_gravity="center_vertical"
                         android:layout_marginLeft="@dimen/small_toolbar_vertical_margin"
                         android:text="@string/input_type_emoji" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="fill_parent"
+                    android:layout_height="0.5dp"
+                    android:background="@color/divider" />
+
+                <LinearLayout
+                    android:id="@+id/emotion_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:layout_marginLeft="4dp"
+                    android:orientation="horizontal">
+
+                    <Spinner
+                        android:id="@+id/emotions_spinner"
+                        android:spinnerMode="dialog"
+                        android:background="#00000000"
+                        tools:listitem="@layout/item_emotion"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
                 </LinearLayout>
 
                 <View

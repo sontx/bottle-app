@@ -60,13 +60,14 @@ public class GeoMessagePresenterImpl implements GeoMessagePresenter {
     }
 
     @Override
-    public void postGeoMessageAsync(String text, Coordination coordination, String mediaPath, String type) {
+    public void postGeoMessageAsync(String text, Coordination coordination, String mediaPath, String type, int emotion) {
         final GeoMessage tempGeoMessage = new GeoMessage();
         tempGeoMessage.setId(MessageBase.UNDEFINED_ID);
         tempGeoMessage.setText(text);
         tempGeoMessage.setOwner(currentPublicProfile);
         tempGeoMessage.setMediaUrl(mediaPath);
         tempGeoMessage.setType(type);
+        tempGeoMessage.setEmotion(emotion);
 
         tempGeoMessage.setLatitude(coordination.getLatitude());
         tempGeoMessage.setLongitude(coordination.getLongitude());

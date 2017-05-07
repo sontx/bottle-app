@@ -34,7 +34,6 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import butterknife.ButterKnife;
@@ -57,7 +56,7 @@ public class ListGeoMessageFragment extends FragmentBase implements
     private GeoMessageChangePresenter geoMessageChangePresenter;
     private LatLngBounds lastLatLngBounds;
     private boolean preventUpdateMoreMessages = false;
-    private List<Marker> markers = new LinkedList<>();
+    private GeoMessageMarkerPool markerPool;
     private MapView mapView;
     private GoogleMap map;
     private FloatingActionButton fab;
@@ -80,7 +79,11 @@ public class ListGeoMessageFragment extends FragmentBase implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_geo_message_map, container, false);
 
-        markers.clear();
+        if (markerPool != null) {
+            markerPool.destroy();
+            markerPool = null;
+        }
+
         lastLatLngBounds = null;
         preventUpdateMoreMessages = false;
 
@@ -104,6 +107,8 @@ public class ListGeoMessageFragment extends FragmentBase implements
     @Override
     public void onDestroy() {
         super.onDestroy();
+        if (markerPool != null)
+            markerPool.destroy();
         mapView.onDestroy();
     }
 
@@ -131,9 +136,10 @@ public class ListGeoMessageFragment extends FragmentBase implements
                 String text = data.getStringExtra(WriteMessageActivity.MESSAGE_TEXT);
                 String mediaPath = data.getStringExtra(WriteMessageActivity.MESSAGE_MEDIA);
                 String type = data.getStringExtra(WriteMessageActivity.MESSAGE_TYPE);
+                int emotion = data.getIntExtra(WriteMessageActivity.MESSAGE_EMOTION, 0);
 
                 Coordination currentLocation = App.getInstance().getBottleContext().getCurrentUserSetting().getCurrentLocation();
-                geoMessagePresenter.postGeoMessageAsync(text, currentLocation, mediaPath, type);
+                geoMessagePresenter.postGeoMessageAsync(text, currentLocation, mediaPath, type, emotion);
             }
             return;
         }
@@ -177,38 +183,40 @@ public class ListGeoMessageFragment extends FragmentBase implements
 
         fab.setVisibility(userSetting.getMessageId() > -1 ? View.GONE : View.VISIBLE);
 
+        markerPool = new GeoMessageMarkerPool(getActivity(), map);
+
         geoMessageChangePresenter.subscribe();
     }
 
     @Override
     public void showMapMessages(List<GeoMessage> geoMessageList) {
         String currentUserId = App.getInstance().getBottleContext().getCurrentBottleUser().getUid();
-        new GeoMessageFragmentHelper.AddMarkersTask(map, geoMessageList, markers, currentUserId).execute();
+        new GeoMessageFragmentHelper.AddMarkersTask(markerPool, currentUserId, geoMessageList).execute();
     }
 
     @Override
-    public void addGeoMessage(GeoMessage tempGeoMessage) {
+    public void addGeoMessage(GeoMessage addGeoMessage) {
         String currentUserId = App.getInstance().getBottleContext().getCurrentBottleUser().getUid();
 
         List<GeoMessage> geoMessages = new ArrayList<>(1);
-        geoMessages.add(tempGeoMessage);
+        geoMessages.add(addGeoMessage);
 
-        new GeoMessageFragmentHelper.AddMarkersTask(map, geoMessages, markers, currentUserId).execute();
+        new GeoMessageFragmentHelper.AddMarkersTask(markerPool, currentUserId, geoMessages).execute();
 
-        if (tempGeoMessage.getOwner().getId().equals(currentUserId))
+        if (addGeoMessage.getOwner().getId().equals(currentUserId))
             fab.setVisibility(View.GONE);
     }
 
     @Override
     public synchronized void updateGeoMessage(GeoMessage message) {
         String currentUserId = App.getInstance().getBottleContext().getCurrentBottleUser().getUid();
-        new GeoMessageFragmentHelper.UpdateMarkerTask(map, message, null, markers, currentUserId).execute();
+        new GeoMessageFragmentHelper.UpdateMarkerTask(markerPool, currentUserId, message, null).execute();
     }
 
     @Override
-    public synchronized void updateGeoMessage(GeoMessage result, GeoMessage tempGeoMessage) {
+    public synchronized void updateGeoMessage(GeoMessage message, GeoMessage tempGeoMessage) {
         String currentUserId = App.getInstance().getBottleContext().getCurrentBottleUser().getUid();
-        new GeoMessageFragmentHelper.UpdateMarkerTask(map, result, tempGeoMessage, markers, currentUserId).execute();
+        new GeoMessageFragmentHelper.UpdateMarkerTask(markerPool, currentUserId, message, tempGeoMessage).execute();
     }
 
     @Override
@@ -242,7 +250,9 @@ public class ListGeoMessageFragment extends FragmentBase implements
 
     @Override
     public void onClick(View v) {
-        startActivityForResult(new Intent(getContext(), WriteMessageActivity.class), REQUEST_CODE_NEW_ROOM_MESSAGE);
+        Intent intent = new Intent(getContext(), WriteMessageActivity.class);
+        intent.putExtra(WriteMessageActivity.SUPPORT_EMOTION, true);
+        startActivityForResult(intent, REQUEST_CODE_NEW_ROOM_MESSAGE);
     }
 
     @Override

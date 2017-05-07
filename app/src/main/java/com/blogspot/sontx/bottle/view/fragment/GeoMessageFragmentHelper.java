@@ -5,35 +5,23 @@ import android.support.annotation.NonNull;
 import android.util.Pair;
 
 import com.blogspot.sontx.bottle.App;
-import com.blogspot.sontx.bottle.R;
 import com.blogspot.sontx.bottle.model.bean.Coordination;
 import com.blogspot.sontx.bottle.model.bean.GeoMessage;
 import com.blogspot.sontx.bottle.model.bean.UserSetting;
+import com.blogspot.sontx.bottle.model.dummy.DummyEmotions;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.ArrayList;
-import java.util.Dictionary;
-import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-public final class GeoMessageFragmentHelper {
-
-    static synchronized MarkerOptions createCurrentUserMarker(GeoMessage message) {
-        return new MarkerOptions()
-                .position(new LatLng(message.getLatitude(), message.getLongitude()))
-                .title(message.getOwner().getDisplayName())
-                .snippet(message.getText())
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_vegetable))
-                .draggable(true)
-                .zIndex(100);
-    }
+final class GeoMessageFragmentHelper {
 
     static void showMyLocation(GoogleMap map) {
         UserSetting userSetting = App.getInstance().getBottleContext().getCurrentUserSetting();
@@ -44,64 +32,76 @@ public final class GeoMessageFragmentHelper {
         map.addMarker(new MarkerOptions()
                 .position(latLng)
                 .title("Your Location")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
                 .draggable(true));
     }
 
-    static class UpdateMarkerTask extends AsyncTask<Void, Void, Pair<Integer, GeoMessage>> {
-        private final GoogleMap map;
-        private final GeoMessage geoMessage;
-        private final GeoMessage oldGeoMessage;
-        private final List<Marker> markers;
-        private final String currentUserId;
-        private List<GeoMessage> markerGeoMessages;
+    static abstract class MarkerTask<A, B, C> extends AsyncTask<A, B, C> {
+        protected final GeoMessageMarkerPool markerPool;
+        protected final String currentUserId;
+        protected List<GeoMessage> tempMarkerGeoMessageList;
 
-        UpdateMarkerTask(GoogleMap map,
-                         GeoMessage geoMessage,
-                         GeoMessage oldGeoMessage,
-                         List<Marker> markers, String currentUserId) {
-            this.map = map;
-            this.geoMessage = geoMessage;
-            this.oldGeoMessage = oldGeoMessage;
-            this.markers = markers;
+        protected MarkerTask(GeoMessageMarkerPool markerPool, String currentUserId) {
+            this.markerPool = markerPool;
             this.currentUserId = currentUserId;
         }
 
         @Override
         protected void onPreExecute() {
-            removePreviousCurrentUserMarkerIfNecessary();
-            markerGeoMessages = new ArrayList<>(markers.size());
-            for (Marker marker : markers) {
-                markerGeoMessages.add((GeoMessage) marker.getTag());
-            }
+            tempMarkerGeoMessageList = markerPool.getGeoMessageList();
         }
 
-        private void removePreviousCurrentUserMarkerIfNecessary() {
-            if (oldGeoMessage != null) {
-                for (int i = markers.size() - 1; i >= 0; i--) {
-                    Marker marker = markers.get(i);
-                    GeoMessage geoMessage = (GeoMessage) marker.getTag();
-                    if (geoMessage.getId() == geoMessage.getId()) {
-                        markers.remove(marker);
-                        marker.remove();
-                        break;
-                    }
-                }
+        @NonNull
+        protected MarkerOptions getMarkerOptions(GeoMessage message) {
+            MarkerOptions markerOptions;
+            if (message.getOwner().getId().equalsIgnoreCase(currentUserId)) {
+                int emotionResId = DummyEmotions.getEmotionResId(message.getEmotion(), true);
+                markerOptions = markerPool.generateMarkerOptions(
+                        new LatLng(message.getLatitude(), message.getLongitude()),
+                        emotionResId);
+                markerOptions.draggable(true);
+                markerOptions.zIndex(100);
+            } else {
+                int emotionResId = DummyEmotions.getEmotionResId(message.getEmotion(), false);
+                markerOptions = markerPool.generateMarkerOptions(
+                        new LatLng(message.getLatitude(), message.getLongitude()),
+                        emotionResId);
             }
+            return markerOptions;
+        }
+    }
+
+    static class UpdateMarkerTask extends MarkerTask<Void, Void, Pair<Integer, GeoMessage>> {
+        private final GeoMessage updateGeoMessage;
+        private final GeoMessage oldTempGeoMessage;// optional
+
+        UpdateMarkerTask(GeoMessageMarkerPool markerPool,
+                         String currentUserId,
+                         GeoMessage updateGeoMessage,
+                         GeoMessage oldTempGeoMessage) {
+            super(markerPool, currentUserId);
+            this.updateGeoMessage = updateGeoMessage;
+            this.oldTempGeoMessage = oldTempGeoMessage;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            if (oldTempGeoMessage != null)
+                markerPool.removeMarkerByMessageId(updateGeoMessage.getId());
+            super.onPreExecute();
         }
 
         @Override
         protected Pair<Integer, GeoMessage> doInBackground(Void... params) {
             int i = -1;
-            for (GeoMessage _geoMessage : markerGeoMessages) {
+            for (GeoMessage _geoMessage : tempMarkerGeoMessageList) {
                 i++;
                 if (_geoMessage == null)
                     continue;
 
-                if (oldGeoMessage != null && oldGeoMessage == _geoMessage) {
-                    return new Pair<>(i, geoMessage);
-                } else if (_geoMessage.getId() == geoMessage.getId()) {
-                    return new Pair<>(i, geoMessage);
+                if (oldTempGeoMessage != null && oldTempGeoMessage == _geoMessage) {
+                    return new Pair<>(i, updateGeoMessage);
+                } else if (_geoMessage.getId() == updateGeoMessage.getId()) {
+                    return new Pair<>(i, updateGeoMessage);
                 }
             }
             return null;
@@ -111,56 +111,41 @@ public final class GeoMessageFragmentHelper {
         protected void onPostExecute(Pair<Integer, GeoMessage> pair) {
             if (pair != null) {
                 GeoMessage message = pair.second;
-                Marker marker = markers.get(pair.first);
+                Marker marker = markerPool.getMarker(pair.first);
                 LatLng position = marker.getPosition();
 
+                // position it doesn't change
                 if (position.latitude == message.getLatitude() && position.longitude == message.getLongitude()) {
                     marker.setTag(pair.second);
-                } else {
-                    MarkerOptions markerOptions = getMarkerOptions(message, currentUserId);
-                    Marker newMarker = map.addMarker(markerOptions);
-                    newMarker.setTag(message);
+                } else {// it changes
+                    MarkerOptions markerOptions = getMarkerOptions(message);
+                    Marker newMarker = markerPool.addMarker(markerOptions, message);
 
-                    markers.set(pair.first, newMarker);
+                    markerPool.replaceMarker(pair.first, newMarker);
                     marker.remove();
                 }
             }
         }
     }
 
-    static class AddMarkersTask extends AsyncTask<Void, Void, Dictionary<MarkerOptions, GeoMessage>> {
-        private final GoogleMap map;
-        private final List<GeoMessage> geoMessages;
-        private final List<Marker> markers;
-        private List<GeoMessage> markerGeoMessages;
-        private final String currentUserId;
+    static class AddMarkersTask extends MarkerTask<Void, Void, Map<MarkerOptions, GeoMessage>> {
+        private final List<GeoMessage> addGeoMessages;
 
-        AddMarkersTask(GoogleMap map,
-                       List<GeoMessage> geoMessages,
-                       List<Marker> markers,
-                       String currentUserId) {
-            this.map = map;
-            this.geoMessages = geoMessages;
-            this.markers = markers;
-            this.currentUserId = currentUserId;
+        AddMarkersTask(GeoMessageMarkerPool markerPool,
+                       String currentUserId,
+                       List<GeoMessage> addGeoMessages) {
+            super(markerPool, currentUserId);
+            this.addGeoMessages = addGeoMessages;
         }
 
         @Override
-        protected void onPreExecute() {
-            markerGeoMessages = new ArrayList<>(markers.size());
-            for (Marker marker : markers) {
-                markerGeoMessages.add((GeoMessage) marker.getTag());
-            }
-        }
+        protected Map<MarkerOptions, GeoMessage> doInBackground(Void... params) {
+            Map<MarkerOptions, GeoMessage> addMarkerOptionsList = new HashMap<>(addGeoMessages.size());
 
-        @Override
-        protected Dictionary<MarkerOptions, GeoMessage> doInBackground(Void... params) {
-            Dictionary<MarkerOptions, GeoMessage> markerOptionsList = new Hashtable<>(geoMessages.size());
-
-            for (GeoMessage geoMessage : geoMessages) {
+            for (GeoMessage addGeoMessage : addGeoMessages) {
                 boolean exist = false;
-                for (GeoMessage _geoMessage : markerGeoMessages) {
-                    if (_geoMessage.getId() == geoMessage.getId()) {
+                for (GeoMessage markerGeoMessage : tempMarkerGeoMessageList) {
+                    if (markerGeoMessage.getId() == addGeoMessage.getId()) {
                         exist = true;
                         break;
                     }
@@ -169,38 +154,20 @@ public final class GeoMessageFragmentHelper {
                 if (exist)
                     continue;
 
-                MarkerOptions markerOptions = getMarkerOptions(geoMessage, currentUserId);
-
-                markerOptionsList.put(markerOptions, geoMessage);
+                MarkerOptions addMarkerOptions = getMarkerOptions(addGeoMessage);
+                addMarkerOptionsList.put(addMarkerOptions, addGeoMessage);
             }
 
-            return markerOptionsList;
+            return addMarkerOptionsList;
         }
 
         @Override
-        protected void onPostExecute(Dictionary<MarkerOptions, GeoMessage> markerOptionsList) {
-            Enumeration<MarkerOptions> markerOptionsEnumeration = markerOptionsList.keys();
-            while (markerOptionsEnumeration.hasMoreElements()) {
-                MarkerOptions markerOptions = markerOptionsEnumeration.nextElement();
-                GeoMessage geoMessage = markerOptionsList.get(markerOptions);
-                Marker marker = map.addMarker(markerOptions);
-                marker.setTag(geoMessage);
-                markers.add(marker);
+        protected void onPostExecute(Map<MarkerOptions, GeoMessage> addMarkerOptionsList) {
+            Set<MarkerOptions> markerOptionsSet = addMarkerOptionsList.keySet();
+            for (MarkerOptions markerOptions : markerOptionsSet) {
+                GeoMessage geoMessage = addMarkerOptionsList.get(markerOptions);
+                markerPool.addMarker(markerOptions, geoMessage);
             }
         }
-    }
-
-    @NonNull
-    private static MarkerOptions getMarkerOptions(GeoMessage geoMessage, String currentUserId) {
-        MarkerOptions markerOptions;
-        if (geoMessage.getOwner().getId().equalsIgnoreCase(currentUserId)) {
-            markerOptions = createCurrentUserMarker(geoMessage);
-        } else {
-            markerOptions = new MarkerOptions()
-                    .position(new LatLng(geoMessage.getLatitude(), geoMessage.getLongitude()))
-                    .title(geoMessage.getOwner().getDisplayName())
-                    .snippet(geoMessage.getText());
-        }
-        return markerOptions;
     }
 }

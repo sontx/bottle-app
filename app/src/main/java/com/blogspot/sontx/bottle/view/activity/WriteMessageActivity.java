@@ -15,14 +15,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.ImageView;
+import android.widget.Spinner;
 
 import com.blogspot.sontx.bottle.Constants;
 import com.blogspot.sontx.bottle.R;
+import com.blogspot.sontx.bottle.model.bean.Emotion;
+import com.blogspot.sontx.bottle.model.dummy.DummyEmotions;
 import com.blogspot.sontx.bottle.model.service.SimpleCallback;
 import com.blogspot.sontx.bottle.presenter.WriteMessagePresenterImpl;
 import com.blogspot.sontx.bottle.presenter.interfaces.WriteMessagePresenter;
 import com.blogspot.sontx.bottle.utils.TempUtils;
+import com.blogspot.sontx.bottle.view.adapter.EmotionAdapter;
 import com.blogspot.sontx.bottle.view.custom.OnBackPressedListener;
 import com.blogspot.sontx.bottle.view.custom.RichEmojiEditText;
 import com.blogspot.sontx.bottle.view.fragment.PhotoPreviewFragment;
@@ -33,6 +38,7 @@ import com.mvc.imagepicker.ImagePicker;
 import com.vanniktech.emoji.EmojiPopup;
 
 import java.io.File;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -40,11 +46,13 @@ import butterknife.OnClick;
 import butterknife.OnTouch;
 
 public class WriteMessageActivity extends ActivityBase
-        implements OnBackPressedListener, WriteMessageView, PreviewFragmentBase.OnRemoveExtraListener {
+        implements OnBackPressedListener, WriteMessageView, PreviewFragmentBase.OnRemoveExtraListener, AdapterView.OnItemSelectedListener {
 
+    public static final String SUPPORT_EMOTION = "support-emotion";
     public static final String MESSAGE_TEXT = "message-text";
     public static final String MESSAGE_MEDIA = "message-media";
     public static final String MESSAGE_TYPE = "message-type";
+    public static final String MESSAGE_EMOTION = "message-emotion";
 
     private static final int REQUEST_CODE_GALLERY_VIDEO = 1;
 
@@ -63,6 +71,7 @@ public class WriteMessageActivity extends ActivityBase
     private InputType inputType;
     private EmojiPopup emojiPopup;
     private boolean minimized = false;
+    private int selectedEmotion = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +79,9 @@ public class WriteMessageActivity extends ActivityBase
 
         setContentView(R.layout.activity_write_message);
         ButterKnife.bind(this);
+
+        boolean supportEmotion = getIntent().getBooleanExtra(SUPPORT_EMOTION, false);
+        setupEmotionSpinners(supportEmotion);
 
         writeMessagePresenter = new WriteMessagePresenterImpl(this);
 
@@ -220,15 +232,30 @@ public class WriteMessageActivity extends ActivityBase
     }
 
     @Override
-    public void goBackWithSuccess(String text, String mediaPath, String type) {
+    public void goBackWithSuccess(String text, String mediaPath, String type, int emotion) {
         Intent intent = getIntent();
 
         intent.putExtra(MESSAGE_TEXT, text);
         intent.putExtra(MESSAGE_MEDIA, mediaPath);
         intent.putExtra(MESSAGE_TYPE, type);
+        intent.putExtra(MESSAGE_EMOTION, emotion);
 
         setResult(RESULT_OK, intent);
         finish();
+    }
+
+    @Override
+    public int getEmotion() {
+        return selectedEmotion;
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        selectedEmotion = position;
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
     }
 
     private void setupToolbar() {
@@ -238,6 +265,25 @@ public class WriteMessageActivity extends ActivityBase
         if (supportActionBar != null) {
             supportActionBar.setDisplayHomeAsUpEnabled(true);
         }
+    }
+
+    private void setupEmotionSpinners(boolean supportEmotion) {
+        Spinner spinner = ButterKnife.findById(this, R.id.emotions_spinner);
+        Spinner spinner1 = ButterKnife.findById(this, R.id.emotions_spinner1);
+
+        if (!supportEmotion) {
+            spinner.setVisibility(View.GONE);
+            spinner.setVisibility(View.GONE);
+            return;
+        }
+
+        List<Emotion> emotions = DummyEmotions.getEmotions();
+
+        spinner.setAdapter(new EmotionAdapter(this, emotions, true));
+        spinner.setOnItemSelectedListener(this);
+
+        spinner1.setAdapter(new EmotionAdapter(this, emotions, false));
+        spinner1.setOnItemSelectedListener(this);
     }
 
     private void setupEmoji() {
