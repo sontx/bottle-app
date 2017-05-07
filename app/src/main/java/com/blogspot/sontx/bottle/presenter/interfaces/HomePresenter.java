@@ -9,4 +9,6 @@ public interface HomePresenter {
     void directMessage(MessageBase message);
 
     void updateMessageAsync(MessageBase messageBase);
+
+    void onClose();
 }

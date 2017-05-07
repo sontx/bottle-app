@@ -9,6 +9,7 @@ import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerChatServic
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerGeoService;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerMessageService;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerRoomService;
+import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerStompService;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerUserSettingService;
 
 import lombok.Getter;
@@ -38,6 +39,9 @@ abstract class ServicePoolBase implements ServicePool {
     @Getter
     private BottleServerChatService bottleServerChatService;
 
+    @Getter
+    private BottleServerStompService bottleServerStompService;
+
     @Override
     public void initialize(Context context) {
         bottleServerAuthService = new BottleServerAuthImpl();
@@ -48,5 +52,6 @@ abstract class ServicePoolBase implements ServicePool {
         bottleServerUserSettingService = new BottleServerUserSettingServiceImpl();
         bottleFileStreamService = new BottleFileStreamServiceImpl();
         bottleServerChatService = new BottleServerChatServiceImpl();
+        bottleServerStompService = new BottleServerStompServiceImpl();
     }
 }

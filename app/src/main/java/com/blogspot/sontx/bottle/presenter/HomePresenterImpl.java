@@ -70,6 +70,11 @@ public class HomePresenterImpl extends PresenterBase implements HomePresenter {
         }
     }
 
+    @Override
+    public void onClose() {
+        FirebaseServicePool.getInstance().getBottleServerStompService().disconnect();
+    }
+
     private class UpdateMessageHandler<T extends MessageBase> implements Callback<T> {
 
         @Override

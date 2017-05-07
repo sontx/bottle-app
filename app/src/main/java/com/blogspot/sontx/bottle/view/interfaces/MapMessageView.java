@@ -7,7 +7,7 @@ import java.util.List;
 public interface MapMessageView extends ViewBase {
     void showMapMessages(List<GeoMessage> geoMessageList);
 
-    void updateRoomMessage(GeoMessage result, GeoMessage tempGeoMessage);
+    void updateGeoMessage(GeoMessage result, GeoMessage tempGeoMessage);
 
     void addGeoMessage(GeoMessage tempGeoMessage);
 }

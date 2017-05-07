@@ -11,6 +11,10 @@ public final class DateTimeUtils {
     private DateTimeUtils() {
     }
 
+    public static long now() {
+        return new DateTime().getMillis();
+    }
+
     public static long utc() {
         return new DateTime(DateTimeZone.UTC).getMillis();
     }

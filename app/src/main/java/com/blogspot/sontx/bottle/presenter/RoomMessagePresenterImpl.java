@@ -12,6 +12,7 @@ import com.blogspot.sontx.bottle.model.service.interfaces.BottleFileStreamServic
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerMessageService;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerRoomService;
 import com.blogspot.sontx.bottle.presenter.interfaces.RoomMessagePresenter;
+import com.blogspot.sontx.bottle.utils.DateTimeUtils;
 import com.blogspot.sontx.bottle.utils.StringUtils;
 import com.blogspot.sontx.bottle.view.interfaces.ListRoomMessageView;
 
@@ -80,6 +81,7 @@ public class RoomMessagePresenterImpl extends PresenterBase implements RoomMessa
         tempRoomMessage.setOwner(currentPublicProfile);
         tempRoomMessage.setMediaUrl(mediaPath);
         tempRoomMessage.setType(type);
+        tempRoomMessage.setTimestamp(DateTimeUtils.now());
 
         if (currentPublicProfile != null)
             listRoomMessageView.addRoomMessage(tempRoomMessage);

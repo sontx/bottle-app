@@ -222,7 +222,7 @@ public class LoadingPresenterImpl extends PresenterBase implements LoadingPresen
         @Override
         public void onError(Throwable what) {
             loadingView.navigateToErrorActivity(what.getMessage());
-            Log.e(TAG, what.getMessage());
+            Log.e(TAG, "TaskBase", what);
         }
     }
 }

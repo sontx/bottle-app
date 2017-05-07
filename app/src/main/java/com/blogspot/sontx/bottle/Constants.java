@@ -14,6 +14,7 @@ public final class Constants {
     public static final String FIREBASE_CHANNEL_MEMBER_KEY = "firebase_channel_member_key";
 
     public static final String BOTTLE_SERVER_BASE_URL_KEY = "bottle_server_base_url";
+    public static final String BOTTLE_SERVER_STOMP_ENDPOINT_KEY = "bottle_server_stomp_endpoint";
 
     public static final String BOTTLE_FS_BASE_URL_KEY = "bottle_fs_base_url";
     public static final String BOTTLE_FS_STORAGE_URL_KEY = "bottle_fs_storage_url";

@@ -9,6 +9,7 @@ public abstract class MessageBase {
     public static final String VIDEO = "video";
     public static final String RECORDING = "recording";
     public static final String LINK = "link";
+    public static final int UNDEFINED_ID = -1;
 
     @Getter
     @Setter

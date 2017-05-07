@@ -11,7 +11,7 @@ import com.blogspot.sontx.bottle.system.BottleContextWrapper;
 import lombok.Getter;
 
 public class App extends MultiDexApplication {
-    private static final String SERVER_ADDRESS = "192.168.1.184:3393";
+    private static final String SERVER_ADDRESS = "192.168.1.33:8080";
 
     @Getter
     private static App instance;
@@ -54,6 +54,7 @@ public class App extends MultiDexApplication {
         System.setProperty(Constants.FIREBASE_MESSAGES_KEY, "messages");
 
         System.setProperty(Constants.BOTTLE_SERVER_BASE_URL_KEY, "http://" + SERVER_ADDRESS + "/bottle/rest/");
+        System.setProperty(Constants.BOTTLE_SERVER_STOMP_ENDPOINT_KEY, "ws://" + SERVER_ADDRESS + "/bottle/notify");
         System.setProperty(Constants.BOTTLE_FS_BASE_URL_KEY, "http://" + SERVER_ADDRESS + "/bottlefs/rest/");
         System.setProperty(Constants.BOTTLE_FS_STORAGE_URL_KEY, "http://" + SERVER_ADDRESS + "/bottlefs/resources");
     }

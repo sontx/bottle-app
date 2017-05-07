@@ -20,6 +20,9 @@ public interface ApiMap {
             @Query("latitudeRadius") double latitudeRadius,
             @Query("longitudeRadius") double longitudeRadius);
 
+    @GET("geo/messages/{messageId}")
+    Call<GeoMessage> getMessage(@Path("messageId") int messageId);
+
     @POST("geo/messages")
     Call<GeoMessage> postMessage(@Body GeoMessage geoMessage);
 

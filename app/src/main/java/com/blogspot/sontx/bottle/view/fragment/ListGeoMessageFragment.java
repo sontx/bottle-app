@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -18,26 +17,23 @@ import com.blogspot.sontx.bottle.R;
 import com.blogspot.sontx.bottle.model.bean.Coordination;
 import com.blogspot.sontx.bottle.model.bean.GeoMessage;
 import com.blogspot.sontx.bottle.model.bean.UserSetting;
+import com.blogspot.sontx.bottle.presenter.GeoMessageChangePresenterImpl;
 import com.blogspot.sontx.bottle.presenter.GeoMessagePresenterImpl;
+import com.blogspot.sontx.bottle.presenter.interfaces.GeoMessageChangePresenter;
 import com.blogspot.sontx.bottle.presenter.interfaces.GeoMessagePresenter;
 import com.blogspot.sontx.bottle.view.activity.WriteMessageActivity;
 import com.blogspot.sontx.bottle.view.adapter.GeoMessageInfoWindowAdapter;
+import com.blogspot.sontx.bottle.view.interfaces.GeoMessageChangeView;
 import com.blogspot.sontx.bottle.view.interfaces.MapMessageView;
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.Dictionary;
-import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -50,15 +46,18 @@ public class ListGeoMessageFragment extends FragmentBase implements
         GoogleMap.OnInfoWindowClickListener,
         View.OnClickListener,
         GoogleMap.OnMarkerDragListener,
-        GoogleMap.OnMarkerClickListener, GoogleMap.OnInfoWindowCloseListener {
+        GoogleMap.OnMarkerClickListener,
+        GoogleMap.OnInfoWindowCloseListener,
+        GeoMessageChangeView,
+        OnFragmentVisibleChangedListener {
 
     private static final int REQUEST_CODE_NEW_ROOM_MESSAGE = 1;
     private OnListGeoMessageInteractionListener listener;
     private GeoMessagePresenter geoMessagePresenter;
-    private Marker currentMarker;
+    private GeoMessageChangePresenter geoMessageChangePresenter;
     private LatLngBounds lastLatLngBounds;
     private boolean preventUpdateMoreMessages = false;
-    private List<GeoMessage> showingMessages = new LinkedList<>();
+    private List<Marker> markers = new LinkedList<>();
     private MapView mapView;
     private GoogleMap map;
     private FloatingActionButton fab;
@@ -74,14 +73,14 @@ public class ListGeoMessageFragment extends FragmentBase implements
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         geoMessagePresenter = new GeoMessagePresenterImpl(this);
+        geoMessageChangePresenter = new GeoMessageChangePresenterImpl(this);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_geo_message_map, container, false);
 
-        showingMessages.clear();
-        currentMarker = null;
+        markers.clear();
         lastLatLngBounds = null;
         preventUpdateMoreMessages = false;
 
@@ -122,6 +121,7 @@ public class ListGeoMessageFragment extends FragmentBase implements
     public void onDetach() {
         super.onDetach();
         listener = null;
+        geoMessageChangePresenter.unsubscribe();
     }
 
     @Override
@@ -170,36 +170,50 @@ public class ListGeoMessageFragment extends FragmentBase implements
         map.setMyLocationEnabled(true);
         MapsInitializer.initialize(this.getActivity());
 
-        showMyLocation(map);
+        GeoMessageFragmentHelper.showMyLocation(map);
 
         UserSetting userSetting = App.getInstance().getBottleContext().getCurrentUserSetting();
         map.setInfoWindowAdapter(new GeoMessageInfoWindowAdapter(getActivity()));
 
-        fab.setVisibility(userSetting.getCurrentRoomId() > -1 ? View.GONE : View.VISIBLE);
+        fab.setVisibility(userSetting.getMessageId() > -1 ? View.GONE : View.VISIBLE);
+
+        geoMessageChangePresenter.subscribe();
     }
 
     @Override
     public void showMapMessages(List<GeoMessage> geoMessageList) {
         String currentUserId = App.getInstance().getBottleContext().getCurrentBottleUser().getUid();
-        new MarkerCreatorTask(map, geoMessageList, showingMessages, currentUserId).execute();
-    }
-
-    @Override
-    public synchronized void updateRoomMessage(GeoMessage result, GeoMessage tempGeoMessage) {
-        if (currentMarker != null) {
-            currentMarker.setTag(result);
-        }
+        new GeoMessageFragmentHelper.AddMarkersTask(map, geoMessageList, markers, currentUserId).execute();
     }
 
     @Override
     public void addGeoMessage(GeoMessage tempGeoMessage) {
-        MarkerOptions markerOptions = createCurrentUserMarker(tempGeoMessage);
+        String currentUserId = App.getInstance().getBottleContext().getCurrentBottleUser().getUid();
 
-        Marker marker = map.addMarker(markerOptions);
-        marker.setTag(tempGeoMessage);
+        List<GeoMessage> geoMessages = new ArrayList<>(1);
+        geoMessages.add(tempGeoMessage);
 
-        currentMarker = marker;
-        fab.setVisibility(View.GONE);
+        new GeoMessageFragmentHelper.AddMarkersTask(map, geoMessages, markers, currentUserId).execute();
+
+        if (tempGeoMessage.getOwner().getId().equals(currentUserId))
+            fab.setVisibility(View.GONE);
+    }
+
+    @Override
+    public synchronized void updateGeoMessage(GeoMessage message) {
+        String currentUserId = App.getInstance().getBottleContext().getCurrentBottleUser().getUid();
+        new GeoMessageFragmentHelper.UpdateMarkerTask(map, message, null, markers, currentUserId).execute();
+    }
+
+    @Override
+    public synchronized void updateGeoMessage(GeoMessage result, GeoMessage tempGeoMessage) {
+        String currentUserId = App.getInstance().getBottleContext().getCurrentBottleUser().getUid();
+        new GeoMessageFragmentHelper.UpdateMarkerTask(map, result, tempGeoMessage, markers, currentUserId).execute();
+    }
+
+    @Override
+    public LatLngBounds getViewBound() {
+        return lastLatLngBounds;
     }
 
     @Override
@@ -244,11 +258,10 @@ public class ListGeoMessageFragment extends FragmentBase implements
     @Override
     public void onMarkerDragEnd(Marker marker) {
         if (marker.getTag() instanceof GeoMessage) {
-            this.currentMarker = marker;
 
-            GeoMessage geoMessage = (GeoMessage) currentMarker.getTag();
-            geoMessage.setLatitude(currentMarker.getPosition().latitude);
-            geoMessage.setLongitude(currentMarker.getPosition().longitude);
+            GeoMessage geoMessage = (GeoMessage) marker.getTag();
+            geoMessage.setLatitude(marker.getPosition().latitude);
+            geoMessage.setLongitude(marker.getPosition().longitude);
             geoMessagePresenter.editGeoMessageAsync(geoMessage);
         } else {
             LatLng myLocation = marker.getPosition();
@@ -259,29 +272,6 @@ public class ListGeoMessageFragment extends FragmentBase implements
 
             geoMessagePresenter.updateCurrentUserLocationAsync(currentLocation);
         }
-    }
-
-    private static synchronized MarkerOptions createCurrentUserMarker(GeoMessage message) {
-        return new MarkerOptions()
-                .position(new LatLng(message.getLatitude(), message.getLongitude()))
-                .title(message.getOwner().getDisplayName())
-                .snippet(message.getText())
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_vegetable))
-                .draggable(true)
-                .zIndex(100);
-    }
-
-    private static void showMyLocation(GoogleMap map) {
-        UserSetting userSetting = App.getInstance().getBottleContext().getCurrentUserSetting();
-        Coordination currentLocation = userSetting.getCurrentLocation();
-        LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 13.5F);
-        map.moveCamera(cameraUpdate);
-        map.addMarker(new MarkerOptions()
-                .position(latLng)
-                .title("Your Location")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
-                .draggable(true));
     }
 
     @Override
@@ -295,62 +285,8 @@ public class ListGeoMessageFragment extends FragmentBase implements
         preventUpdateMoreMessages = false;
     }
 
-    private static class MarkerCreatorTask extends AsyncTask<Void, Void, Dictionary<MarkerOptions, GeoMessage>> {
-        private final GoogleMap map;
-        private final List<GeoMessage> geoMessages;
-        private final List<GeoMessage> showingMessages;
-        private final String currentUserId;
-
-        private MarkerCreatorTask(GoogleMap map, List<GeoMessage> geoMessages, List<GeoMessage> showingMessages, String currentUserId) {
-            this.map = map;
-            this.geoMessages = geoMessages;
-            this.showingMessages = showingMessages;
-            this.currentUserId = currentUserId;
-        }
-
-        @Override
-        protected Dictionary<MarkerOptions, GeoMessage> doInBackground(Void... params) {
-            Dictionary<MarkerOptions, GeoMessage> markers = new Hashtable<>(geoMessages.size());
-
-            for (GeoMessage geoMessage : geoMessages) {
-                boolean exist = false;
-                for (GeoMessage _geoMessage : showingMessages) {
-                    if (_geoMessage.getId() == geoMessage.getId()) {
-                        exist = true;
-                        break;
-                    }
-                }
-
-                if (exist)
-                    continue;
-
-                showingMessages.add(geoMessage);
-
-                MarkerOptions markerOptions;
-                if (geoMessage.getOwner().getId().equalsIgnoreCase(currentUserId)) {
-                    markerOptions = createCurrentUserMarker(geoMessage);
-                } else {
-                    markerOptions = new MarkerOptions()
-                            .position(new LatLng(geoMessage.getLatitude(), geoMessage.getLongitude()))
-                            .title(geoMessage.getOwner().getDisplayName())
-                            .snippet(geoMessage.getText());
-                }
-                markers.put(markerOptions, geoMessage);
-            }
-
-            return markers;
-        }
-
-        @Override
-        protected void onPostExecute(Dictionary<MarkerOptions, GeoMessage> markers) {
-            Enumeration<MarkerOptions> markerOptionsEnumeration = markers.keys();
-            while (markerOptionsEnumeration.hasMoreElements()) {
-                MarkerOptions markerOptions = markerOptionsEnumeration.nextElement();
-                GeoMessage geoMessage = markers.get(markerOptions);
-                map.addMarker(markerOptions).setTag(geoMessage);
-            }
-            super.onPostExecute(markers);
-        }
+    @Override
+    public void onFragmentVisibleChanged(boolean isVisible) {
     }
 
     public interface OnListGeoMessageInteractionListener {

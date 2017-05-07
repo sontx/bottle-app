@@ -3,6 +3,7 @@ package com.blogspot.sontx.bottle.view.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 
 import com.blogspot.sontx.bottle.R;
@@ -17,6 +18,7 @@ import com.blogspot.sontx.bottle.view.dialog.GeoMessageDialog;
 import com.blogspot.sontx.bottle.view.fragment.ListChannelFragment;
 import com.blogspot.sontx.bottle.view.fragment.ListGeoMessageFragment;
 import com.blogspot.sontx.bottle.view.fragment.ListRoomMessageFragment;
+import com.blogspot.sontx.bottle.view.fragment.OnFragmentVisibleChangedListener;
 import com.blogspot.sontx.bottle.view.interfaces.HomeView;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnTabSelectListener;
@@ -37,6 +39,7 @@ public class HomeActivity extends ActivityBase implements
     @BindView(R.id.bottom_bar)
     BottomBar bottomBar;
 
+    private int lastPagePosition = 0;
     private HomePresenter homePresenter;
 
     @Override
@@ -58,6 +61,7 @@ public class HomeActivity extends ActivityBase implements
     @Override
     protected void onDestroy() {
         viewPager.removeOnPageChangeListener(this);
+        homePresenter.onClose();
         super.onDestroy();
     }
 
@@ -137,6 +141,19 @@ public class HomeActivity extends ActivityBase implements
     @Override
     public void onPageSelected(int position) {
         bottomBar.selectTabAtPosition(position, true);
+        changeFragmentVisibleStateIfNecessary(position, true);
+        if (lastPagePosition > -1)
+            changeFragmentVisibleStateIfNecessary(lastPagePosition, false);
+        lastPagePosition = position;
+    }
+
+    public void changeFragmentVisibleStateIfNecessary(int position, boolean isVisible) {
+        HomeFragmentPagerAdapter adapter = (HomeFragmentPagerAdapter) viewPager.getAdapter();
+        Fragment fragment = adapter.getRegisteredFragment(position);
+        if (fragment instanceof OnFragmentVisibleChangedListener) {
+            OnFragmentVisibleChangedListener onFragmentVisibleChangedListener = (OnFragmentVisibleChangedListener) fragment;
+            onFragmentVisibleChangedListener.onFragmentVisibleChanged(isVisible);
+        }
     }
 
     @Override

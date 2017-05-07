@@ -62,6 +62,7 @@ public class GeoMessagePresenterImpl implements GeoMessagePresenter {
     @Override
     public void postGeoMessageAsync(String text, Coordination coordination, String mediaPath, String type) {
         final GeoMessage tempGeoMessage = new GeoMessage();
+        tempGeoMessage.setId(MessageBase.UNDEFINED_ID);
         tempGeoMessage.setText(text);
         tempGeoMessage.setOwner(currentPublicProfile);
         tempGeoMessage.setMediaUrl(mediaPath);
@@ -133,7 +134,7 @@ public class GeoMessagePresenterImpl implements GeoMessagePresenter {
         bottleServerGeoService.postGeoMessageAsync(tempGeoMessage, new Callback<GeoMessage>() {
             @Override
             public void onSuccess(GeoMessage result) {
-                mapMessageView.updateRoomMessage(result, tempGeoMessage);
+                mapMessageView.updateGeoMessage(result, tempGeoMessage);
             }
 
             @Override
