@@ -18,7 +18,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_favorite_border"
-            android:tint="@color/accent" />
+        ` android:tint="#E040FB" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -64,6 +64,7 @@
         android:paddingTop="@dimen/message_bottom_bar_padding"
         android:src="@drawable/ic_remove"
         android:tint="@color/secondary_text"
+        android:alpha="0.5"
         android:layout_alignParentTop="true"
         android:layout_toLeftOf="@+id/more_option_message_view"
         android:layout_toStartOf="@+id/more_option_message_view" />
