@@ -118,7 +118,7 @@ public class GeoMessagePresenterImpl implements GeoMessagePresenter {
         UserSetting currentUserSetting = App.getInstance().getBottleContext().getCurrentUserSetting();
         currentUserSetting.setCurrentLocation(currentLocation);
 
-        bottleServerUserSettingService.updateUserSettingAsync(new Callback<UserSetting>() {
+        bottleServerUserSettingService.updateUserSettingAsync(currentUserSetting, new Callback<UserSetting>() {
             @Override
             public void onSuccess(UserSetting result) {
                 // do nothing

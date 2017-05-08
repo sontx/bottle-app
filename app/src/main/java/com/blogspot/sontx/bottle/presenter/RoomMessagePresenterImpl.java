@@ -6,11 +6,13 @@ import com.blogspot.sontx.bottle.model.bean.PublicProfile;
 import com.blogspot.sontx.bottle.model.bean.Room;
 import com.blogspot.sontx.bottle.model.bean.RoomMessage;
 import com.blogspot.sontx.bottle.model.bean.UploadResult;
+import com.blogspot.sontx.bottle.model.bean.UserSetting;
 import com.blogspot.sontx.bottle.model.service.Callback;
 import com.blogspot.sontx.bottle.model.service.FirebaseServicePool;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleFileStreamService;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerMessageService;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerRoomService;
+import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerUserSettingService;
 import com.blogspot.sontx.bottle.presenter.interfaces.RoomMessagePresenter;
 import com.blogspot.sontx.bottle.utils.DateTimeUtils;
 import com.blogspot.sontx.bottle.utils.StringUtils;
@@ -23,6 +25,7 @@ public class RoomMessagePresenterImpl extends PresenterBase implements RoomMessa
     private final BottleServerMessageService bottleServerMessageService;
     private final BottleServerRoomService bottleServerRoomService;
     private final BottleFileStreamService bottleFileStreamService;
+    private final BottleServerUserSettingService bottleServerUserSettingService;
     private final PublicProfile currentPublicProfile;
     private int currentPage = 0;
     private Room currentRoom;
@@ -32,6 +35,7 @@ public class RoomMessagePresenterImpl extends PresenterBase implements RoomMessa
         bottleServerMessageService = FirebaseServicePool.getInstance().getBottleServerMessageService();
         bottleServerRoomService = FirebaseServicePool.getInstance().getBottleServerRoomService();
         bottleFileStreamService = FirebaseServicePool.getInstance().getBottleFileStreamService();
+        bottleServerUserSettingService = FirebaseServicePool.getInstance().getBottleServerUserSettingService();
         currentPublicProfile = App.getInstance().getBottleContext().getCurrentPublicProfile();
     }
 
@@ -47,6 +51,21 @@ public class RoomMessagePresenterImpl extends PresenterBase implements RoomMessa
             @Override
             public void onSuccess(Room result) {
                 currentRoom = result;
+            }
+
+            @Override
+            public void onError(Throwable what) {
+                listRoomMessageView.showErrorMessage(what);
+            }
+        });
+
+        UserSetting currentUserSetting = App.getInstance().getBottleContext().getCurrentUserSetting();
+        currentUserSetting.setCurrentRoomId(currentRoomId);
+
+        bottleServerUserSettingService.updateUserSettingAsync(currentUserSetting, new Callback<UserSetting>() {
+            @Override
+            public void onSuccess(UserSetting result) {
+                // do nothing
             }
 
             @Override

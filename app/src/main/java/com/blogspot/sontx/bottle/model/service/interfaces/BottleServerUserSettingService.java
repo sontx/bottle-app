@@ -8,5 +8,5 @@ public interface BottleServerUserSettingService extends ServiceBase {
 
     UserSetting getCurrentUserSetting();
 
-    void updateUserSettingAsync(Callback<UserSetting> callback);
+    void updateUserSettingAsync(UserSetting userSetting, Callback<UserSetting> callback);
 }

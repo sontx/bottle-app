@@ -55,11 +55,8 @@ class BottleServerUserSettingServiceImpl extends BottleServerServiceBase impleme
     }
 
     @Override
-    public void updateUserSettingAsync(final Callback<UserSetting> callback) {
-        if (currentUserSetting == null) {
-            callback.onError(new Exception("current setting is null"));
-            return;
-        }
+    public void updateUserSettingAsync(final UserSetting userSetting, final Callback<UserSetting> callback) {
+        this.currentUserSetting = userSetting;
 
         if (!App.getInstance().getBottleContext().isLogged()) {
             callback.onError(new Exception("Unauthenticated"));
@@ -70,14 +67,14 @@ class BottleServerUserSettingServiceImpl extends BottleServerServiceBase impleme
 
         ApiUserSetting apiUserSetting = ApiClient.getClient(bottleUser.getToken()).create(ApiUserSetting.class);
 
-        Call<UserSetting> call = apiUserSetting.updateUserSetting(bottleUser.getUid(), currentUserSetting);
+        Call<UserSetting> call = apiUserSetting.updateUserSetting(bottleUser.getUid(), userSetting);
 
         call.enqueue(new retrofit2.Callback<UserSetting>() {
             @Override
             public void onResponse(Call<UserSetting> call, Response<UserSetting> response) {
                 if (response.code() == 200) {
                     currentUserSetting = response.body();
-                    callback.onSuccess(currentUserSetting);
+                    callback.onSuccess(userSetting);
                 } else {
                     Log.e(TAG, "updateUserSettingAsync: " + response.code() + " " + response.message());
                     callback.onError(new Exception(""));
