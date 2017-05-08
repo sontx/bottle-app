@@ -14,14 +14,18 @@ import android.view.ViewGroup;
 
 import com.blogspot.sontx.bottle.App;
 import com.blogspot.sontx.bottle.R;
+import com.blogspot.sontx.bottle.model.bean.MessageBase;
 import com.blogspot.sontx.bottle.model.bean.RoomMessage;
+import com.blogspot.sontx.bottle.presenter.RoomMessageChangePresenterImpl;
 import com.blogspot.sontx.bottle.presenter.RoomMessagePresenterImpl;
+import com.blogspot.sontx.bottle.presenter.interfaces.RoomMessageChangePresenter;
 import com.blogspot.sontx.bottle.presenter.interfaces.RoomMessagePresenter;
 import com.blogspot.sontx.bottle.system.BottleContext;
 import com.blogspot.sontx.bottle.view.activity.ListRoomActivity;
 import com.blogspot.sontx.bottle.view.activity.WriteMessageActivity;
 import com.blogspot.sontx.bottle.view.adapter.RoomMessageRecyclerViewAdapter;
 import com.blogspot.sontx.bottle.view.interfaces.ListRoomMessageView;
+import com.blogspot.sontx.bottle.view.interfaces.RoomMessageChangeView;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.TabSelectionInterceptor;
 
@@ -30,7 +34,10 @@ import java.util.List;
 
 import butterknife.ButterKnife;
 
-public class ListRoomMessageFragment extends FragmentBase implements ListRoomMessageView, TabSelectionInterceptor {
+public class ListRoomMessageFragment extends FragmentBase implements
+        ListRoomMessageView,
+        TabSelectionInterceptor,
+        RoomMessageChangeView {
 
     private static final int REQUEST_CODE_NEW_ROOM_MESSAGE = 1;
     private static final int REQUEST_CODE_SELECT_ROOM = 2;
@@ -39,6 +46,7 @@ public class ListRoomMessageFragment extends FragmentBase implements ListRoomMes
     private int mColumnCount = 1;
     private RoomMessageRecyclerViewAdapter roomMessageRecyclerViewAdapter;
     private RoomMessagePresenter roomMessagePresenter;
+    private RoomMessageChangePresenter roomMessageChangePresenter;
     private OnListRoomMessageInteractionListener listener;
     private BottomBar bottomBar;
 
@@ -67,6 +75,9 @@ public class ListRoomMessageFragment extends FragmentBase implements ListRoomMes
                 int currentRoomId = bottleContext.getCurrentUserSetting().getCurrentRoomId();
                 roomMessagePresenter = new RoomMessagePresenterImpl(this);
                 roomMessagePresenter.selectRoom(currentRoomId);
+
+                roomMessageChangePresenter = new RoomMessageChangePresenterImpl(this);
+                roomMessageChangePresenter.selectRoom(currentRoomId);
             }
         }
     }
@@ -90,6 +101,18 @@ public class ListRoomMessageFragment extends FragmentBase implements ListRoomMes
         recyclerView.setAdapter(roomMessageRecyclerViewAdapter);
 
         return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        roomMessageChangePresenter.subscribe();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        roomMessageChangePresenter.unsubscribe();
     }
 
     @Override
@@ -131,6 +154,7 @@ public class ListRoomMessageFragment extends FragmentBase implements ListRoomMes
             if (resultCode == Activity.RESULT_OK) {
                 int roomId = data.getIntExtra(ListRoomActivity.ROOM_ID, -1);
                 roomMessagePresenter.selectRoom(roomId);
+                roomMessageChangePresenter.selectRoom(roomId);
             }
             return;
         }
@@ -147,7 +171,17 @@ public class ListRoomMessageFragment extends FragmentBase implements ListRoomMes
     }
 
     @Override
-    public void addRoomMessage(final RoomMessage roomMessage) {
+    public synchronized void addRoomMessage(final RoomMessage roomMessage) {
+        if (roomMessage.getId() != MessageBase.UNDEFINED_ID) {
+            // ignore current user message
+            String ownerId = roomMessage.getOwner().getId();
+            List<RoomMessage> values = roomMessageRecyclerViewAdapter.getValues();
+            for (RoomMessage value : values) {
+                if (value.getOwner().getId().equals(ownerId))
+                    return;
+            }
+        }
+
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -159,21 +193,41 @@ public class ListRoomMessageFragment extends FragmentBase implements ListRoomMes
     }
 
     @Override
-    public void updateRoomMessage(final RoomMessage roomMessage, final RoomMessage originRoomMessage) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                List<RoomMessage> values = roomMessageRecyclerViewAdapter.getValues();
-                for (int i = 0; i < values.size(); i++) {
-                    RoomMessage value = values.get(i);
-                    if (value == originRoomMessage) {
-                        values.set(i, roomMessage);
-                        roomMessageRecyclerViewAdapter.notifyItemChanged(i);
-                        break;
+    public synchronized void updateRoomMessage(RoomMessage message) {
+        List<RoomMessage> values = roomMessageRecyclerViewAdapter.getValues();
+        for (int i = 0; i < values.size(); i++) {
+            RoomMessage value = values.get(i);
+            if (value.getId() == message.getId()) {
+                values.set(i, message);
+                final int finalI = i;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        roomMessageRecyclerViewAdapter.notifyItemChanged(finalI);
                     }
-                }
+                });
+                break;
             }
-        });
+        }
+    }
+
+    @Override
+    public void updateRoomMessage(final RoomMessage roomMessage, final RoomMessage originRoomMessage) {
+        List<RoomMessage> values = roomMessageRecyclerViewAdapter.getValues();
+        for (int i = 0; i < values.size(); i++) {
+            RoomMessage value = values.get(i);
+            if (value == originRoomMessage) {
+                values.set(i, roomMessage);
+                final int finalI = i;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        roomMessageRecyclerViewAdapter.notifyItemChanged(finalI);
+                    }
+                });
+                break;
+            }
+        }
     }
 
     @Override

@@ -25,4 +25,7 @@ public interface ApiRoom {
 
     @PUT("rooms/messages/{messageId}")
     Call<RoomMessage> editMessage(@Path("messageId") int messageId, @Body RoomMessage roomMessage);
+
+    @GET("rooms/messages/{messageId}")
+    Call<RoomMessage> getMessage(@Path("messageId") int messageId);
 }
