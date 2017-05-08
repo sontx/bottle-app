@@ -65,11 +65,11 @@ public class ListRoomMessageFragment extends FragmentBase implements
         roomMessagePresenter.deleteMessageAsync(messageBase);
         if (roomMessageRecyclerViewAdapter != null) {
             synchronized (this) {
-                List<RoomMessage> values = roomMessageRecyclerViewAdapter.getValues();
-                for (int i = 0; i < values.size(); i++) {
-                    RoomMessage value = values.get(i);
+                List<RoomMessage> allRoomMessages = roomMessageRecyclerViewAdapter.getAllRoomMessages();
+                for (int i = 0; i < allRoomMessages.size(); i++) {
+                    RoomMessage value = allRoomMessages.get(i);
                     if (value == messageBase) {
-                        values.remove(i);
+                        roomMessageRecyclerViewAdapter.removeRoomMessage(value);
                         roomMessageRecyclerViewAdapter.notifyItemRemoved(i);
                         break;
                     }
@@ -133,6 +133,12 @@ public class ListRoomMessageFragment extends FragmentBase implements
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        updateToggleEffect();
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
         bottomBar.removeOverrideTabSelectionListener();
@@ -180,9 +186,9 @@ public class ListRoomMessageFragment extends FragmentBase implements
     }
 
     @Override
-    public void showRoomMessages(List<RoomMessage> rooms) {
+    public void showRoomMessages(List<RoomMessage> roomMessages) {
         if (roomMessageRecyclerViewAdapter != null) {
-            roomMessageRecyclerViewAdapter.getValues().addAll(rooms);
+            roomMessageRecyclerViewAdapter.addAllRoomMessages(roomMessages);
             roomMessageRecyclerViewAdapter.notifyDataSetChanged();
         }
     }
@@ -193,8 +199,8 @@ public class ListRoomMessageFragment extends FragmentBase implements
             // ignore current user message
             String ownerId = roomMessage.getOwner().getId();
             synchronized (this) {
-                List<RoomMessage> values = roomMessageRecyclerViewAdapter.getValues();
-                for (RoomMessage value : values) {
+                List<RoomMessage> allRoomMessages = roomMessageRecyclerViewAdapter.getAllRoomMessages();
+                for (RoomMessage value : allRoomMessages) {
                     if (value.getOwner().getId().equals(ownerId))
                         return;
                 }
@@ -204,9 +210,8 @@ public class ListRoomMessageFragment extends FragmentBase implements
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                List<RoomMessage> values = roomMessageRecyclerViewAdapter.getValues();
                 synchronized (ListRoomMessageFragment.this) {
-                    values.add(0, roomMessage);
+                    roomMessageRecyclerViewAdapter.addRoomMessage(roomMessage);
                     roomMessageRecyclerViewAdapter.notifyDataSetChanged();
                 }
             }
@@ -215,11 +220,11 @@ public class ListRoomMessageFragment extends FragmentBase implements
 
     @Override
     public synchronized void updateRoomMessage(RoomMessage message) {
-        List<RoomMessage> values = roomMessageRecyclerViewAdapter.getValues();
-        for (int i = 0; i < values.size(); i++) {
-            RoomMessage value = values.get(i);
+        List<RoomMessage> allRoomMessages = roomMessageRecyclerViewAdapter.getAllRoomMessages();
+        for (int i = 0; i < allRoomMessages.size(); i++) {
+            RoomMessage value = allRoomMessages.get(i);
             if (value.getId() == message.getId()) {
-                values.set(i, message);
+                allRoomMessages.set(i, message);
                 final int finalI = i;
                 runOnUiThread(new Runnable() {
                     @Override
@@ -235,15 +240,15 @@ public class ListRoomMessageFragment extends FragmentBase implements
     @Override
     public void removeRoomMessage(int messageId) {
         synchronized (this) {
-            final List<RoomMessage> values = roomMessageRecyclerViewAdapter.getValues();
-            for (int i = 0; i < values.size(); i++) {
-                RoomMessage value = values.get(i);
+            final List<RoomMessage> allRoomMessages = roomMessageRecyclerViewAdapter.getAllRoomMessages();
+            for (int i = 0; i < allRoomMessages.size(); i++) {
+                final RoomMessage value = allRoomMessages.get(i);
                 if (value.getId() == messageId) {
                     final int finalI = i;
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            values.remove(finalI);
+                            roomMessageRecyclerViewAdapter.removeRoomMessage(value);
                             roomMessageRecyclerViewAdapter.notifyItemRemoved(finalI);
                         }
                     });
@@ -256,11 +261,11 @@ public class ListRoomMessageFragment extends FragmentBase implements
 
     @Override
     public void updateRoomMessage(final RoomMessage roomMessage, final RoomMessage originRoomMessage) {
-        List<RoomMessage> values = roomMessageRecyclerViewAdapter.getValues();
-        for (int i = 0; i < values.size(); i++) {
-            RoomMessage value = values.get(i);
+        List<RoomMessage> allRoomMessages = roomMessageRecyclerViewAdapter.getAllRoomMessages();
+        for (int i = 0; i < allRoomMessages.size(); i++) {
+            RoomMessage value = allRoomMessages.get(i);
             if (value == originRoomMessage) {
-                values.set(i, roomMessage);
+                allRoomMessages.set(i, roomMessage);
                 final int finalI = i;
                 runOnUiThread(new Runnable() {
                     @Override
@@ -290,19 +295,30 @@ public class ListRoomMessageFragment extends FragmentBase implements
     @Override
     public void clearRoomMessages() {
         if (roomMessageRecyclerViewAdapter != null) {
-            roomMessageRecyclerViewAdapter.getValues().clear();
+            roomMessageRecyclerViewAdapter.getAllRoomMessages().clear();
             roomMessageRecyclerViewAdapter.notifyDataSetChanged();
         }
     }
 
     @Override
     public boolean shouldInterceptTabSelection(@IdRes int oldTabId, @IdRes int newTabId) {
-        if (newTabId == R.id.tab_jump) {
+        if (newTabId == R.id.tab_me) {
+            roomMessageRecyclerViewAdapter.justShowCurrentUserMessages(true);
+        } else if (newTabId == R.id.tab_all) {
+            roomMessageRecyclerViewAdapter.justShowCurrentUserMessages(false);
+        } else if (newTabId == R.id.tab_jump) {
             roomMessagePresenter.jumpToListRooms();
         } else if (newTabId == R.id.tab_new) {
             startActivityForResult(new Intent(getContext(), WriteMessageActivity.class), REQUEST_CODE_NEW_ROOM_MESSAGE);
         }
         return false;
+    }
+
+    public void updateToggleEffect() {
+        if (roomMessageRecyclerViewAdapter.isJustShowCurrentUserMessages())
+            bottomBar.selectTabAtPosition(1);
+        else
+            bottomBar.selectTabAtPosition(2);
     }
 
     public interface OnListRoomMessageInteractionListener extends OnMessageInteractionListener {

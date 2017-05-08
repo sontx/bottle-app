@@ -1,11 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <tabs>
     <tab
-        icon="@drawable/ic_open_in_new"
-        id="@+id/tab_jump"
-        title="Jump" />
-    <tab
         icon="@drawable/ic_add_circle"
         id="@+id/tab_new"
         title="New" />
+    <tab
+        icon="@drawable/ic_account_circle"
+        id="@+id/tab_me"
+        activeColor="@color/accent"
+        inActiveColor="@color/primary_dark"
+        title="Me" />
+    <tab
+        icon="@drawable/ic_people_outline"
+        id="@+id/tab_all"
+        activeColor="@color/accent"
+        inActiveColor="@color/primary_dark"
+        title="All" />
+    <tab
+        icon="@drawable/ic_keyboard_arrow_up"
+        id="@+id/tab_jump"
+        title="Jump" />
 </tabs>

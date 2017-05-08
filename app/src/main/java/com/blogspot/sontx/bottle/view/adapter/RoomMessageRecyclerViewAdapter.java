@@ -13,6 +13,7 @@ import com.blogspot.sontx.bottle.system.BottleContext;
 import com.blogspot.sontx.bottle.system.Resource;
 import com.blogspot.sontx.bottle.view.fragment.ListRoomMessageFragment;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import lombok.Getter;
@@ -25,13 +26,52 @@ public class RoomMessageRecyclerViewAdapter extends RecyclerView.Adapter<Recycle
 
     private final ListRoomMessageFragment.OnListRoomMessageInteractionListener listener;
     @Getter
-    private List<RoomMessage> values;
+    private List<RoomMessage> allRoomMessages;
+    private List<RoomMessage> currentUserMessages;
     private Resource resource;
     private String currentUserId;
+    @Getter
+    private boolean justShowCurrentUserMessages = false;
+
+    public void justShowCurrentUserMessages(boolean justMe) {
+        justShowCurrentUserMessages = justMe;
+        notifyDataSetChanged();
+    }
+
+    private List<RoomMessage> getData() {
+        return justShowCurrentUserMessages ? currentUserMessages : allRoomMessages;
+    }
+
+    public void addAllRoomMessages(List<RoomMessage> roomMessages) {
+        synchronized (this) {
+            allRoomMessages.addAll(roomMessages);
+            for (RoomMessage roomMessage : roomMessages) {
+                if (roomMessage.getOwner().getId().equals(currentUserId))
+                    currentUserMessages.add(roomMessage);
+            }
+        }
+    }
+
+    public void addRoomMessage(RoomMessage roomMessage) {
+        synchronized (this) {
+            allRoomMessages.add(0, roomMessage);
+            if (roomMessage.getOwner().getId().equals(currentUserId))
+                currentUserMessages.add(0, roomMessage);
+        }
+    }
+
+    public void removeRoomMessage(RoomMessage roomMessage) {
+        synchronized (this) {
+            allRoomMessages.remove(roomMessage);
+            if (roomMessage.getOwner().getId().equals(currentUserId))
+                currentUserMessages.remove(roomMessage);
+        }
+    }
 
     public RoomMessageRecyclerViewAdapter(List<RoomMessage> items, ListRoomMessageFragment.OnListRoomMessageInteractionListener listener) {
-        values = items;
+        this.allRoomMessages = items;
         this.listener = listener;
+        this.currentUserMessages = new LinkedList<>();
 
         BottleContext bottleContext = App.getInstance().getBottleContext();
         resource = bottleContext.getResource();
@@ -55,7 +95,7 @@ public class RoomMessageRecyclerViewAdapter extends RecyclerView.Adapter<Recycle
 
     @Override
     public int getItemViewType(int position) {
-        RoomMessage roomMessage = values.get(position);
+        RoomMessage roomMessage = getData().get(position);
         if (MessageBase.PHOTO.equalsIgnoreCase(roomMessage.getType()))
             return TYPE_PHOTO;
         if (MessageBase.VIDEO.equalsIgnoreCase(roomMessage.getType()))
@@ -65,12 +105,12 @@ public class RoomMessageRecyclerViewAdapter extends RecyclerView.Adapter<Recycle
 
     @Override
     public int getItemCount() {
-        return values.size();
+        return getData().size();
     }
 
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
-        RoomMessage roomMessage = values.get(position);
+        RoomMessage roomMessage = getData().get(position);
 
         // apply for all message types
         final MessageAdapterHelper.TextViewHolder textViewHolder = (MessageAdapterHelper.TextViewHolder) holder;
