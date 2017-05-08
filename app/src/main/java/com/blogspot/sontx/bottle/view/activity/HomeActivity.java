@@ -41,6 +41,7 @@ public class HomeActivity extends ActivityBase implements
 
     private int lastPagePosition = 0;
     private HomePresenter homePresenter;
+    private GeoMessageDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,13 +93,20 @@ public class HomeActivity extends ActivityBase implements
 
     @Override
     public void onDeleteMessageClick(MessageBase messageBase) {
-        ListRoomMessageFragment fragment = (ListRoomMessageFragment) ((HomeFragmentPagerAdapter) viewPager.getAdapter()).getRegisteredFragment(1);
-        fragment.removeMessage(messageBase);
+        if (messageBase instanceof RoomMessage) {
+            ListRoomMessageFragment fragment = (ListRoomMessageFragment) ((HomeFragmentPagerAdapter) viewPager.getAdapter()).getRegisteredFragment(1);
+            fragment.removeMessage(messageBase);
+        } else if (messageBase instanceof GeoMessage) {
+            if (dialog != null)
+                dialog.close();
+            ListGeoMessageFragment fragment = (ListGeoMessageFragment) ((HomeFragmentPagerAdapter) viewPager.getAdapter()).getRegisteredFragment(2);
+            fragment.removeMessage(messageBase);
+        }
     }
 
     @Override
     public void onGeoMessageClick(GeoMessage item) {
-        GeoMessageDialog dialog = new GeoMessageDialog(this, item);
+        dialog = new GeoMessageDialog(this, item);
     }
 
     @Override

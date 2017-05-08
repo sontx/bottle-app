@@ -9,4 +9,6 @@ public interface GeoMessageChangeView extends ViewBase {
     void updateGeoMessage(GeoMessage message);
 
     LatLngBounds getViewBound();
+
+    void removeGeoMessage(int messageId);
 }

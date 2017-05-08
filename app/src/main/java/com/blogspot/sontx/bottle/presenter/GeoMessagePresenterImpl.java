@@ -131,6 +131,21 @@ public class GeoMessagePresenterImpl implements GeoMessagePresenter {
         });
     }
 
+    @Override
+    public void deleteGeoMessageAsync(int geoMessageId) {
+        bottleServerGeoService.deleteGeoMessageAsync(geoMessageId, new Callback<GeoMessage>() {
+            @Override
+            public void onSuccess(GeoMessage result) {
+                // nothing here
+            }
+
+            @Override
+            public void onError(Throwable what) {
+                mapMessageView.showErrorMessage(what);
+            }
+        });
+    }
+
     private void postGeoMessageAsync(final GeoMessage tempGeoMessage) {
         bottleServerGeoService.postGeoMessageAsync(tempGeoMessage, new Callback<GeoMessage>() {
             @Override

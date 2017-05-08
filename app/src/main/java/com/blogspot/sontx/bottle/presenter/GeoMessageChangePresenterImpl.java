@@ -58,22 +58,26 @@ public class GeoMessageChangePresenterImpl extends PresenterBase implements GeoM
     }
 
     private void acceptGeoMessageChangeAsync(final GeoMessageChanged geoMessageChanged) {
-        bottleServerGeoService.getGeoMessageAsync(geoMessageChanged.getId(), new Callback<GeoMessage>() {
-            @Override
-            public void onSuccess(GeoMessage result) {
-                String state = geoMessageChanged.getState();
+        if ("delete".equals(geoMessageChanged.getState())) {
+            bottleServerGeoService.getGeoMessageAsync(geoMessageChanged.getId(), new Callback<GeoMessage>() {
+                @Override
+                public void onSuccess(GeoMessage result) {
+                    String state = geoMessageChanged.getState();
 
-                if ("add".equals(state))
-                    geoMessageChangeView.addGeoMessage(result);
-                else if ("update".equals(state))
-                    geoMessageChangeView.updateGeoMessage(result);
-            }
+                    if ("add".equals(state))
+                        geoMessageChangeView.addGeoMessage(result);
+                    else if ("update".equals(state))
+                        geoMessageChangeView.updateGeoMessage(result);
+                }
 
-            @Override
-            public void onError(Throwable what) {
-                geoMessageChangeView.showErrorMessage(what);
-            }
-        });
+                @Override
+                public void onError(Throwable what) {
+                    geoMessageChangeView.showErrorMessage(what);
+                }
+            });
+        } else {
+            geoMessageChangeView.removeGeoMessage(geoMessageChanged.getId());
+        }
     }
 
     private boolean checkInbound(GeoMessageChanged geoMessageChanged) {

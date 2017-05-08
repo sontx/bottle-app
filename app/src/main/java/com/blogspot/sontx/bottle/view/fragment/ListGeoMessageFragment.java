@@ -16,6 +16,7 @@ import com.blogspot.sontx.bottle.App;
 import com.blogspot.sontx.bottle.R;
 import com.blogspot.sontx.bottle.model.bean.Coordination;
 import com.blogspot.sontx.bottle.model.bean.GeoMessage;
+import com.blogspot.sontx.bottle.model.bean.MessageBase;
 import com.blogspot.sontx.bottle.model.bean.UserSetting;
 import com.blogspot.sontx.bottle.presenter.GeoMessageChangePresenterImpl;
 import com.blogspot.sontx.bottle.presenter.GeoMessagePresenterImpl;
@@ -225,6 +226,11 @@ public class ListGeoMessageFragment extends FragmentBase implements
     }
 
     @Override
+    public void removeGeoMessage(int messageId) {
+        markerPool.removeMarkerByMessageId(messageId);
+    }
+
+    @Override
     public void onCameraIdle() {
         if (preventUpdateMoreMessages)
             return;
@@ -297,6 +303,12 @@ public class ListGeoMessageFragment extends FragmentBase implements
 
     @Override
     public void onFragmentVisibleChanged(boolean isVisible) {
+    }
+
+    public void removeMessage(MessageBase messageBase) {
+        markerPool.removeMarkerByMessageId(messageBase.getId());
+        fab.setVisibility(View.VISIBLE);
+        geoMessagePresenter.deleteGeoMessageAsync(messageBase.getId());
     }
 
     public interface OnListGeoMessageInteractionListener {

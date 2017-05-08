@@ -11,4 +11,6 @@ public interface GeoMessagePresenter {
     void editGeoMessageAsync(GeoMessage geoMessage);
 
     void updateCurrentUserLocationAsync(Coordination currentLocation);
+
+    void deleteGeoMessageAsync(int geoMessageId);
 }

@@ -21,6 +21,7 @@ import com.orhanobut.dialogplus.ViewHolder;
 public class GeoMessageDialog implements OnClickListener {
     private final OnMessageInteractionListener listener;
     private final String currentUserId;
+    private final DialogPlus dialogPlus;
     private MessageAdapterHelper.TextViewHolder textViewHolder = null;
 
     public GeoMessageDialog(Context context, GeoMessage geoMessage) {
@@ -44,13 +45,17 @@ public class GeoMessageDialog implements OnClickListener {
 
         holder = new ViewHolder(textViewHolder.itemView);
 
-        DialogPlus dialogPlus = DialogPlus.newDialog(context)
+        dialogPlus = DialogPlus.newDialog(context)
                 .setContentHolder(holder)
                 .setGravity(Gravity.CENTER)
                 .setCancelable(true)
                 .setOnClickListener(this)
                 .create();
         dialogPlus.show();
+    }
+
+    public void close() {
+        dialogPlus.dismiss();
     }
 
     @Override
@@ -61,7 +66,7 @@ public class GeoMessageDialog implements OnClickListener {
         } else if (view.getId() == textViewHolder.voteMessageView.getId()) {
             MessageAdapterHelper.fireOnVoteMessageClick(listener, textViewHolder);
         } else if (view.getId() == textViewHolder.deleteView.getId()) {
-
+            MessageAdapterHelper.fireOnDeleteMessageClick(textViewHolder, listener);
         } else if (view.getId() == textViewHolder.moreOptionView.getId()) {
             MessageAdapterHelper.fireOnEditMessageClick(textViewHolder, currentUserId, listener);
         } else if (view.getId() == textViewHolder.ignoreEditView.getId()) {
