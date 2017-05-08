@@ -160,4 +160,19 @@ public class RoomMessagePresenterImpl extends PresenterBase implements RoomMessa
             getMoreRoomMessagesAsync();
         }
     }
+
+    @Override
+    public void deleteMessageAsync(MessageBase messageBase) {
+        bottleServerRoomService.deleteRoomMessageAsync(messageBase.getId(), new Callback<RoomMessage>() {
+            @Override
+            public void onSuccess(RoomMessage result) {
+                // nothing here
+            }
+
+            @Override
+            public void onError(Throwable what) {
+                listRoomMessageView.showErrorMessage(what);
+            }
+        });
+    }
 }

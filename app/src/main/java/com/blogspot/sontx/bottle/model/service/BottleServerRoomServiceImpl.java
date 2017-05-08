@@ -138,4 +138,35 @@ class BottleServerRoomServiceImpl extends BottleServerServiceBase implements Bot
             }
         });
     }
+
+    @Override
+    public void deleteRoomMessageAsync(int roomMessageId, final Callback<RoomMessage> callback) {
+        if (!App.getInstance().getBottleContext().isLogged()) {
+            callback.onError(new Exception("Unauthenticated"));
+            return;
+        }
+
+        BottleUser bottleUser = App.getInstance().getBottleContext().getCurrentBottleUser();
+
+        ApiRoom apiRoom = ApiClient.getClient(bottleUser.getToken()).create(ApiRoom.class);
+
+        Call<RoomMessage> call = apiRoom.deleteMessage(roomMessageId);
+
+        call.enqueue(new retrofit2.Callback<RoomMessage>() {
+            @Override
+            public void onResponse(Call<RoomMessage> call, Response<RoomMessage> response) {
+                if (response.code() == 200) {
+                    callback.onSuccess(response.body());
+                } else {
+                    Log.e(TAG, "deleteRoomMessageAsync: " + response.code() + " " + response.message());
+                    callback.onError(new Exception(""));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<RoomMessage> call, Throwable t) {
+                callback.onError(t);
+            }
+        });
+    }
 }

@@ -54,6 +54,21 @@
     </LinearLayout>
 
     <ImageView
+        android:id="@+id/delete_message_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/selectableItemBackground"
+        android:paddingBottom="@dimen/message_bottom_bar_padding"
+        android:paddingLeft="@dimen/message_bottom_bar_item_padding"
+        android:paddingRight="@dimen/message_bottom_bar_item_padding"
+        android:paddingTop="@dimen/message_bottom_bar_padding"
+        android:src="@drawable/ic_remove"
+        android:tint="@color/secondary_text"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/more_option_message_view"
+        android:layout_toStartOf="@+id/more_option_message_view" />
+
+    <ImageView
         android:id="@+id/more_option_message_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

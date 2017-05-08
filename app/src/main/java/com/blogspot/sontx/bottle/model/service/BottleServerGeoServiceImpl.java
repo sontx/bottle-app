@@ -107,4 +107,34 @@ class BottleServerGeoServiceImpl extends BottleServerServiceBase implements Bott
         });
     }
 
+    @Override
+    public void deleteGeoMessageAsync(int messageId, final Callback<GeoMessage> callback) {
+        if (!App.getInstance().getBottleContext().isLogged()) {
+            callback.onError(new Exception("Unauthenticated"));
+            return;
+        }
+
+        BottleUser bottleUser = App.getInstance().getBottleContext().getCurrentBottleUser();
+
+        ApiMap apiMap = ApiClient.getClient(bottleUser.getToken()).create(ApiMap.class);
+
+        final Call<GeoMessage> call = apiMap.deleteMessage(messageId);
+
+        call.enqueue(new retrofit2.Callback<GeoMessage>() {
+            @Override
+            public void onResponse(Call<GeoMessage> call, Response<GeoMessage> response) {
+                if (response.code() == 200) {
+                    callback.onSuccess(response.body());
+                } else {
+                    Log.e(TAG, "deleteGeoMessageAsync: " + response.code() + " " + response.message());
+                    callback.onError(new Exception(""));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<GeoMessage> call, Throwable t) {
+                callback.onError(t);
+            }
+        });
+    }
 }

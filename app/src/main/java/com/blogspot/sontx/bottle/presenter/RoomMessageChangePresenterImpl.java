@@ -69,22 +69,26 @@ public class RoomMessageChangePresenterImpl extends PresenterBase implements Roo
     }
 
     private void acceptRoomMessageChangeAsync(final RoomMessageChanged roomMessageChanged) {
-        bottleServerRoomService.getRoomMessageAsync(roomMessageChanged.getId(), new Callback<RoomMessage>() {
-            @Override
-            public void onSuccess(RoomMessage result) {
-                String state = roomMessageChanged.getState();
+        if (!roomMessageChanged.getState().equals("delete")) {
+            bottleServerRoomService.getRoomMessageAsync(roomMessageChanged.getId(), new Callback<RoomMessage>() {
+                @Override
+                public void onSuccess(RoomMessage result) {
+                    String state = roomMessageChanged.getState();
 
-                if ("add".equals(state))
-                    roomMessageChangeView.addRoomMessage(result);
-                else if ("update".equals(state))
-                    roomMessageChangeView.updateRoomMessage(result);
-            }
+                    if ("add".equals(state))
+                        roomMessageChangeView.addRoomMessage(result);
+                    else if ("update".equals(state))
+                        roomMessageChangeView.updateRoomMessage(result);
+                }
 
-            @Override
-            public void onError(Throwable what) {
-                roomMessageChangeView.showErrorMessage(what);
-            }
-        });
+                @Override
+                public void onError(Throwable what) {
+                    roomMessageChangeView.showErrorMessage(what);
+                }
+            });
+        } else {
+            roomMessageChangeView.removeRoomMessage(roomMessageChanged.getId());
+        }
     }
 
     private String getTopic() {

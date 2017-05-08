@@ -91,6 +91,12 @@ public class HomeActivity extends ActivityBase implements
     }
 
     @Override
+    public void onDeleteMessageClick(MessageBase messageBase) {
+        ListRoomMessageFragment fragment = (ListRoomMessageFragment) ((HomeFragmentPagerAdapter) viewPager.getAdapter()).getRegisteredFragment(1);
+        fragment.removeMessage(messageBase);
+    }
+
+    @Override
     public void onGeoMessageClick(GeoMessage item) {
         GeoMessageDialog dialog = new GeoMessageDialog(this, item);
     }

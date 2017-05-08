@@ -9,4 +9,6 @@ public interface BottleServerGeoService extends ServiceBase {
     void editGeoMessageAsync(GeoMessage geoMessage, Callback<GeoMessage> callback);
 
     void getGeoMessageAsync(int messageId, Callback<GeoMessage> callback);
+
+    void deleteGeoMessageAsync(int messageId, Callback<GeoMessage> callback);
 }

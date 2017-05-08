@@ -13,4 +13,6 @@ public interface BottleServerRoomService extends ServiceBase {
     void editRoomMessageAsync(RoomMessage roomMessage, Callback<RoomMessage> callback);
 
     void getRoomMessageAsync(int messageId, Callback<RoomMessage> callback);
+
+    void deleteRoomMessageAsync(int roomMessageId, Callback<RoomMessage> callback);
 }

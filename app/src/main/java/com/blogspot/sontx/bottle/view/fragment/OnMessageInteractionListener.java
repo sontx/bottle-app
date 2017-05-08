@@ -8,4 +8,6 @@ public interface OnMessageInteractionListener {
     void onVoteMessageClick(MessageBase item);
 
     void onUpdateMessageClick(MessageBase messageBase);
+
+    void onDeleteMessageClick(MessageBase messageBase);
 }

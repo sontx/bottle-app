@@ -6,6 +6,7 @@ import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
@@ -28,4 +29,7 @@ public interface ApiMap {
 
     @PUT("geo/messages/{messageId}")
     Call<GeoMessage> editMessage(@Path("messageId") int messageId, @Body GeoMessage geoMessage);
+
+    @DELETE("geo/messages/{messageId}")
+    Call<GeoMessage> deleteMessage(@Path("messageId") int messageId);
 }

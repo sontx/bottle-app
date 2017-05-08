@@ -1,6 +1,8 @@
 package com.blogspot.sontx.bottle.view.adapter;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -61,6 +63,28 @@ public final class MessageAdapterHelper {
                 fireOnEditMessageClick(textViewHolder, currentUserId, listener);
             }
         });
+        textViewHolder.deleteView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fireOnDeleteMessageClick(textViewHolder, listener);
+            }
+        });
+    }
+
+    public static void fireOnDeleteMessageClick(final TextViewHolder textViewHolder, final OnMessageInteractionListener listener) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(textViewHolder.itemView.getContext());
+        builder.setMessage("Delete this message, are you sure?").setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (listener != null)
+                    listener.onDeleteMessageClick(textViewHolder.item);
+            }
+        }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        }).show();
     }
 
     public static void fireOnEditMessageClick(final TextViewHolder textViewHolder, final String currentUserId, final OnMessageInteractionListener listener) {
@@ -114,10 +138,12 @@ public final class MessageAdapterHelper {
             textViewHolder.voteMessageView.setVisibility(View.GONE);
             textViewHolder.directMessageView.setVisibility(View.GONE);
             textViewHolder.moreOptionView.setVisibility(View.VISIBLE);
+            textViewHolder.deleteView.setVisibility(View.VISIBLE);
         } else {
             textViewHolder.voteMessageView.setVisibility(View.VISIBLE);
             textViewHolder.directMessageView.setVisibility(View.VISIBLE);
             textViewHolder.moreOptionView.setVisibility(View.GONE);
+            textViewHolder.deleteView.setVisibility(View.GONE);
         }
     }
 
@@ -126,6 +152,7 @@ public final class MessageAdapterHelper {
             textViewHolder.voteMessageView.setVisibility(View.GONE);
             textViewHolder.directMessageView.setVisibility(View.GONE);
             textViewHolder.moreOptionView.setVisibility(View.GONE);
+            textViewHolder.deleteView.setVisibility(View.GONE);
             textViewHolder.ignoreEditView.setVisibility(View.VISIBLE);
             textViewHolder.applyEditView.setVisibility(View.VISIBLE);
 
@@ -166,6 +193,7 @@ public final class MessageAdapterHelper {
         public final View voteMessageView;
         public final View interactionView;
         public final View moreOptionView;
+        public final View deleteView;
         final TextView editTextContentView;
         public final View ignoreEditView;
         public final View applyEditView;
@@ -184,6 +212,7 @@ public final class MessageAdapterHelper {
             interactionView = ButterKnife.findById(view, R.id.interaction_layout);
             moreOptionView = ButterKnife.findById(view, R.id.more_option_message_view);
             editTextContentView = ButterKnife.findById(view, R.id.edit_text_content_view);
+            deleteView = ButterKnife.findById(view, R.id.delete_message_view);
             ignoreEditView = ButterKnife.findById(view, R.id.ignore_change_view);
             applyEditView = ButterKnife.findById(view, R.id.apply_change_view);
         }

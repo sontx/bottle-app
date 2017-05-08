@@ -60,6 +60,8 @@ public class GeoMessageDialog implements OnClickListener {
             dialog.dismiss();
         } else if (view.getId() == textViewHolder.voteMessageView.getId()) {
             MessageAdapterHelper.fireOnVoteMessageClick(listener, textViewHolder);
+        } else if (view.getId() == textViewHolder.deleteView.getId()) {
+
         } else if (view.getId() == textViewHolder.moreOptionView.getId()) {
             MessageAdapterHelper.fireOnEditMessageClick(textViewHolder, currentUserId, listener);
         } else if (view.getId() == textViewHolder.ignoreEditView.getId()) {

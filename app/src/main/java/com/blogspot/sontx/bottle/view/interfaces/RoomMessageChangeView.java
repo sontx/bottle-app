@@ -6,4 +6,6 @@ public interface RoomMessageChangeView extends ViewBase {
     void addRoomMessage(RoomMessage message);
 
     void updateRoomMessage(RoomMessage message);
+
+    void removeRoomMessage(int messageId);
 }
