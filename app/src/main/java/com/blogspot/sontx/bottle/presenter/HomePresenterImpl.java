@@ -2,6 +2,7 @@ package com.blogspot.sontx.bottle.presenter;
 
 import android.util.Log;
 
+import com.blogspot.sontx.bottle.App;
 import com.blogspot.sontx.bottle.model.bean.GeoMessage;
 import com.blogspot.sontx.bottle.model.bean.MessageBase;
 import com.blogspot.sontx.bottle.model.bean.PublicProfile;
@@ -9,10 +10,14 @@ import com.blogspot.sontx.bottle.model.bean.RoomMessage;
 import com.blogspot.sontx.bottle.model.bean.chat.Channel;
 import com.blogspot.sontx.bottle.model.service.Callback;
 import com.blogspot.sontx.bottle.model.service.FirebaseServicePool;
+import com.blogspot.sontx.bottle.model.service.SimpleCallback;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerGeoService;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerRoomService;
+import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerStompService;
 import com.blogspot.sontx.bottle.model.service.interfaces.ChannelService;
+import com.blogspot.sontx.bottle.model.service.interfaces.ChatServerLoginService;
 import com.blogspot.sontx.bottle.presenter.interfaces.HomePresenter;
+import com.blogspot.sontx.bottle.system.provider.Auth2Provider;
 import com.blogspot.sontx.bottle.view.interfaces.HomeView;
 
 import java.util.List;
@@ -73,6 +78,27 @@ public class HomePresenterImpl extends PresenterBase implements HomePresenter {
     @Override
     public void onClose() {
         FirebaseServicePool.getInstance().getBottleServerStompService().disconnect();
+    }
+
+    @Override
+    public void logout() {
+        BottleServerStompService bottleServerStompService = FirebaseServicePool.getInstance().getBottleServerStompService();
+        bottleServerStompService.disconnect();
+
+        FirebaseServicePool.getInstance().clearCached();
+
+        Auth2Provider currentProvider = App.getInstance().getBottleContext().getCurrentAuth2Provider();
+        if (currentProvider != null)
+            currentProvider.logout();
+
+        ChatServerLoginService chatServerLoginService = FirebaseServicePool.getInstance().getChatServerLoginService();
+        chatServerLoginService.signOut(new SimpleCallback<String>() {
+            @Override
+            public void onCallback(String value) {
+                homeView.updateUIAfterLogout();
+                Log.d(TAG, "logout");
+            }
+        });
     }
 
     private class UpdateMessageHandler<T extends MessageBase> implements Callback<T> {

@@ -11,4 +11,6 @@ public interface HomePresenter {
     void updateMessageAsync(MessageBase messageBase);
 
     void onClose();
+
+    void logout();
 }

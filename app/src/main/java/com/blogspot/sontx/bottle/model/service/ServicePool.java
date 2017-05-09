@@ -20,6 +20,8 @@ import com.blogspot.sontx.bottle.model.service.interfaces.PublicProfileService;
 public interface ServicePool {
     void initialize(Context context);
 
+    void clearCached();
+
     BottleServerAuthService getBottleServerAuthService();
 
     BottleServerCategoryService getBottleServerCategoryService();

@@ -50,5 +50,12 @@ public final class BottleContextWrapper {
         BottleContextImpl() {
             resource = new Resource(System.getProperty(Constants.BOTTLE_FS_STORAGE_URL_KEY));
         }
+
+        @Override
+        public void clear() {
+            currentBottleUser = null;
+            currentPublicProfile = null;
+            currentUserSetting = null;
+        }
     }
 }

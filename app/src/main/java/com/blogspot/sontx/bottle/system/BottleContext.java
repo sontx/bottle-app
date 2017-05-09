@@ -31,4 +31,6 @@ public abstract class BottleContext {
 
     @Getter
     protected Context appContext;
+
+    public abstract void clear();
 }

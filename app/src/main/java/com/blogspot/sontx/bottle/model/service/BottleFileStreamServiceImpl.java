@@ -66,4 +66,9 @@ class BottleFileStreamServiceImpl implements BottleFileStreamService {
             }
         });
     }
+
+    @Override
+    public void clearCached() {
+
+    }
 }

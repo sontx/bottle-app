@@ -1,26 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <Button
-        android:layout_gravity="center_horizontal|center_vertical"
-        android:id="@+id/logout_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Logout"/>
+    android:layout_height="match_parent"
+    android:background="@color/background_gray_light">
 
-    <EditText
-        android:id="@+id/friend_id_view"
+    <FrameLayout
+        android:background="@color/background_white"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:id="@+id/me_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackground"
+            android:orientation="horizontal"
+            android:paddingBottom="@dimen/half_item_padding"
+            android:paddingLeft="@dimen/half_item_padding"
+            android:paddingRight="@dimen/half_item_padding"
+            android:paddingTop="@dimen/half_item_padding">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/avatar_view"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
+                android:layout_marginRight="@dimen/sheet_spacing"
+                android:src="@mipmap/ic_launcher" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/title_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
+                    android:text="Title"
+                    android:textColor="@color/primary"
+                    android:textSize="16dp"
+                    android:textStyle="bold" />
+
+                <com.vanniktech.emoji.EmojiTextView
+                    android:id="@+id/detail_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignLeft="@+id/title_view"
+                    android:layout_below="@+id/title_view"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="subtitle"
+                    android:textColor="@color/secondary_text"
+                    android:textSize="12dp" />
+            </RelativeLayout>
+        </LinearLayout>
+    </FrameLayout>
+
+    <Button
+        android:id="@+id/logout_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="uevDn10DswM057WIhhn0pKOwuA22"/>
-
-    <Button
-        android:layout_gravity="center_horizontal|center_vertical"
-        android:id="@+id/chat_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Chat" />
-</LinearLayout>
+        android:layout_alignParentBottom="true"
+        android:text="Logout" />
+</RelativeLayout>

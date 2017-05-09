@@ -21,6 +21,12 @@ class BottleServerMessageServiceImpl extends BottleServerServiceBase implements 
     private List<RoomMessage> cachedRoomMessages = null;
 
     @Override
+    public void clearCached() {
+        super.clearCached();
+        cachedRoomMessages = null;
+    }
+
+    @Override
     public void getRoomMessages(int roomId, int page, int pageSize, final Callback<List<RoomMessage>> callback) {
         if (cachedRoomMessages != null) {
             if (page == 0) {

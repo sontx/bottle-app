@@ -1,11 +1,14 @@
 package com.blogspot.sontx.bottle.view.activity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 
+import com.blogspot.sontx.bottle.App;
 import com.blogspot.sontx.bottle.R;
 import com.blogspot.sontx.bottle.model.bean.GeoMessage;
 import com.blogspot.sontx.bottle.model.bean.MessageBase;
@@ -19,6 +22,7 @@ import com.blogspot.sontx.bottle.view.fragment.ListChannelFragment;
 import com.blogspot.sontx.bottle.view.fragment.ListGeoMessageFragment;
 import com.blogspot.sontx.bottle.view.fragment.ListRoomMessageFragment;
 import com.blogspot.sontx.bottle.view.fragment.OnFragmentVisibleChangedListener;
+import com.blogspot.sontx.bottle.view.fragment.SettingFragment;
 import com.blogspot.sontx.bottle.view.interfaces.HomeView;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnTabSelectListener;
@@ -30,6 +34,7 @@ public class HomeActivity extends ActivityBase implements
         ListRoomMessageFragment.OnListRoomMessageInteractionListener,
         ListGeoMessageFragment.OnListGeoMessageInteractionListener,
         ListChannelFragment.OnChannelInteractionListener,
+        SettingFragment.OnSettingFragmentInteractionListener,
         HomeView,
         OnTabSelectListener,
         ViewPager.OnPageChangeListener {
@@ -131,6 +136,13 @@ public class HomeActivity extends ActivityBase implements
     }
 
     @Override
+    public void updateUIAfterLogout() {
+        App.getInstance().getBottleContext().clear();
+        startActivity(new Intent(this, LoginActivity.class));
+        finish();
+    }
+
+    @Override
     public void onTabSelected(@IdRes int tabId) {
 
         if (tabId == R.id.tab_chat) {
@@ -144,7 +156,7 @@ public class HomeActivity extends ActivityBase implements
             viewPager.setCurrentItem(2);
         } else if (tabId == R.id.tab_setting) {
             changeStatusBarColor(R.color.tab_setting_color);
-            viewPager.setCurrentItem(2);
+            viewPager.setCurrentItem(3);
         }
     }
 
@@ -172,5 +184,21 @@ public class HomeActivity extends ActivityBase implements
 
     @Override
     public void onPageScrollStateChanged(int state) {
+    }
+
+    @Override
+    public void logoutClick() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Logout, are you sure?").setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                homePresenter.logout();
+            }
+        }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        }).show();
     }
 }

@@ -34,6 +34,16 @@ public final class FirebaseServicePool extends ServicePoolBase {
     }
 
     @Override
+    public void clearCached() {
+        super.clearCached();
+        chatServerLoginService.clearCached();
+        privateProfileService.clearCached();
+        publicProfileService.clearCached();
+        chatService.clearCached();
+        channelService.clearCached();
+    }
+
+    @Override
     public void initialize(Context context) {
         super.initialize(context);
 

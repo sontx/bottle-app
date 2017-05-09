@@ -53,6 +53,14 @@ class FirebaseChatService extends FirebaseServiceBase implements ChatService {
     }
 
     @Override
+    public void clearCached() {
+        super.clearCached();
+        onNewChatMessage = null;
+        onChatMessageChanged = null;
+        unregisterAllChannels();
+    }
+
+    @Override
     public void getMoreMessages(final String channelId, long startAt, int limit, final Callback<List<ChatMessage>> callback) {
         Log.d(TAG, "getMoreMessages -> " + channelId);
 

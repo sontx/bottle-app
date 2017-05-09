@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import com.blogspot.sontx.bottle.view.fragment.ListChannelFragment;
 import com.blogspot.sontx.bottle.view.fragment.ListGeoMessageFragment;
 import com.blogspot.sontx.bottle.view.fragment.ListRoomMessageFragment;
+import com.blogspot.sontx.bottle.view.fragment.SettingFragment;
 
 public class HomeFragmentPagerAdapter extends FragmentPagerAdapter {
     private SparseArray<Fragment> fragmentSparseArray;
@@ -24,7 +25,7 @@ public class HomeFragmentPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public int getCount() {
-        return 3;
+        return 4;
     }
 
     @Override
@@ -35,6 +36,8 @@ public class HomeFragmentPagerAdapter extends FragmentPagerAdapter {
             return ListRoomMessageFragment.newInstance(1);
         if (position == 2)
             return ListGeoMessageFragment.newInstance();
+        if (position == 3)
+            return SettingFragment.newInstance();
         return null;
     }
 

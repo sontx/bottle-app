@@ -16,4 +16,8 @@ abstract class FirebaseServiceBase implements ServiceBase {
     public void setContext(Context context) {
         Firebase.setAndroidContext(context);
     }
+
+    @Override
+    public void clearCached() {
+    }
 }

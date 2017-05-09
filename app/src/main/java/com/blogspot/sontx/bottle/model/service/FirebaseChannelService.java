@@ -54,6 +54,12 @@ class FirebaseChannelService extends FirebaseServiceBase implements ChannelServi
     }
 
     @Override
+    public void clearCached() {
+        super.clearCached();
+        cachedChannels = null;
+    }
+
+    @Override
     public void getCurrentChannelsAsync(final Callback<List<Channel>> callback) {
         if (cachedChannels != null) {
             callback.onSuccess(cachedChannels);

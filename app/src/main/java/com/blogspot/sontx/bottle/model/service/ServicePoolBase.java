@@ -43,6 +43,19 @@ abstract class ServicePoolBase implements ServicePool {
     private BottleServerStompService bottleServerStompService;
 
     @Override
+    public void clearCached() {
+        bottleServerAuthService.clearCached();
+        bottleServerCategoryService.clearCached();
+        bottleServerGeoService.clearCached();
+        bottleServerRoomService.clearCached();
+        bottleServerMessageService.clearCached();
+        bottleServerUserSettingService.clearCached();
+        bottleFileStreamService.clearCached();
+        bottleServerChatService.clearCached();
+        bottleServerStompService.clearCached();
+    }
+
+    @Override
     public void initialize(Context context) {
         bottleServerAuthService = new BottleServerAuthImpl();
         bottleServerCategoryService = new BottleServerCategoryServiceImpl();

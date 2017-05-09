@@ -18,6 +18,12 @@ class BottleServerUserSettingServiceImpl extends BottleServerServiceBase impleme
     private UserSetting currentUserSetting;
 
     @Override
+    public void clearCached() {
+        super.clearCached();
+        currentUserSetting = null;
+    }
+
+    @Override
     public void getUserSettingAsync(final Callback<UserSetting> callback) {
         if (currentUserSetting != null) {
             callback.onSuccess(currentUserSetting);

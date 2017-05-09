@@ -8,4 +8,6 @@ public interface HomeView extends ViewBase {
     void startChatWithExistingChannel(String channelId);
 
     void startChatWithAnotherGuy(String anotherGuyId);
+
+    void updateUIAfterLogout();
 }
