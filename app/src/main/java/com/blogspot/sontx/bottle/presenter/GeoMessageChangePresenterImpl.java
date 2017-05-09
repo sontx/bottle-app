@@ -58,10 +58,14 @@ public class GeoMessageChangePresenterImpl extends PresenterBase implements GeoM
     }
 
     private void acceptGeoMessageChangeAsync(final GeoMessageChanged geoMessageChanged) {
-        if ("delete".equals(geoMessageChanged.getState())) {
+        if (!"delete".equals(geoMessageChanged.getState())) {
             bottleServerGeoService.getGeoMessageAsync(geoMessageChanged.getId(), new Callback<GeoMessage>() {
                 @Override
                 public void onSuccess(GeoMessage result) {
+                    String currentUserId = App.getInstance().getBottleContext().getCurrentBottleUser().getUid();
+                    if (result.getOwner().getId().equals(currentUserId))
+                        return;
+
                     String state = geoMessageChanged.getState();
 
                     if ("add".equals(state))

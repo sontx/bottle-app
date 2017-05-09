@@ -22,6 +22,7 @@ import ua.naiksoftware.stomp.client.StompMessage;
 
 class BottleServerStompServiceImpl extends BottleServerServiceBase implements BottleServerStompService {
     private final StompClient client;
+    private boolean connected = false;
 
     public BottleServerStompServiceImpl() {
         String endpointUrl = System.getProperty(Constants.BOTTLE_SERVER_STOMP_ENDPOINT_KEY);
@@ -30,6 +31,9 @@ class BottleServerStompServiceImpl extends BottleServerServiceBase implements Bo
 
     @Override
     public void reconnect(final Callback<Void> callback) {
+        if (connected)
+            return;
+
         if (!App.getInstance().getBottleContext().isLogged()) {
             callback.onError(new Exception("Unauthenticated"));
             return;
@@ -64,11 +68,13 @@ class BottleServerStompServiceImpl extends BottleServerServiceBase implements Bo
             }
         });
         client.connect(headers, true);
+        connected = true;
     }
 
     @Override
     public void disconnect() {
         client.disconnect();
+        connected = false;
     }
 
     @Override

@@ -9,12 +9,14 @@ import com.blogspot.sontx.bottle.model.bean.UploadResult;
 import com.blogspot.sontx.bottle.model.bean.UserSetting;
 import com.blogspot.sontx.bottle.model.service.Callback;
 import com.blogspot.sontx.bottle.model.service.FirebaseServicePool;
+import com.blogspot.sontx.bottle.model.service.SimpleCallback;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleFileStreamService;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerGeoService;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerMessageService;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerUserSettingService;
 import com.blogspot.sontx.bottle.presenter.interfaces.GeoMessagePresenter;
 import com.blogspot.sontx.bottle.utils.StringUtils;
+import com.blogspot.sontx.bottle.utils.ThreadUtils;
 import com.blogspot.sontx.bottle.view.interfaces.MapMessageView;
 
 import java.util.List;
@@ -26,6 +28,7 @@ public class GeoMessagePresenterImpl implements GeoMessagePresenter {
     private final BottleFileStreamService bottleFileStreamService;
     private final BottleServerUserSettingService bottleServerUserSettingService;
     private final PublicProfile currentPublicProfile;
+    private GeoMessage currentUserGeoMessageCached;
 
     public GeoMessagePresenterImpl(MapMessageView mapMessageView) {
         this.mapMessageView = mapMessageView;
@@ -48,7 +51,19 @@ public class GeoMessagePresenterImpl implements GeoMessagePresenter {
                 new Callback<List<GeoMessage>>() {
 
                     @Override
-                    public void onSuccess(List<GeoMessage> result) {
+                    public void onSuccess(final List<GeoMessage> result) {
+                        ThreadUtils.run(new Runnable() {
+                            @Override
+                            public void run() {
+                                for (GeoMessage geoMessage : result) {
+                                    if (geoMessage.getOwner().getId().equals(currentPublicProfile.getId())) {
+                                        currentUserGeoMessageCached = geoMessage;
+                                        break;
+                                    }
+                                }
+                            }
+                        });
+
                         mapMessageView.showMapMessages(result);
                     }
 
@@ -136,7 +151,9 @@ public class GeoMessagePresenterImpl implements GeoMessagePresenter {
         bottleServerGeoService.deleteGeoMessageAsync(geoMessageId, new Callback<GeoMessage>() {
             @Override
             public void onSuccess(GeoMessage result) {
-                // nothing here
+                currentUserGeoMessageCached = null;
+                UserSetting currentUserSetting = App.getInstance().getBottleContext().getCurrentUserSetting();
+                currentUserSetting.setMessageId(-1);
             }
 
             @Override
@@ -146,10 +163,36 @@ public class GeoMessagePresenterImpl implements GeoMessagePresenter {
         });
     }
 
+    @Override
+    public void getCurrentUserGeoMessageAsync(final SimpleCallback<GeoMessage> callback) {
+        if (currentUserGeoMessageCached != null) {
+            callback.onCallback(currentUserGeoMessageCached);
+        } else {
+            int messageId = App.getInstance().getBottleContext().getCurrentUserSetting().getMessageId();
+            if (messageId >= 0) {
+                bottleServerGeoService.getGeoMessageAsync(messageId, new Callback<GeoMessage>() {
+                    @Override
+                    public void onSuccess(GeoMessage result) {
+                        currentUserGeoMessageCached = result;
+                        callback.onCallback(result);
+                    }
+
+                    @Override
+                    public void onError(Throwable what) {
+                        mapMessageView.showErrorMessage(what);
+                    }
+                });
+            }
+        }
+    }
+
     private void postGeoMessageAsync(final GeoMessage tempGeoMessage) {
         bottleServerGeoService.postGeoMessageAsync(tempGeoMessage, new Callback<GeoMessage>() {
             @Override
             public void onSuccess(GeoMessage result) {
+                currentUserGeoMessageCached = result;
+                UserSetting currentUserSetting = App.getInstance().getBottleContext().getCurrentUserSetting();
+                currentUserSetting.setMessageId(result.getId());
                 mapMessageView.updateGeoMessage(result, tempGeoMessage);
             }
 

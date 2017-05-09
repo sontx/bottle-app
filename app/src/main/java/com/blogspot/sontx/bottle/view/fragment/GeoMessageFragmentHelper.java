@@ -27,12 +27,16 @@ final class GeoMessageFragmentHelper {
         UserSetting userSetting = App.getInstance().getBottleContext().getCurrentUserSetting();
         Coordination currentLocation = userSetting.getCurrentLocation();
         LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 13.5F);
-        map.moveCamera(cameraUpdate);
+        moveCamera(map, latLng);
         map.addMarker(new MarkerOptions()
                 .position(latLng)
                 .title("Your Location")
                 .draggable(true));
+    }
+
+    static void moveCamera(GoogleMap map, LatLng latLng) {
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 13.5F);
+        map.moveCamera(cameraUpdate);
     }
 
     static abstract class MarkerTask<A, B, C> extends AsyncTask<A, B, C> {

@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,10 +17,12 @@ import com.blogspot.sontx.bottle.model.bean.Coordination;
 import com.blogspot.sontx.bottle.model.bean.GeoMessage;
 import com.blogspot.sontx.bottle.model.bean.MessageBase;
 import com.blogspot.sontx.bottle.model.bean.UserSetting;
+import com.blogspot.sontx.bottle.model.service.SimpleCallback;
 import com.blogspot.sontx.bottle.presenter.GeoMessageChangePresenterImpl;
 import com.blogspot.sontx.bottle.presenter.GeoMessagePresenterImpl;
 import com.blogspot.sontx.bottle.presenter.interfaces.GeoMessageChangePresenter;
 import com.blogspot.sontx.bottle.presenter.interfaces.GeoMessagePresenter;
+import com.blogspot.sontx.bottle.utils.LocationUtils;
 import com.blogspot.sontx.bottle.view.activity.WriteMessageActivity;
 import com.blogspot.sontx.bottle.view.adapter.GeoMessageInfoWindowAdapter;
 import com.blogspot.sontx.bottle.view.interfaces.GeoMessageChangeView;
@@ -37,19 +38,17 @@ import com.google.android.gms.maps.model.Marker;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.ButterKnife;
-
 public class ListGeoMessageFragment extends FragmentBase implements
         OnMapReadyCallback,
         MapMessageView,
         GoogleMap.OnCameraIdleListener,
         GoogleMap.OnInfoWindowClickListener,
-        View.OnClickListener,
         GoogleMap.OnMarkerDragListener,
         GoogleMap.OnMarkerClickListener,
         GoogleMap.OnInfoWindowCloseListener,
         GeoMessageChangeView,
-        OnFragmentVisibleChangedListener {
+        OnFragmentVisibleChangedListener,
+        GeoMessageFragmentFabHelper.OnFabItemClickListener {
 
     private static final int REQUEST_CODE_NEW_ROOM_MESSAGE = 1;
     private OnListGeoMessageInteractionListener listener;
@@ -60,7 +59,7 @@ public class ListGeoMessageFragment extends FragmentBase implements
     private GeoMessageMarkerPool markerPool;
     private MapView mapView;
     private GoogleMap map;
-    private FloatingActionButton fab;
+    private GeoMessageFragmentFabHelper geoMessageFragmentFabHelper;
 
     public ListGeoMessageFragment() {
     }
@@ -87,10 +86,6 @@ public class ListGeoMessageFragment extends FragmentBase implements
 
         lastLatLngBounds = null;
         preventUpdateMoreMessages = false;
-
-        fab = ButterKnife.findById(view, R.id.fab);
-        fab.setOnClickListener(this);
-        fab.setVisibility(View.GONE);
 
         mapView = (MapView) view.findViewById(R.id.map_view);
         mapView.onCreate(savedInstanceState);
@@ -173,18 +168,16 @@ public class ListGeoMessageFragment extends FragmentBase implements
         map.setOnMarkerDragListener(this);
 
         map.getUiSettings().setMyLocationButtonEnabled(false);
-
         map.setMyLocationEnabled(true);
         MapsInitializer.initialize(this.getActivity());
-
         GeoMessageFragmentHelper.showMyLocation(map);
-
-        UserSetting userSetting = App.getInstance().getBottleContext().getCurrentUserSetting();
         map.setInfoWindowAdapter(new GeoMessageInfoWindowAdapter(getActivity()));
 
-        fab.setVisibility(userSetting.getMessageId() > -1 ? View.GONE : View.VISIBLE);
-
         markerPool = new GeoMessageMarkerPool(getActivity(), map);
+
+        geoMessageFragmentFabHelper = new GeoMessageFragmentFabHelper(getActivity(), this);
+        geoMessageFragmentFabHelper.create();
+        geoMessageFragmentFabHelper.setVisible(false);
 
         geoMessageChangePresenter.subscribe();
     }
@@ -203,9 +196,6 @@ public class ListGeoMessageFragment extends FragmentBase implements
         geoMessages.add(addGeoMessage);
 
         new GeoMessageFragmentHelper.AddMarkersTask(markerPool, currentUserId, geoMessages).execute();
-
-        if (addGeoMessage.getOwner().getId().equals(currentUserId))
-            fab.setVisibility(View.GONE);
     }
 
     @Override
@@ -255,13 +245,6 @@ public class ListGeoMessageFragment extends FragmentBase implements
     }
 
     @Override
-    public void onClick(View v) {
-        Intent intent = new Intent(getContext(), WriteMessageActivity.class);
-        intent.putExtra(WriteMessageActivity.SUPPORT_EMOTION, true);
-        startActivityForResult(intent, REQUEST_CODE_NEW_ROOM_MESSAGE);
-    }
-
-    @Override
     public void onMarkerDragStart(Marker marker) {
 
     }
@@ -303,12 +286,52 @@ public class ListGeoMessageFragment extends FragmentBase implements
 
     @Override
     public void onFragmentVisibleChanged(boolean isVisible) {
+        geoMessageFragmentFabHelper.setVisible(isVisible);
     }
 
     public void removeMessage(MessageBase messageBase) {
         markerPool.removeMarkerByMessageId(messageBase.getId());
-        fab.setVisibility(View.VISIBLE);
         geoMessagePresenter.deleteGeoMessageAsync(messageBase.getId());
+    }
+
+    @Override
+    public void onFabMyLocationClick() {
+        UserSetting userSetting = App.getInstance().getBottleContext().getCurrentUserSetting();
+        Coordination currentLocation = userSetting.getCurrentLocation();
+        LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+        GeoMessageFragmentHelper.moveCamera(map, latLng);
+    }
+
+    @Override
+    public void onFabMyDeviceLocationClick() {
+        LocationUtils.getDeviceLocationAsync(getActivity(), new SimpleCallback<LatLng>() {
+            @Override
+            public void onCallback(LatLng value) {
+                GeoMessageFragmentHelper.moveCamera(map, value);
+            }
+        });
+    }
+
+    @Override
+    public void onFabMyGeoMessageLocationClick() {
+        UserSetting currentUserSetting = App.getInstance().getBottleContext().getCurrentUserSetting();
+        if (currentUserSetting.getMessageId() < 0) {
+            Intent intent = new Intent(getContext(), WriteMessageActivity.class);
+            intent.putExtra(WriteMessageActivity.SUPPORT_EMOTION, true);
+            startActivityForResult(intent, REQUEST_CODE_NEW_ROOM_MESSAGE);
+        } else {
+            geoMessagePresenter.getCurrentUserGeoMessageAsync(new SimpleCallback<GeoMessage>() {
+                @Override
+                public void onCallback(final GeoMessage value) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            GeoMessageFragmentHelper.moveCamera(map, new LatLng(value.getLatitude(), value.getLongitude()));
+                        }
+                    });
+                }
+            });
+        }
     }
 
     public interface OnListGeoMessageInteractionListener {

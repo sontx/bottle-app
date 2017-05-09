@@ -2,6 +2,7 @@ package com.blogspot.sontx.bottle.presenter.interfaces;
 
 import com.blogspot.sontx.bottle.model.bean.Coordination;
 import com.blogspot.sontx.bottle.model.bean.GeoMessage;
+import com.blogspot.sontx.bottle.model.service.SimpleCallback;
 
 public interface GeoMessagePresenter {
     void getMapMessagesAroundMyLocationAsync(double latitudeRadius, double longitudeRadius);
@@ -13,4 +14,6 @@ public interface GeoMessagePresenter {
     void updateCurrentUserLocationAsync(Coordination currentLocation);
 
     void deleteGeoMessageAsync(int geoMessageId);
+
+    void getCurrentUserGeoMessageAsync(SimpleCallback<GeoMessage> callback);
 }
