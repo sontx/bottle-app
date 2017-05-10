@@ -15,6 +15,7 @@ import com.blogspot.sontx.bottle.model.service.interfaces.PublicProfileService;
 import com.blogspot.sontx.bottle.presenter.interfaces.ListChannelPresenter;
 import com.blogspot.sontx.bottle.system.event.ChatChannelAddedEvent;
 import com.blogspot.sontx.bottle.system.event.ChatChannelChangedEvent;
+import com.blogspot.sontx.bottle.system.event.ChatChannelRemovedEvent;
 import com.blogspot.sontx.bottle.view.interfaces.ListChannelView;
 
 import org.greenrobot.eventbus.EventBus;
@@ -103,6 +104,14 @@ public class ListChannelPresenterImpl extends PresenterBase implements ListChann
         ChatService chatService = FirebaseServicePool.getInstance().getChatService();
         chatService.registerChannel(channel);
         listChannelView.showChannel(channel);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onChatChannelRemovedEvent(ChatChannelRemovedEvent chatChannelRemovedEvent) {
+        String channelId = chatChannelRemovedEvent.getChannelId();
+        ChatService chatService = FirebaseServicePool.getInstance().getChatService();
+        chatService.unregisterChannel(channelId);
+        listChannelView.removeChannel(channelId);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

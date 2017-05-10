@@ -1,9 +1,11 @@
 package com.blogspot.sontx.bottle.view.activity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
@@ -70,6 +72,7 @@ public class ChatActivity extends ActivityBase implements
                 chatPresenter.chatWith(anotherGuyId);
             } else {
                 finish();
+                return;
             }
 
         } else {
@@ -151,6 +154,20 @@ public class ChatActivity extends ActivityBase implements
     @Override
     public void setChatTitle(String displayName) {
         super.setTitle(displayName);
+    }
+
+    @Override
+    public void closeAfterDeletedChannel(Channel channel) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Channel is expired");
+        builder.setMessage("This chat channel is no longer available because it's inactived over 24H.");
+        builder.setPositiveButton("Close", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                finish();
+            }
+        });
+        builder.show();
     }
 
     @Override

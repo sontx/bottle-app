@@ -56,7 +56,6 @@ public class ListChannelFragment extends FragmentBase implements ListChannelView
         return view;
     }
 
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -86,24 +85,45 @@ public class ListChannelFragment extends FragmentBase implements ListChannelView
     public void showChannel(Channel channel) {
         if (channelRecyclerViewAdapter != null) {
             List<Channel> values = channelRecyclerViewAdapter.getValues();
-            for (int i = 0; i < values.size(); i++) {
-                Channel value = values.get(i);
-                if (value.getId().equalsIgnoreCase(channel.getId())) {
-                    values.set(i, channel);
-                    channelRecyclerViewAdapter.notifyItemChanged(i);
-                    return;
+            synchronized (this) {
+                for (int i = 0; i < values.size(); i++) {
+                    Channel value = values.get(i);
+                    if (value.getId().equalsIgnoreCase(channel.getId())) {
+                        values.set(i, channel);
+                        channelRecyclerViewAdapter.notifyItemChanged(i);
+                        return;
+                    }
                 }
+                values.add(0, channel);
+                channelRecyclerViewAdapter.notifyDataSetChanged();
             }
-            values.add(0, channel);
-            channelRecyclerViewAdapter.notifyDataSetChanged();
         }
     }
 
     @Override
     public void showChannels(List<Channel> channels) {
         if (channelRecyclerViewAdapter != null) {
-            channelRecyclerViewAdapter.getValues().addAll(channels);
-            channelRecyclerViewAdapter.notifyDataSetChanged();
+            synchronized (this) {
+                channelRecyclerViewAdapter.getValues().addAll(channels);
+                channelRecyclerViewAdapter.notifyDataSetChanged();
+            }
+        }
+    }
+
+    @Override
+    public void removeChannel(String channelId) {
+        if (channelRecyclerViewAdapter != null) {
+            synchronized (this) {
+                List<Channel> values = channelRecyclerViewAdapter.getValues();
+                for (int i = 0; i < values.size(); i++) {
+                    Channel value = values.get(i);
+                    if (value.getId().equals(channelId)) {
+                        values.remove(i);
+                        channelRecyclerViewAdapter.notifyItemRemoved(i);
+                        break;
+                    }
+                }
+            }
         }
     }
 

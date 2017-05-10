@@ -13,6 +13,7 @@ import com.blogspot.sontx.bottle.model.service.FirebaseServicePool;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerChatService;
 import com.blogspot.sontx.bottle.presenter.interfaces.ChannelPresenter;
 import com.blogspot.sontx.bottle.presenter.interfaces.ChatPresenter;
+import com.blogspot.sontx.bottle.system.event.ChatChannelRemovedEvent;
 import com.blogspot.sontx.bottle.system.event.ChatMessageChangedEvent;
 import com.blogspot.sontx.bottle.system.event.ChatMessageReceivedEvent;
 import com.blogspot.sontx.bottle.system.event.RegisterServiceEvent;
@@ -51,6 +52,7 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
     private Channel channel;
     private Queue<TempMessage> tempMessages = new ArrayDeque<>();
     private volatile boolean canLoadMore = true;
+    private String removedChannelId;
 
     public ChatPresenterImpl(ChatView chatView, String currentUserId) {
         this.chatView = chatView;
@@ -145,6 +147,14 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
      * --------------------------------- begin subscribe methods --------------------------------
      **/
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onChatChannelRemovedEvent(ChatChannelRemovedEvent chatChannelRemovedEvent) {
+        String channelId = chatChannelRemovedEvent.getChannelId();
+        removedChannelId = channelId;
+        if (isRemovedChannel())
+            chatView.closeAfterDeletedChannel(channel);
+    }
+
     @Subscribe
     public void onSendChatMessageResultEvent(SendChatMessageResultEvent sendChatMessageResultEvent) {
         ChatMessage result = sendChatMessageResultEvent.getResult();
@@ -232,6 +242,11 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
 
     private void startChat(Channel channel) {
         this.channel = channel;
+        if (isRemovedChannel()) {
+            chatView.closeAfterDeletedChannel(channel);
+            return;
+        }
+
         fetchChatMessages();
         ChannelMember anotherGuy = channel.getAnotherGuy();
         if (anotherGuy != null)
@@ -246,8 +261,12 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
         }
     }
 
+    private boolean isRemovedChannel() {
+        return !(removedChannelId == null || channel == null) && removedChannelId.equals(channel.getId());
+    }
+
     private void requestChatMessagesHistory(int count) {
-        if (!canLoadMore)
+        if (!canLoadMore || channel == null)
             return;
 
         canLoadMore = false;

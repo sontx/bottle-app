@@ -10,4 +10,6 @@ public interface ListChannelView extends ViewBase {
     void showChannel(Channel channel);
 
     void showChannels(List<Channel> channels);
+
+    void removeChannel(String channelId);
 }

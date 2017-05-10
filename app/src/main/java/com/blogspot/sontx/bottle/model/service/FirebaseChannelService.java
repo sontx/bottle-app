@@ -16,6 +16,7 @@ import com.blogspot.sontx.bottle.model.service.interfaces.ChannelService;
 import com.blogspot.sontx.bottle.model.service.interfaces.PublicProfileService;
 import com.blogspot.sontx.bottle.system.BottleContext;
 import com.blogspot.sontx.bottle.system.event.ChatChannelAddedEvent;
+import com.blogspot.sontx.bottle.system.event.ChatChannelRemovedEvent;
 import com.blogspot.sontx.bottle.utils.DateTimeUtils;
 import com.blogspot.sontx.bottle.utils.ThreadUtils;
 import com.google.firebase.database.DataSnapshot;
@@ -37,6 +38,9 @@ class FirebaseChannelService extends FirebaseServiceBase implements ChannelServi
     private final DatabaseReference channelMemberRef;
     private List<Channel> cachedChannels;
     private PublicProfileService publicProfileService;
+    private ChildEventAdapter childEventListener;
+    private DatabaseReference currentUserRef;
+    private String currentUserId;
 
     FirebaseChannelService(Context context, PublicProfileService publicProfileService) {
         super(context);
@@ -152,14 +156,82 @@ class FirebaseChannelService extends FirebaseServiceBase implements ChannelServi
 
     @Override
     public void registerChannelEvents() {
+        unregisterChannelEvents();
+
         BottleContext bottleContext = App.getInstance().getBottleContext();
         BottleUser bottleUser = bottleContext.getCurrentBottleUser();
-        final String currentUserId = bottleUser.getUid();
-        final PublicProfile currentPublicProfile = bottleContext.getCurrentPublicProfile();
+        String currentUserId = bottleUser.getUid();
+
+        if (this.currentUserId == null || !this.currentUserId.equals(currentUserId)) {
+            this.currentUserId = currentUserId;
+            currentUserRef = userChannelRef.child(currentUserId);
+        }
 
         cachedChannels = new ArrayList<>();
+        PublicProfile currentPublicProfile = bottleContext.getCurrentPublicProfile();
+        childEventListener = getChildEventListener(currentPublicProfile);
+        currentUserRef.addChildEventListener(childEventListener);
+    }
 
-        userChannelRef.child(currentUserId).addChildEventListener(new ChildEventAdapter() {
+    @Override
+    public void unregisterChannelEvents() {
+        if (childEventListener != null && userChannelRef != null) {
+            userChannelRef.removeEventListener(childEventListener);
+            childEventListener = null;
+            cachedChannels = null;
+        }
+    }
+
+    @Override
+    public boolean isCachedChannels() {
+        return cachedChannels != null;
+    }
+
+    @NonNull
+    private List<ChannelMember> createChannelMember(String currentUserId, String anotherMemberId, Channel channel) {
+        ChannelMember member1 = new ChannelMember();
+        member1.setId(currentUserId);
+        member1.setTimestamp(DateTimeUtils.utc());
+        channelMemberRef.child(channel.getId()).push().setValue(member1);
+
+        ChannelMember member2 = new ChannelMember();
+        member2.setId(anotherMemberId);
+        member2.setTimestamp(DateTimeUtils.utc());
+        channelMemberRef.child(channel.getId()).push().setValue(member2);
+
+        List<ChannelMember> members = new ArrayList<>();
+        members.add(member1);
+        members.add(member2);
+        return members;
+    }
+
+    @NonNull
+    private ChannelDetail createChannelDetail(Channel channel) {
+        ChannelDetail detail = new ChannelDetail();
+        detail.setLastMessage(null);
+        detail.setMessageType(ChatMessage.TYPE_NONE);
+        detail.setTimestamp(DateTimeUtils.utc());
+
+        channelDetailRef.child(channel.getId()).setValue(detail);
+        return detail;
+    }
+
+    @NonNull
+    private Channel createUserChannel(String currentUserId) {
+        DatabaseReference currentUserChannelRef = userChannelRef.child(currentUserId).push();
+        String channelId = currentUserChannelRef.getKey();
+
+        Channel channel = new Channel();
+        channel.setId(channelId);
+        channel.setTimestamp(DateTimeUtils.utc());
+
+        currentUserChannelRef.setValue(channel);
+        return channel;
+    }
+
+    @NonNull
+    private ChildEventAdapter getChildEventListener(final PublicProfile currentPublicProfile) {
+        return new ChildEventAdapter() {
             @Override
             public synchronized void onChildAdded(final DataSnapshot dataSnapshot, String s) {
                 ThreadUtils.run(new Runnable() {
@@ -168,6 +240,23 @@ class FirebaseChannelService extends FirebaseServiceBase implements ChannelServi
                         collectChannelInfo(dataSnapshot);
                     }
                 });
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                String channelId = dataSnapshot.getKey();
+                synchronized (this) {
+                    if (cachedChannels != null) {
+                        for (int i = 0; i < cachedChannels.size(); i++) {
+                            Channel cachedChannel = cachedChannels.get(i);
+                            if (cachedChannel.getId().equals(channelId)) {
+                                cachedChannels.remove(i);
+                                break;
+                            }
+                        }
+                    }
+                    broadcastRemoveChannelEvent(channelId);
+                }
             }
 
             private void collectChannelInfo(DataSnapshot dataSnapshot) {
@@ -231,72 +320,27 @@ class FirebaseChannelService extends FirebaseServiceBase implements ChannelServi
                 try {
                     countDownLatch.await(10, TimeUnit.SECONDS);
                     if (channel.isValid()) {
-                        cachedChannels.add(channel);
+                        synchronized (this) {
+                            cachedChannels.add(channel);
+                        }
                         broadcastAddChannelEvent(channel);
                     }
                 } catch (InterruptedException e) {
                     Log.d(TAG, e.getMessage());
                 }
             }
-        });
-    }
-
-    @Override
-    public void unregisterChannelEvents() {
-        BottleUser bottleUser = App.getInstance().getBottleContext().getCurrentBottleUser();
-        final String currentUserId = bottleUser.getUid();
-    }
-
-    @Override
-    public boolean isCachedChannels() {
-        return cachedChannels != null;
-    }
-
-    @NonNull
-    private List<ChannelMember> createChannelMember(String currentUserId, String anotherMemberId, Channel channel) {
-        ChannelMember member1 = new ChannelMember();
-        member1.setId(currentUserId);
-        member1.setTimestamp(DateTimeUtils.utc());
-        channelMemberRef.child(channel.getId()).push().setValue(member1);
-
-        ChannelMember member2 = new ChannelMember();
-        member2.setId(anotherMemberId);
-        member2.setTimestamp(DateTimeUtils.utc());
-        channelMemberRef.child(channel.getId()).push().setValue(member2);
-
-        List<ChannelMember> members = new ArrayList<>();
-        members.add(member1);
-        members.add(member2);
-        return members;
-    }
-
-    @NonNull
-    private ChannelDetail createChannelDetail(Channel channel) {
-        ChannelDetail detail = new ChannelDetail();
-        detail.setLastMessage(null);
-        detail.setMessageType(ChatMessage.TYPE_NONE);
-        detail.setTimestamp(DateTimeUtils.utc());
-
-        channelDetailRef.child(channel.getId()).setValue(detail);
-        return detail;
-    }
-
-    @NonNull
-    private Channel createUserChannel(String currentUserId) {
-        DatabaseReference currentUserChannelRef = userChannelRef.child(currentUserId).push();
-        String channelId = currentUserChannelRef.getKey();
-
-        Channel channel = new Channel();
-        channel.setId(channelId);
-        channel.setTimestamp(DateTimeUtils.utc());
-
-        currentUserChannelRef.setValue(channel);
-        return channel;
+        };
     }
 
     private void broadcastAddChannelEvent(Channel channel) {
         ChatChannelAddedEvent chatChannelAddedEvent = new ChatChannelAddedEvent();
         chatChannelAddedEvent.setChannel(channel);
         EventBus.getDefault().post(chatChannelAddedEvent);
+    }
+
+    private void broadcastRemoveChannelEvent(String channelId) {
+        ChatChannelRemovedEvent chatChannelRemovedEvent = new ChatChannelRemovedEvent();
+        chatChannelRemovedEvent.setChannelId(channelId);
+        EventBus.getDefault().post(chatChannelRemovedEvent);
     }
 }
