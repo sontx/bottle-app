@@ -17,6 +17,7 @@
       }
     },
     "channel_details": {
+      ".indexOn": "timestamp",
       "$channel": {
         ".read": "root.child('channel_members/' + $channel).child(auth.uid).exists()",
         ".write": "root.child('channel_members/' + $channel).child(auth.uid).exists()"
@@ -29,6 +30,7 @@
       }
     },
     "messages": {
+      ".indexOn": "timestamp",
       "$channel": {
         ".read": "root.child('channel_members/' + $channel).child(auth.uid).exists()",
         ".write": "root.child('channel_members/' + $channel).child(auth.uid).exists()",
@@ -36,8 +38,8 @@
           "senderId": {
             ".validate": "newData.val() == auth.uid"
           },
-          "message": {
-            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length < 255"
+          "message": { 
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length < 255" 
           },
           "messageType": {
             ".validate": "newData.isString() && root.child('config/supported_message_types').child(newData.val()).exists()"
@@ -45,11 +47,11 @@
           "state": {
             ".validate": "newData.isString() && ((!data.exists() && newData.val() == 'sending') || root.child('config/message_states').child(newData.val()).val() > root.child('config/message_states').child(data.val()).val())"
           },
-          "timestamp": {
-            ".validate": "newData.val() <= now"
+          "timestamp": { 
+            ".validate": "newData.val() <= now" 
           },
-          "$other": {
-            ".validate": false
+          "$other": { 
+            ".validate": false 
           }
         }
       }
