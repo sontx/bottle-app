@@ -69,9 +69,9 @@ public class HomePresenterImpl extends PresenterBase implements HomePresenter {
     @Override
     public void updateMessageAsync(MessageBase messageBase) {
         if (messageBase instanceof RoomMessage) {
-            bottleServerRoomService.editRoomMessageAsync((RoomMessage) messageBase, new UpdateMessageHandler<RoomMessage>());
+            bottleServerRoomService.editRoomMessageAsync((RoomMessage) messageBase, new UpdateMessageHandler<RoomMessage>(messageBase));
         } else if (messageBase instanceof GeoMessage) {
-            bottleServerGeoService.editGeoMessageAsync((GeoMessage) messageBase, new UpdateMessageHandler<GeoMessage>());
+            bottleServerGeoService.editGeoMessageAsync((GeoMessage) messageBase, new UpdateMessageHandler<GeoMessage>(messageBase));
         }
     }
 
@@ -102,10 +102,17 @@ public class HomePresenterImpl extends PresenterBase implements HomePresenter {
     }
 
     private class UpdateMessageHandler<T extends MessageBase> implements Callback<T> {
+        private final MessageBase messageBase;
+
+        UpdateMessageHandler(MessageBase messageBase) {
+            this.messageBase = messageBase;
+        }
 
         @Override
         public void onSuccess(T result) {
-            // do nothing
+            if (result == null) {
+                homeView.removeMessageAfterRemoved(messageBase);
+            }
         }
 
         @Override

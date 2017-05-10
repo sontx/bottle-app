@@ -96,8 +96,12 @@ class BottleServerRoomServiceImpl extends BottleServerServiceBase implements Bot
                 if (response.code() == 200) {
                     callback.onSuccess(response.body());
                 } else {
+                    if (response.code() == 400) {
+                        callback.onSuccess(null);
+                    } else {
+                        callback.onError(new Exception(""));
+                    }
                     Log.e(TAG, "editRoomMessageAsync: " + response.code() + " " + response.message());
-                    callback.onError(new Exception(""));
                 }
             }
 
@@ -127,8 +131,12 @@ class BottleServerRoomServiceImpl extends BottleServerServiceBase implements Bot
                 if (response.code() == 200) {
                     callback.onSuccess(response.body());
                 } else {
+                    if (response.code() == 400) {
+                        callback.onSuccess(null);
+                    } else {
+                        callback.onError(new Exception(""));
+                    }
                     Log.e(TAG, "getRoomMessageAsync: " + response.code() + " " + response.message());
-                    callback.onError(new Exception(""));
                 }
             }
 
@@ -158,8 +166,12 @@ class BottleServerRoomServiceImpl extends BottleServerServiceBase implements Bot
                 if (response.code() == 200) {
                     callback.onSuccess(response.body());
                 } else {
+                    if (response.code() == 400) {
+                        callback.onSuccess(null);
+                    } else {
+                        callback.onError(new Exception(""));
+                    }
                     Log.e(TAG, "deleteRoomMessageAsync: " + response.code() + " " + response.message());
-                    callback.onError(new Exception(""));
                 }
             }
 

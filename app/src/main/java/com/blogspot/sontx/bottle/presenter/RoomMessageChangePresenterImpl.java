@@ -73,6 +73,9 @@ public class RoomMessageChangePresenterImpl extends PresenterBase implements Roo
             bottleServerRoomService.getRoomMessageAsync(roomMessageChanged.getId(), new Callback<RoomMessage>() {
                 @Override
                 public void onSuccess(RoomMessage result) {
+                    if (result == null)
+                        return;
+
                     String state = roomMessageChanged.getState();
 
                     if ("add".equals(state))

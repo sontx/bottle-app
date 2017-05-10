@@ -1,5 +1,6 @@
 package com.blogspot.sontx.bottle.view.interfaces;
 
+import com.blogspot.sontx.bottle.model.bean.MessageBase;
 import com.blogspot.sontx.bottle.model.bean.chat.Channel;
 
 public interface HomeView extends ViewBase {
@@ -10,4 +11,6 @@ public interface HomeView extends ViewBase {
     void startChatWithAnotherGuy(String anotherGuyId);
 
     void updateUIAfterLogout();
+
+    void removeMessageAfterRemoved(MessageBase messageBase);
 }

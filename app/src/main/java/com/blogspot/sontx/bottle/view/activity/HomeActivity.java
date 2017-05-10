@@ -143,6 +143,33 @@ public class HomeActivity extends ActivityBase implements
     }
 
     @Override
+    public void removeMessageAfterRemoved(final MessageBase messageBase) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Message is expired");
+        String text = messageBase.getText();
+        text = text.length() > 50 ? text.substring(0, 47).concat("...") : text;
+        builder.setMessage(String.format("Message \"%s\" is no longer available because it's over 24H.", text));
+        builder.setPositiveButton("Remove", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (messageBase instanceof RoomMessage) {
+                    HomeFragmentPagerAdapter adapter = (HomeFragmentPagerAdapter) viewPager.getAdapter();
+                    ListRoomMessageFragment fragment = (ListRoomMessageFragment) adapter.getRegisteredFragment(1);
+                    fragment.removeMessage(messageBase);
+                }
+                dialog.dismiss();
+            }
+        });
+        builder.setNegativeButton("Keep it", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        builder.show();
+    }
+
+    @Override
     public void onTabSelected(@IdRes int tabId) {
 
         if (tabId == R.id.tab_chat) {
