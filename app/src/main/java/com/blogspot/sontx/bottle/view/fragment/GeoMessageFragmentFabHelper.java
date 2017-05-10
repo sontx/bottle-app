@@ -31,7 +31,7 @@ class GeoMessageFragmentFabHelper implements View.OnClickListener {
         floatingActionButton = new FloatingActionButton.Builder(activity)
                 .setTheme(FloatingActionButton.THEME_LIGHT)
                 .setContentView(fabContent)
-                .setPosition(FloatingActionButton.POSITION_BOTTOM_LEFT)
+                .setPosition(FloatingActionButton.POSITION_BOTTOM_RIGHT)
                 .build();
 
         SubActionButton.Builder rLSubBuilder = new SubActionButton.Builder(activity)
@@ -46,8 +46,8 @@ class GeoMessageFragmentFabHelper implements View.OnClickListener {
         rlIcon3.setImageResource(R.drawable.ic_insert_emoticon);
 
         floatingActionMenu = new FloatingActionMenu.Builder(activity)
-                .setStartAngle(0)
-                .setEndAngle(-90)
+                .setStartAngle(-90)
+                .setEndAngle(-180)
                 .setAnimationHandler(new DefaultAnimationHandler())
                 .addSubActionView(rLSubBuilder.setContentView(rlIcon1).build())
                 .addSubActionView(rLSubBuilder.setContentView(rlIcon2).build())

@@ -56,6 +56,7 @@ public class ListGeoMessageFragment extends FragmentBase implements
     private GeoMessageChangePresenter geoMessageChangePresenter;
     private LatLngBounds lastLatLngBounds;
     private boolean preventUpdateMoreMessages = false;
+    private boolean infoWindowIsShowing = false;
     private GeoMessageMarkerPool markerPool;
     private MapView mapView;
     private GoogleMap map;
@@ -276,17 +277,22 @@ public class ListGeoMessageFragment extends FragmentBase implements
     @Override
     public boolean onMarkerClick(Marker marker) {
         preventUpdateMoreMessages = true;
+        infoWindowIsShowing = true;
+        geoMessageFragmentFabHelper.setVisible(false);
         return false;
     }
 
     @Override
     public void onInfoWindowClose(Marker marker) {
         preventUpdateMoreMessages = false;
+        infoWindowIsShowing = false;
+        geoMessageFragmentFabHelper.setVisible(true);
     }
 
     @Override
     public void onFragmentVisibleChanged(boolean isVisible) {
-        geoMessageFragmentFabHelper.setVisible(isVisible);
+        if (!infoWindowIsShowing)
+            geoMessageFragmentFabHelper.setVisible(isVisible);
     }
 
     public void removeMessage(MessageBase messageBase) {
