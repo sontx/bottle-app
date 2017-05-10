@@ -5,16 +5,31 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.blogspot.sontx.bottle.R;
+import com.blogspot.sontx.bottle.presenter.SettingPresenterImpl;
+import com.blogspot.sontx.bottle.presenter.interfaces.SettingPresenter;
+import com.blogspot.sontx.bottle.view.interfaces.SettingView;
+import com.squareup.picasso.Picasso;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 
-public class SettingFragment extends FragmentBase {
+public class SettingFragment extends FragmentBase implements SettingView, OnFragmentVisibleChangedListener {
     private OnSettingFragmentInteractionListener listener;
     private Unbinder unbinder;
+    private SettingPresenter settingPresenter;
+
+    @BindView(R.id.avatar_view)
+    ImageView avatarView;
+    @BindView(R.id.title_view)
+    TextView displayNameView;
+    @BindView(R.id.detail_view)
+    TextView statusView;
 
     public SettingFragment() {
     }
@@ -26,6 +41,7 @@ public class SettingFragment extends FragmentBase {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        settingPresenter = new SettingPresenterImpl(this);
     }
 
     @Override
@@ -61,6 +77,27 @@ public class SettingFragment extends FragmentBase {
     void onLogoutClick() {
         if (listener != null)
             listener.logoutClick();
+    }
+
+    @Override
+    public void showDisplayName(String displayName) {
+        displayNameView.setText(displayName);
+    }
+
+    @Override
+    public void showAvatar(String avatarUrl) {
+        Picasso.with(avatarView.getContext()).load(avatarUrl).into(avatarView);
+    }
+
+    @Override
+    public void showStatus(String text) {
+        statusView.setText(text);
+    }
+
+    @Override
+    public void onFragmentVisibleChanged(boolean isVisible) {
+        if (isVisible)
+            settingPresenter.updateUI();
     }
 
     public interface OnSettingFragmentInteractionListener {
