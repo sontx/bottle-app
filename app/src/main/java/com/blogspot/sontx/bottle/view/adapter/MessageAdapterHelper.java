@@ -72,6 +72,12 @@ public final class MessageAdapterHelper {
     }
 
     public static void fireOnDeleteMessageClick(final TextViewHolder textViewHolder, final OnMessageInteractionListener listener) {
+        if (textViewHolder.item.getId() < 0) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(textViewHolder.itemView.getContext());
+            builder.setMessage("Your message is posting to server, wait a few minutes and try again.");
+            builder.show();
+            return;
+        }
         AlertDialog.Builder builder = new AlertDialog.Builder(textViewHolder.itemView.getContext());
         builder.setMessage("Delete this message, are you sure?").setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             @Override

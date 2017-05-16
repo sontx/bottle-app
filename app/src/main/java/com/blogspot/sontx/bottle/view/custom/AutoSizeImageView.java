@@ -22,6 +22,8 @@ public class AutoSizeImageView extends AppCompatImageView {
     private Marker marker;
     @Getter
     private boolean loaded = false;
+    @Getter
+    private String currentImageUrl;
 
     public AutoSizeImageView(Context context) {
         super(context);
@@ -107,8 +109,10 @@ public class AutoSizeImageView extends AppCompatImageView {
     }
 
     public void fixImage(final String url, Marker marker) {
+        this.currentImageUrl = url;
         loaded = false;
         this.marker = marker;
+        setImageBitmap(null);
         final Target target = new Target() {
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {

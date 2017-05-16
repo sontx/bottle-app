@@ -83,7 +83,7 @@ public class GeoMessageInfoWindowAdapter implements GoogleMap.InfoWindowAdapter 
         photoViewHolder.contentView.setText(geoMessage.getText());
 
         String url = resource.absoluteUrl(geoMessage.getMediaUrl());
-        if (!photoViewHolder.imageView.isLoaded())
+        if (!photoViewHolder.imageView.isLoaded() || !url.equals(photoViewHolder.imageView.getCurrentImageUrl()))
             photoViewHolder.imageView.fixImage(url, marker);
 
         return photoViewHolder.root;
