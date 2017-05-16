@@ -67,7 +67,11 @@ class BottleServerStompServiceImpl extends BottleServerServiceBase implements Bo
                 client.lifecycle().unsubscribeOn(Schedulers.newThread());
             }
         });
-        client.connect(headers, true);
+        try {
+            client.connect(headers, true);
+        } catch (IllegalStateException ignored) {
+            callback.onSuccess(null);
+        }
         connected = true;
     }
 

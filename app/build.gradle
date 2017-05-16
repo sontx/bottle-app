@@ -67,6 +67,7 @@ dependencies {
     compile 'com.google.firebase:firebase-core:10.2.0'
     compile 'com.google.firebase:firebase-auth:10.2.0'
     compile 'com.google.firebase:firebase-database:10.2.0'
+    compile 'com.google.firebase:firebase-storage:10.2.0'
     compile 'com.google.firebase:firebase-messaging:10.2.0'
     compile 'com.firebase:firebase-client-android:2.3.1'
     compile 'co.dift.ui.swipetoaction:library:1.1'

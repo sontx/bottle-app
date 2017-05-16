@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<tabs>
+    <tab
+        icon="@drawable/ic_lock_outline"
+        id="@+id/tab_logout"
+        activeColor="@color/primary_dark"
+        inActiveColor="@color/primary_dark"
+        title="Logout" />
+    <tab
+        icon="@drawable/ic_face"
+        id="@+id/tab_avatar"
+        activeColor="@color/primary_dark"
+        inActiveColor="@color/primary_dark"
+        title="Avatar" />
+    <tab
+        icon="@drawable/ic_font_download"
+        id="@+id/tab_display_name"
+        activeColor="@color/primary_dark"
+        inActiveColor="@color/primary_dark"
+        title="Display Name" />
+    <tab
+        icon="@drawable/ic_more_horiz2"
+        id="@+id/tab_about"
+        activeColor="@color/primary_dark"
+        inActiveColor="@color/primary_dark"
+        title="About" />
+</tabs>

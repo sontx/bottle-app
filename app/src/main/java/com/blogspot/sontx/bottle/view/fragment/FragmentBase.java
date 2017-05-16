@@ -100,6 +100,6 @@ abstract class FragmentBase extends Fragment implements ViewBase {
     @Nullable
     @Override
     public Context getContext() {
-        return getActivity();
+        return super.getContext();
     }
 }

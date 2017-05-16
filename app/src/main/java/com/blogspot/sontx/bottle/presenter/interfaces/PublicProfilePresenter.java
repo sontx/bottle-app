@@ -1,9 +1,11 @@
 package com.blogspot.sontx.bottle.presenter.interfaces;
 
-import com.blogspot.sontx.bottle.model.bean.PublicProfile;
+import java.io.File;
 
 public interface PublicProfilePresenter {
-    void updatePublicProfileAsync(PublicProfile publicProfile);
+    void updateDisplayNameAsync(String displayName);
+
+    void updateAvatarAsync(File avatarFile);
 
     void updatePublicProfileIfEmptyAsync();
 }

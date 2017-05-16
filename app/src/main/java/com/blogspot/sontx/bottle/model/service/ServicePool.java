@@ -8,6 +8,7 @@ import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerCategorySe
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerChatService;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerGeoService;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerMessageService;
+import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerProfileService;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerRoomService;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerStompService;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerUserSettingService;
@@ -39,6 +40,8 @@ public interface ServicePool {
     BottleServerChatService getBottleServerChatService();
 
     BottleServerStompService getBottleServerStompService();
+
+    BottleServerProfileService getBottleServerProfileService();
 
     ChatServerLoginService getChatServerLoginService();
 

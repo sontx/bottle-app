@@ -8,6 +8,7 @@ import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerCategorySe
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerChatService;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerGeoService;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerMessageService;
+import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerProfileService;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerRoomService;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerStompService;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerUserSettingService;
@@ -42,6 +43,9 @@ abstract class ServicePoolBase implements ServicePool {
     @Getter
     private BottleServerStompService bottleServerStompService;
 
+    @Getter
+    private BottleServerProfileService bottleServerProfileService;
+
     @Override
     public void clearCached() {
         bottleServerAuthService.clearCached();
@@ -53,6 +57,7 @@ abstract class ServicePoolBase implements ServicePool {
         bottleFileStreamService.clearCached();
         bottleServerChatService.clearCached();
         bottleServerStompService.clearCached();
+        bottleServerProfileService.clearCached();
     }
 
     @Override
@@ -66,5 +71,6 @@ abstract class ServicePoolBase implements ServicePool {
         bottleFileStreamService = new BottleFileStreamServiceImpl();
         bottleServerChatService = new BottleServerChatServiceImpl();
         bottleServerStompService = new BottleServerStompServiceImpl();
+        bottleServerProfileService = new BottleServerProfileServiceImpl();
     }
 }
