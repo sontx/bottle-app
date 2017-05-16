@@ -14,7 +14,7 @@
         android:paddingRight="@dimen/half_item_padding"
         android:paddingTop="@dimen/half_item_padding">
 
-        <ImageView
+        <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/image_view"
             android:layout_width="@dimen/avatar_size"
             android:layout_height="@dimen/avatar_size"
