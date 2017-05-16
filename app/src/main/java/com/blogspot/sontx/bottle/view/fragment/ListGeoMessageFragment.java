@@ -240,7 +240,7 @@ public class ListGeoMessageFragment extends FragmentBase implements
     @Override
     public void onInfoWindowClick(Marker marker) {
         GeoMessage geoMessage = (GeoMessage) marker.getTag();
-        if (listener != null)
+        if (listener != null && geoMessage != null)
             listener.onGeoMessageClick(geoMessage);
         marker.hideInfoWindow();
     }
