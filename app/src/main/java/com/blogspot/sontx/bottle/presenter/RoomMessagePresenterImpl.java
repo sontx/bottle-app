@@ -7,6 +7,7 @@ import com.blogspot.sontx.bottle.model.bean.Room;
 import com.blogspot.sontx.bottle.model.bean.RoomMessage;
 import com.blogspot.sontx.bottle.model.bean.UploadResult;
 import com.blogspot.sontx.bottle.model.bean.UserSetting;
+import com.blogspot.sontx.bottle.model.dummy.DummyAnimals;
 import com.blogspot.sontx.bottle.model.service.Callback;
 import com.blogspot.sontx.bottle.model.service.FirebaseServicePool;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleFileStreamService;
@@ -83,6 +84,12 @@ public class RoomMessagePresenterImpl extends PresenterBase implements RoomMessa
             @Override
             public void onSuccess(List<RoomMessage> result) {
                 currentPage++;
+                for (RoomMessage roomMessage : result) {
+                    if (roomMessage.getOwner().getId().equals(currentPublicProfile.getId()))
+                        continue;
+                    DummyAnimals.mix(roomMessage.getOwner());
+                }
+
                 listRoomMessageView.showRoomMessages(result);
             }
 

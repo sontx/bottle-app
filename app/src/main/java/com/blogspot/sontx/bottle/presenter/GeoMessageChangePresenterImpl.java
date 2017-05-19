@@ -5,6 +5,7 @@ import android.util.Log;
 import com.blogspot.sontx.bottle.App;
 import com.blogspot.sontx.bottle.model.bean.GeoMessage;
 import com.blogspot.sontx.bottle.model.bean.event.GeoMessageChanged;
+import com.blogspot.sontx.bottle.model.dummy.DummyAnimals;
 import com.blogspot.sontx.bottle.model.service.Callback;
 import com.blogspot.sontx.bottle.model.service.FirebaseServicePool;
 import com.blogspot.sontx.bottle.model.service.SimpleCallback;
@@ -67,6 +68,8 @@ public class GeoMessageChangePresenterImpl extends PresenterBase implements GeoM
                         return;
 
                     String state = geoMessageChanged.getState();
+
+                    DummyAnimals.mix(result.getOwner());
 
                     if ("add".equals(state))
                         geoMessageChangeView.addGeoMessage(result);

@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.blogspot.sontx.bottle.model.bean.RoomMessage;
 import com.blogspot.sontx.bottle.model.bean.event.RoomMessageChanged;
+import com.blogspot.sontx.bottle.model.dummy.DummyAnimals;
 import com.blogspot.sontx.bottle.model.service.Callback;
 import com.blogspot.sontx.bottle.model.service.FirebaseServicePool;
 import com.blogspot.sontx.bottle.model.service.SimpleCallback;
@@ -77,6 +78,8 @@ public class RoomMessageChangePresenterImpl extends PresenterBase implements Roo
                         return;
 
                     String state = roomMessageChanged.getState();
+
+                    DummyAnimals.mix(result.getOwner());
 
                     if ("add".equals(state))
                         roomMessageChangeView.addRoomMessage(result);

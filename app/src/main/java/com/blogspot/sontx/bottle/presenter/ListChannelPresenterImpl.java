@@ -7,6 +7,7 @@ import com.blogspot.sontx.bottle.model.bean.PublicProfile;
 import com.blogspot.sontx.bottle.model.bean.chat.Channel;
 import com.blogspot.sontx.bottle.model.bean.chat.ChannelDetail;
 import com.blogspot.sontx.bottle.model.bean.chat.ChannelMember;
+import com.blogspot.sontx.bottle.model.dummy.DummyAnimals;
 import com.blogspot.sontx.bottle.model.service.Callback;
 import com.blogspot.sontx.bottle.model.service.FirebaseServicePool;
 import com.blogspot.sontx.bottle.model.service.interfaces.ChannelService;
@@ -123,6 +124,7 @@ public class ListChannelPresenterImpl extends PresenterBase implements ListChann
         publicProfileService.getPublicProfileAsync(channelMember.getId(), new Callback<PublicProfile>() {
             @Override
             public void onSuccess(PublicProfile result) {
+                DummyAnimals.mix(result);
                 channelMember.setPublicProfile(result);
                 if (channel != null) {
                     listChannelView.showChannel(channel);

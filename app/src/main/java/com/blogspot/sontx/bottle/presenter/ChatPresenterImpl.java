@@ -8,6 +8,7 @@ import com.blogspot.sontx.bottle.model.bean.chat.Channel;
 import com.blogspot.sontx.bottle.model.bean.chat.ChannelMember;
 import com.blogspot.sontx.bottle.model.bean.chat.ChatMessage;
 import com.blogspot.sontx.bottle.model.bean.chat.CreateChannelResult;
+import com.blogspot.sontx.bottle.model.dummy.DummyAnimals;
 import com.blogspot.sontx.bottle.model.service.Callback;
 import com.blogspot.sontx.bottle.model.service.FirebaseServicePool;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerChatService;
@@ -117,6 +118,7 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
         channelPresenter.resolveChannelAsync(channelId, new Callback<Channel>() {
             @Override
             public void onSuccess(Channel result) {
+                DummyAnimals.mix(result.getAnotherGuy().getPublicProfile());
                 startChat(result);
             }
 

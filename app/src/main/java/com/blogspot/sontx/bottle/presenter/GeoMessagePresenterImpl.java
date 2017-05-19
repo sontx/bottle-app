@@ -7,6 +7,7 @@ import com.blogspot.sontx.bottle.model.bean.MessageBase;
 import com.blogspot.sontx.bottle.model.bean.PublicProfile;
 import com.blogspot.sontx.bottle.model.bean.UploadResult;
 import com.blogspot.sontx.bottle.model.bean.UserSetting;
+import com.blogspot.sontx.bottle.model.dummy.DummyAnimals;
 import com.blogspot.sontx.bottle.model.service.Callback;
 import com.blogspot.sontx.bottle.model.service.FirebaseServicePool;
 import com.blogspot.sontx.bottle.model.service.SimpleCallback;
@@ -58,7 +59,8 @@ public class GeoMessagePresenterImpl implements GeoMessagePresenter {
                                 for (GeoMessage geoMessage : result) {
                                     if (geoMessage.getOwner().getId().equals(currentPublicProfile.getId())) {
                                         currentUserGeoMessageCached = geoMessage;
-                                        break;
+                                    } else {
+                                        DummyAnimals.mix(geoMessage.getOwner());
                                     }
                                 }
                             }

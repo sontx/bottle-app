@@ -4,7 +4,7 @@ public final class Resource {
     private String bottlefsServer;
 
     public String absoluteUrl(String relativeUrl) {
-        if (relativeUrl.startsWith("http"))
+        if (relativeUrl.startsWith("http://") || relativeUrl.startsWith("https://") || relativeUrl.startsWith("file://"))
             return relativeUrl;
         else if (relativeUrl.startsWith("/"))
             return "file://" + relativeUrl;

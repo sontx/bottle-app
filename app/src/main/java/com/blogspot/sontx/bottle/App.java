@@ -11,7 +11,8 @@ import com.blogspot.sontx.bottle.system.BottleContextWrapper;
 import lombok.Getter;
 
 public class App extends MultiDexApplication {
-    private static final String SERVER_ADDRESS = "192.168.1.33:8080";
+    private static final String MAIN_SERVER_ADDRESS = "sontx.ddns.net:8080";
+    private static final String FS_SERVER_ADDRESS = "sontx.ddns.net:8080";
 
     @Getter
     private static App instance;
@@ -53,9 +54,9 @@ public class App extends MultiDexApplication {
         System.setProperty(Constants.FIREBASE_CHANNEL_MEMBER_KEY, "channel_members");
         System.setProperty(Constants.FIREBASE_MESSAGES_KEY, "messages");
 
-        System.setProperty(Constants.BOTTLE_SERVER_BASE_URL_KEY, "http://" + SERVER_ADDRESS + "/bottle/rest/");
-        System.setProperty(Constants.BOTTLE_SERVER_STOMP_ENDPOINT_KEY, "ws://" + SERVER_ADDRESS + "/bottle/notify");
-        System.setProperty(Constants.BOTTLE_FS_BASE_URL_KEY, "http://" + SERVER_ADDRESS + "/bottlefs/rest/");
-        System.setProperty(Constants.BOTTLE_FS_STORAGE_URL_KEY, "http://" + SERVER_ADDRESS + "/bottlefs/resources");
+        System.setProperty(Constants.BOTTLE_SERVER_BASE_URL_KEY, "http://" + MAIN_SERVER_ADDRESS + "/bottle/rest/");
+        System.setProperty(Constants.BOTTLE_SERVER_STOMP_ENDPOINT_KEY, "ws://" + MAIN_SERVER_ADDRESS + "/bottle/notify");
+        System.setProperty(Constants.BOTTLE_FS_BASE_URL_KEY, "http://" + FS_SERVER_ADDRESS + "/bottlefs/rest/");
+        System.setProperty(Constants.BOTTLE_FS_STORAGE_URL_KEY, "http://" + FS_SERVER_ADDRESS + "/bottlefs/resources");
     }
 }
