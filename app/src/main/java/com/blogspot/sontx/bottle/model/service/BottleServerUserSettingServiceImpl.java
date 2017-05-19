@@ -48,7 +48,7 @@ class BottleServerUserSettingServiceImpl extends BottleServerServiceBase impleme
                     currentUserSetting = response.body();
                     callback.onSuccess(currentUserSetting);
                 } else {
-                    Log.e(TAG, "getRoomsAsync: " + response.code() + " " + response.message());
+                    Log.e(TAG, "getUserSettingAsync: " + response.code() + " " + response.message());
                     callback.onError(new Exception(""));
                 }
             }

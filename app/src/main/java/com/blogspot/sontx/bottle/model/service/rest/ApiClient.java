@@ -21,6 +21,11 @@ public final class ApiClient {
     private ApiClient() {
     }
 
+    public static void reset() {
+        retrofitFsAuth = null;
+        retrofitAuth = null;
+    }
+
     public static synchronized Retrofit getClient() {
         if (retrofitUnauth == null) {
             String baseUrl = System.getProperty(Constants.BOTTLE_SERVER_BASE_URL_KEY);

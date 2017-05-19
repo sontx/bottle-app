@@ -12,6 +12,7 @@ import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerProfileSer
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerRoomService;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerStompService;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerUserSettingService;
+import com.blogspot.sontx.bottle.model.service.rest.ApiClient;
 
 import lombok.Getter;
 
@@ -58,6 +59,7 @@ abstract class ServicePoolBase implements ServicePool {
         bottleServerChatService.clearCached();
         bottleServerStompService.clearCached();
         bottleServerProfileService.clearCached();
+        ApiClient.reset();
     }
 
     @Override
