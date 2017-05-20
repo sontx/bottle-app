@@ -89,20 +89,6 @@ public class ListChannelPresenterImpl extends PresenterBase implements ListChann
         EventBus.getDefault().unregister(this);
     }
 
-    @Override
-    public void createChannelAsync(final String anotherMemberId) {
-        final Channel channel = channelService.createChannel(anotherMemberId);
-
-        List<ChannelMember> memberList = channel.getMemberList();
-        if (memberList.get(0).getId().equals(anotherMemberId)) {
-            getPublicProfileAsync(memberList.get(0), channel);
-            getPublicProfileAsync(memberList.get(1), null);
-        } else {
-            getPublicProfileAsync(memberList.get(0), null);
-            getPublicProfileAsync(memberList.get(1), channel);
-        }
-    }
-
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onChatChannelAddedEvent(ChatChannelAddedEvent chatChannelAddedEvent) {
         Channel channel = chatChannelAddedEvent.getChannel();

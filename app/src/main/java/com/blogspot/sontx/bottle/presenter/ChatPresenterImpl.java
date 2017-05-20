@@ -113,12 +113,13 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
     }
 
     @Override
-    public void setChannelId(String channelId) {
+    public void setChannelId(final String channelId) {
         ChannelPresenter channelPresenter = new ChannelPresenterImpl();
         channelPresenter.resolveChannelAsync(channelId, new Callback<Channel>() {
             @Override
             public void onSuccess(Channel result) {
                 DummyAnimals.mix(result.getAnotherGuy().getPublicProfile());
+                FirebaseServicePool.getInstance().getChannelService().createChannel(channelId);
                 startChat(result);
             }
 
