@@ -53,6 +53,10 @@ public class ListChannelPresenterImpl extends PresenterBase implements ListChann
             public void onSuccess(List<Channel> result) {
                 channels = result;
                 if (channelService.isCachedChannels()) {
+                    for (Channel channel : channels) {
+                        DummyAnimals.mix(channel.getAnotherGuy().getPublicProfile());
+                    }
+
                     listChannelView.showChannels(channels);
                 } else if (!channels.isEmpty()) {
                     for (Channel channel : channels) {
@@ -104,6 +108,7 @@ public class ListChannelPresenterImpl extends PresenterBase implements ListChann
         Channel channel = chatChannelAddedEvent.getChannel();
         ChatService chatService = FirebaseServicePool.getInstance().getChatService();
         chatService.registerChannel(channel);
+        DummyAnimals.mix(channel.getAnotherGuy().getPublicProfile());
         listChannelView.showChannel(channel);
     }
 
