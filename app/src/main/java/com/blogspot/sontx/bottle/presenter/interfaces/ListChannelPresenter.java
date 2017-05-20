@@ -6,6 +6,4 @@ public interface ListChannelPresenter {
     void registerEvents();
 
     void unregisterEvents();
-
-    void createChannelAsync(String anotherMemberId);
 }
