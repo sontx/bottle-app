@@ -198,13 +198,9 @@ public class ListRoomMessageFragment extends FragmentBase implements
         if (roomMessage.getId() != MessageBase.UNDEFINED_ID) {
             // ignore current user message
             String ownerId = roomMessage.getOwner().getId();
-            synchronized (this) {
-                List<RoomMessage> allRoomMessages = roomMessageRecyclerViewAdapter.getAllRoomMessages();
-                for (RoomMessage value : allRoomMessages) {
-                    if (value.getOwner().getId().equals(ownerId))
-                        return;
-                }
-            }
+            String currentUserId = App.getInstance().getBottleContext().getCurrentBottleUser().getUid();
+            if (currentUserId.equals(ownerId))
+                return;
         }
 
         runOnUiThread(new Runnable() {
