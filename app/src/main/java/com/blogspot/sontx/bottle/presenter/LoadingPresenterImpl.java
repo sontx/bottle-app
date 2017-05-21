@@ -18,6 +18,7 @@ import com.blogspot.sontx.bottle.model.service.interfaces.ChatServerLoginService
 import com.blogspot.sontx.bottle.model.service.interfaces.PublicProfileService;
 import com.blogspot.sontx.bottle.presenter.interfaces.LoadingPresenter;
 import com.blogspot.sontx.bottle.system.event.ChangeCurrentUserEvent;
+import com.blogspot.sontx.bottle.system.event.NotifyRegisterMessageEvent;
 import com.blogspot.sontx.bottle.system.event.ServiceState;
 import com.blogspot.sontx.bottle.system.event.ServiceStateChangedEvent;
 import com.blogspot.sontx.bottle.system.service.MessagingService;
@@ -67,6 +68,7 @@ public class LoadingPresenterImpl extends PresenterBase implements LoadingPresen
         BottleUser currentBottleUser = App.getInstance().getBottleContext().getCurrentBottleUser();
         notifyChangeCurrentUser(currentBottleUser.getUid());
         loadingView.onLoadSuccess();
+        registerChatMessageListeners();
     }
 
     private void notifyChangeCurrentUser(String newUserId) {
@@ -138,6 +140,11 @@ public class LoadingPresenterImpl extends PresenterBase implements LoadingPresen
                 }
                 break;
         }
+    }
+
+    private void registerChatMessageListeners() {
+        NotifyRegisterMessageEvent notifyRegisterMessageEvent = new NotifyRegisterMessageEvent();
+        EventBus.getDefault().post(notifyRegisterMessageEvent);
     }
 
     private void updateCurrentPublicProfile(PublicProfile publicProfile) {

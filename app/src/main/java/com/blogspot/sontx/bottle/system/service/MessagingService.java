@@ -14,6 +14,7 @@ import com.blogspot.sontx.bottle.model.service.interfaces.ChatService;
 import com.blogspot.sontx.bottle.system.event.ChangeCurrentUserEvent;
 import com.blogspot.sontx.bottle.system.event.ChatMessageChangedEvent;
 import com.blogspot.sontx.bottle.system.event.ChatMessageReceivedEvent;
+import com.blogspot.sontx.bottle.system.event.NotifyRegisterMessageEvent;
 import com.blogspot.sontx.bottle.system.event.RegisterServiceEvent;
 import com.blogspot.sontx.bottle.system.event.RequestChatMessagesEvent;
 import com.blogspot.sontx.bottle.system.event.ResponseChatMessagesEvent;
@@ -87,6 +88,14 @@ public class MessagingService extends ServiceBase {
     /**
      * --------------------------------- begin subscribe methods --------------------------------
      **/
+
+    @Subscribe
+    public void onNotifyRegisterMessageEvent(NotifyRegisterMessageEvent notifyRegisterMessageEvent) {
+        if (chatService != null && !chatService.isRegisteredChatMessageListeners()) {
+            chatService.setOnNewChatMessage(new IncommingNewChatMessageHandler());
+            chatService.setOnChatMessageChanged(new IncommingChatMessageChangedHandler());
+        }
+    }
 
     @Subscribe
     public void onRegisterServiceEvent(RegisterServiceEvent registerServiceEvent) {

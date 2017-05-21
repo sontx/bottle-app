@@ -8,6 +8,8 @@ import com.blogspot.sontx.bottle.model.service.SimpleCallback;
 import java.util.List;
 
 public interface ChatService extends ServiceBase {
+    boolean isRegisteredChatMessageListeners();
+
     void getMoreMessages(String channelId, long startAt, int limit, Callback<List<ChatMessage>> callback);
 
     void registerChannel(Channel channel);

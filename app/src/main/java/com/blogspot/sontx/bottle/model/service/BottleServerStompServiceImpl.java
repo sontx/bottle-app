@@ -1,17 +1,25 @@
 package com.blogspot.sontx.bottle.model.service;
 
+import android.content.Context;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.blogspot.sontx.bottle.App;
 import com.blogspot.sontx.bottle.Constants;
 import com.blogspot.sontx.bottle.model.bean.BottleUser;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerStompService;
+import com.blogspot.sontx.bottle.system.receiver.NetworkStateReceiver;
+import com.blogspot.sontx.bottle.utils.ThreadUtils;
 
 import org.java_websocket.WebSocket;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Setter;
 import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 import ua.naiksoftware.stomp.LifecycleEvent;
@@ -20,22 +28,28 @@ import ua.naiksoftware.stomp.StompHeader;
 import ua.naiksoftware.stomp.client.StompClient;
 import ua.naiksoftware.stomp.client.StompMessage;
 
-class BottleServerStompServiceImpl extends BottleServerServiceBase implements BottleServerStompService {
+class BottleServerStompServiceImpl extends BottleServerServiceBase implements BottleServerStompService, NetworkStateReceiver.NetworkStateReceiverListener {
     private final StompClient client;
     private boolean connected = false;
+    private boolean requiredDisconnect;
+    private LifecycleHandler lifecycleHandler;
+    private NetworkStateReceiver networkStateReceiver;
 
-    public BottleServerStompServiceImpl() {
+    BottleServerStompServiceImpl() {
         String endpointUrl = System.getProperty(Constants.BOTTLE_SERVER_STOMP_ENDPOINT_KEY);
         client = Stomp.over(WebSocket.class, endpointUrl);
     }
 
     @Override
-    public void reconnect(final Callback<Void> callback) {
+    public void reconnect(@Nullable Callback<Void> callback) {
         if (connected)
             return;
 
+        requiredDisconnect = false;
+
         if (!App.getInstance().getBottleContext().isLogged()) {
-            callback.onError(new Exception("Unauthenticated"));
+            if (callback != null)
+                callback.onError(new Exception("Unauthenticated"));
             return;
         }
 
@@ -45,38 +59,25 @@ class BottleServerStompServiceImpl extends BottleServerServiceBase implements Bo
         final List<StompHeader> headers = new ArrayList<>(1);
         headers.add(header);
 
-        if (client.isConnected())
+        if (client.isConnected() && callback != null)
             callback.onSuccess(null);
 
-        client.lifecycle().subscribe(new Action1<LifecycleEvent>() {
-            @Override
-            public void call(LifecycleEvent lifecycleEvent) {
-                switch (lifecycleEvent.getType()) {
-                    case OPENED:
-                        callback.onSuccess(null);
-                        break;
+        if (lifecycleHandler == null)
+            client.lifecycle().subscribe(lifecycleHandler = new LifecycleHandler());
+        lifecycleHandler.setOneshotCallback(callback);
 
-                    case CLOSED:
-                        callback.onError(lifecycleEvent.getException());
-                        break;
-
-                    case ERROR:
-                        callback.onError(lifecycleEvent.getException());
-                        break;
-                }
-                client.lifecycle().unsubscribeOn(Schedulers.newThread());
-            }
-        });
         try {
             client.connect(headers, true);
         } catch (IllegalStateException ignored) {
-            callback.onSuccess(null);
+            if (callback != null)
+                callback.onSuccess(null);
         }
         connected = true;
     }
 
     @Override
     public void disconnect() {
+        requiredDisconnect = true;
         client.disconnect();
         connected = false;
     }
@@ -112,5 +113,70 @@ class BottleServerStompServiceImpl extends BottleServerServiceBase implements Bo
     @Override
     public void unsubscribe(String topic) {
         client.topic(topic).unsubscribeOn(Schedulers.newThread());
+    }
+
+    private void lostConnect() {
+        if (requiredDisconnect)
+            return;
+
+        final ConnectivityManager conMgr = (ConnectivityManager) App.getInstance().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        final NetworkInfo activeNetwork = conMgr.getActiveNetworkInfo();
+        if (activeNetwork != null && activeNetwork.isConnected()) {
+            tryToConnect();
+        } else {
+            // notify user you are not online
+            if (networkStateReceiver == null) {
+                networkStateReceiver = new NetworkStateReceiver();
+                networkStateReceiver.addListener(this);
+                App.getInstance().registerReceiver(networkStateReceiver, new IntentFilter(android.net.ConnectivityManager.CONNECTIVITY_ACTION));
+            }
+        }
+    }
+
+    private void tryToConnect() {
+        ThreadUtils.run(new Runnable() {
+            @Override
+            public void run() {
+                reconnect(null);
+            }
+        });
+    }
+
+    @Override
+    public void networkAvailable() {
+        tryToConnect();
+    }
+
+    @Override
+    public void networkUnavailable() {
+
+    }
+
+    private class LifecycleHandler implements Action1<LifecycleEvent> {
+        @Setter
+        private Callback<Void> oneshotCallback;
+
+        @Override
+        public void call(LifecycleEvent lifecycleEvent) {
+            switch (lifecycleEvent.getType()) {
+                case OPENED:
+                    if (oneshotCallback != null)
+                        oneshotCallback.onSuccess(null);
+                    break;
+
+                case CLOSED:
+                    if (oneshotCallback != null)
+                        oneshotCallback.onError(lifecycleEvent.getException());
+                    lostConnect();
+                    break;
+
+                case ERROR:
+                    if (oneshotCallback != null)
+                        oneshotCallback.onError(lifecycleEvent.getException());
+                    lostConnect();
+                    break;
+            }
+            oneshotCallback = null;
+        }
     }
 }

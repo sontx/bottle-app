@@ -28,7 +28,7 @@ class BottleServerMessageServiceImpl extends BottleServerServiceBase implements 
 
     @Override
     public void getRoomMessages(int roomId, int page, int pageSize, final Callback<List<RoomMessage>> callback) {
-        if (cachedRoomMessages != null) {
+        if (cachedRoomMessages != null && cachedRoomMessages.size() > 0) {
             if (page == 0) {
                 callback.onSuccess(cachedRoomMessages);
                 cachedRoomMessages = null;

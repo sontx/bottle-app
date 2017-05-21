@@ -18,8 +18,11 @@ import com.blogspot.sontx.bottle.model.bean.PublicProfile;
 import com.blogspot.sontx.bottle.model.bean.chat.Channel;
 import com.blogspot.sontx.bottle.presenter.ChatPresenterImpl;
 import com.blogspot.sontx.bottle.presenter.interfaces.ChatPresenter;
+import com.blogspot.sontx.bottle.system.event.NotifyRegisterMessageEvent;
 import com.blogspot.sontx.bottle.view.interfaces.ChatView;
 import com.vanniktech.emoji.EmojiPopup;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 
@@ -77,7 +80,11 @@ public class ChatActivity extends ActivityBase implements
 
         } else {
             finish();
+            return;
         }
+
+        NotifyRegisterMessageEvent notifyRegisterMessageEvent = new NotifyRegisterMessageEvent();
+        EventBus.getDefault().post(notifyRegisterMessageEvent);
     }
 
     @Override

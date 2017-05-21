@@ -53,6 +53,11 @@ class FirebaseChatService extends FirebaseServiceBase implements ChatService {
     }
 
     @Override
+    public boolean isRegisteredChatMessageListeners() {
+        return onNewChatMessage != null && onChatMessageChanged != null;
+    }
+
+    @Override
     public void clearCached() {
         super.clearCached();
         onNewChatMessage = null;
