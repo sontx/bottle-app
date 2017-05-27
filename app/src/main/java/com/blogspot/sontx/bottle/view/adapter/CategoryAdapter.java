@@ -18,6 +18,7 @@ public class CategoryAdapter extends BaseAdapter {
 
     @Getter
     private List<Category> values;
+    private int categoryId = -1;
 
     public CategoryAdapter(List<Category> items) {
         values = items;
@@ -55,12 +56,18 @@ public class CategoryAdapter extends BaseAdapter {
 
         viewHolder.titleView.setText(category.getName());
         viewHolder.descriptionView.setText(category.getDescription());
+        viewHolder.onlineView.setVisibility(category.getId() == categoryId ? View.VISIBLE : View.INVISIBLE);
 
         return convertView;
     }
 
+    public void setCategoryId(int categoryId) {
+        this.categoryId = categoryId;
+    }
+
     private class ViewHolder {
         final View root;
+        final View onlineView;
         final TextView titleView;
         final TextView descriptionView;
 
@@ -70,6 +77,7 @@ public class CategoryAdapter extends BaseAdapter {
             root = view;
             titleView = ButterKnife.findById(view, R.id.title_view);
             descriptionView = ButterKnife.findById(view, R.id.description_view);
+            onlineView = ButterKnife.findById(view, R.id.online_view);
         }
     }
 }

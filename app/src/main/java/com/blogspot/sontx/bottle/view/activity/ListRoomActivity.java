@@ -47,6 +47,9 @@ public class ListRoomActivity extends ActivityBase implements ListRoomFragment.O
     @BindDimen(R.dimen.header_image_height)
     int previewHeight;
 
+    private int currentRoomId;
+    private int currentCategoryId = -1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,12 +86,15 @@ public class ListRoomActivity extends ActivityBase implements ListRoomFragment.O
     private void processArguments() {
         Intent intent = getIntent();
         if (intent != null) {
-            if (intent.hasExtra(ROOM_ID)) {
+            if (intent.hasExtra(CATEGORY_ID)) {
+                int categoryId = intent.getIntExtra(CATEGORY_ID, -1);
+                int roomId = intent.getIntExtra(ROOM_ID, -1);
+                currentRoomId = roomId;
+                currentCategoryId = categoryId;
+                placeListRoomFragmentByCategoryId(categoryId, roomId);
+            } else if (intent.hasExtra(ROOM_ID)) {
                 int roomId = intent.getIntExtra(ROOM_ID, -1);
                 placeListRoomFragmentByRoomId(roomId);
-            } else if (intent.hasExtra(CATEGORY_ID)) {
-                int categoryId = intent.getIntExtra(CATEGORY_ID, -1);
-                placeListRoomFragmentByCategoryId(categoryId);
             } else {
                 finish();
             }
@@ -106,8 +112,8 @@ public class ListRoomActivity extends ActivityBase implements ListRoomFragment.O
         placeListRoomFragment(listRoomFragment);
     }
 
-    private void placeListRoomFragmentByCategoryId(int categoryId) {
-        ListRoomFragment listRoomFragment = ListRoomFragment.newInstanceWithCategoryId(1, categoryId);
+    private void placeListRoomFragmentByCategoryId(int categoryId, int roomId) {
+        ListRoomFragment listRoomFragment = ListRoomFragment.newInstanceWithCategoryId(1, categoryId, roomId);
         placeListRoomFragment(listRoomFragment);
     }
 
@@ -140,14 +146,16 @@ public class ListRoomActivity extends ActivityBase implements ListRoomFragment.O
 
     @Override
     public void showCategories(List<Category> result) {
+        CategoryAdapter adapter = new CategoryAdapter(result);
+        adapter.setCategoryId(currentCategoryId);
         DialogPlus dialogPlus = DialogPlus.newDialog(this)
-                .setAdapter(new CategoryAdapter(result))
+                .setAdapter(adapter)
                 .setExpanded(true)
                 .setOnItemClickListener(new OnItemClickListener() {
                     @Override
                     public void onItemClick(DialogPlus dialog, Object item, View view, int position) {
                         headerImageView.setImageResource(R.drawable.default_cover);
-                        placeListRoomFragmentByCategoryId(((Category) item).getId());
+                        placeListRoomFragmentByCategoryId(((Category) item).getId(), currentRoomId);
                         dialog.dismiss();
                     }
                 })

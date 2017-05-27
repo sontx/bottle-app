@@ -154,7 +154,7 @@ public class RoomMessagePresenterImpl extends PresenterBase implements RoomMessa
     public void jumpToListRooms() {
         if (currentRoom != null) {
             if (currentRoom.getCategoryId() >= 0)
-                listRoomMessageView.showListRoomsByCategoryId(currentRoom.getCategoryId());
+                listRoomMessageView.showListRoomsByCategoryId(currentRoom.getCategoryId(), currentRoom.getId());
             else
                 listRoomMessageView.showListRoomsByRoomId(currentRoom.getId());
         }

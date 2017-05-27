@@ -43,11 +43,12 @@ public class ListRoomFragment extends FragmentBase implements ListRoomView {
         return fragment;
     }
 
-    public static ListRoomFragment newInstanceWithCategoryId(int columnCount, int categoryId) {
+    public static ListRoomFragment newInstanceWithCategoryId(int columnCount, int categoryId, int roomId) {
         ListRoomFragment fragment = new ListRoomFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_COLUMN_COUNT, columnCount);
         args.putInt(ARG_CATEGORY_ID, categoryId);
+        args.putInt(ARG_ROOM_ID, roomId);
         fragment.setArguments(args);
         return fragment;
     }
@@ -64,13 +65,18 @@ public class ListRoomFragment extends FragmentBase implements ListRoomView {
 
             roomPresenter = new RoomPresenterImpl(this);
 
+            int roomId = -1;
+            if (arguments.containsKey(ARG_ROOM_ID))
+                roomId = arguments.getInt(ARG_ROOM_ID);
+
             if (arguments.containsKey(ARG_CATEGORY_ID)) {
                 int categoryId = arguments.getInt(ARG_CATEGORY_ID);
                 roomPresenter.getRoomsAsync(categoryId, true);
-            } else if (arguments.containsKey(ARG_ROOM_ID)) {
-                int roomId = arguments.getInt(ARG_ROOM_ID);
+            } else {
                 roomPresenter.getRoomsHaveSameCategoryAsync(roomId, true);
             }
+
+            roomRecyclerViewAdapter.setRoomId(roomId);
         }
     }
 

@@ -275,9 +275,10 @@ public class ListRoomMessageFragment extends FragmentBase implements
     }
 
     @Override
-    public void showListRoomsByCategoryId(int categoryId) {
+    public void showListRoomsByCategoryId(int categoryId, int currentRoomId) {
         Intent intent = new Intent(getContext(), ListRoomActivity.class);
         intent.putExtra(ListRoomActivity.CATEGORY_ID, categoryId);
+        intent.putExtra(ListRoomActivity.ROOM_ID, currentRoomId);
         startActivityForResult(intent, REQUEST_CODE_SELECT_ROOM);
     }
 

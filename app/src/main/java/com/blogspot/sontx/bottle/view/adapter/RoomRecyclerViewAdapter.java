@@ -27,6 +27,7 @@ public class RoomRecyclerViewAdapter extends RecyclerView.Adapter<RoomRecyclerVi
     private List<Room> values;
     private int avatarSize;
     private Resource resource;
+    private int roomId = -1;
 
     public RoomRecyclerViewAdapter(List<Room> items, ListRoomFragment.OnListRoomInteractionListener listener) {
         values = items;
@@ -56,6 +57,8 @@ public class RoomRecyclerViewAdapter extends RecyclerView.Adapter<RoomRecyclerVi
             holder.imageView.setImageResource(R.drawable.ic_default_room);
         }
 
+        holder.onlineView.setVisibility(room.getId() == roomId ? View.VISIBLE : View.INVISIBLE);
+
         holder.root.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -75,8 +78,13 @@ public class RoomRecyclerViewAdapter extends RecyclerView.Adapter<RoomRecyclerVi
         this.avatarSize = avatarSize;
     }
 
+    public void setRoomId(int roomId) {
+        this.roomId = roomId;
+    }
+
     class ViewHolder extends RecyclerView.ViewHolder {
         final View root;
+        final View onlineView;
         final ImageView imageView;
         final TextView titleView;
         final TextView descriptionView;
@@ -89,6 +97,7 @@ public class RoomRecyclerViewAdapter extends RecyclerView.Adapter<RoomRecyclerVi
             titleView = ButterKnife.findById(view, R.id.title_view);
             descriptionView = ButterKnife.findById(view, R.id.description_view);
             imageView = ButterKnife.findById(view, R.id.image_view);
+            onlineView = ButterKnife.findById(view, R.id.online_view);
         }
     }
 }
