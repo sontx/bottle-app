@@ -22,6 +22,7 @@ import com.blogspot.sontx.bottle.presenter.GeoMessageChangePresenterImpl;
 import com.blogspot.sontx.bottle.presenter.GeoMessagePresenterImpl;
 import com.blogspot.sontx.bottle.presenter.interfaces.GeoMessageChangePresenter;
 import com.blogspot.sontx.bottle.presenter.interfaces.GeoMessagePresenter;
+import com.blogspot.sontx.bottle.system.SingleShotLocationProvider;
 import com.blogspot.sontx.bottle.utils.LocationUtils;
 import com.blogspot.sontx.bottle.view.activity.WriteMessageActivity;
 import com.blogspot.sontx.bottle.view.adapter.GeoMessageInfoWindowAdapter;
@@ -181,6 +182,32 @@ public class ListGeoMessageFragment extends FragmentBase implements
         geoMessageFragmentFabHelper.setVisible(false);
 
         geoMessageChangePresenter.subscribe();
+
+        Coordination currentLocation = App.getInstance().getBottleContext().getCurrentUserSetting().getCurrentLocation();
+        if (currentLocation.getLatitude() == 0 && currentLocation.getLongitude() == 0) {
+            Coordination dummyLocation = new Coordination();
+            dummyLocation.setLatitude(16.062180613037462D);
+            dummyLocation.setLongitude(108.210107088D);
+            updateCurrentLocation(dummyLocation);
+
+            SingleShotLocationProvider.requestSingleUpdate(getActivity(), new SingleShotLocationProvider.LocationCallback() {
+
+                @Override
+                public void onNewLocationAvailable(Coordination location) {
+                    updateCurrentLocation(location);
+                }
+            });
+        }
+    }
+
+    private void updateCurrentLocation(Coordination location) {
+        Coordination currentLocation = App.getInstance().getBottleContext().getCurrentUserSetting().getCurrentLocation();
+        currentLocation.setLatitude(location.getLatitude());
+        currentLocation.setLongitude(location.getLongitude());
+
+        geoMessagePresenter.updateCurrentUserLocationAsync(currentLocation);
+
+        GeoMessageFragmentHelper.showMyLocation(map);
     }
 
     @Override
