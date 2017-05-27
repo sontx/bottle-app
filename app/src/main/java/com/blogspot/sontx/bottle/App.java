@@ -4,9 +4,9 @@ import android.content.Context;
 import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
 
-import com.blogspot.sontx.bottle.model.service.FirebaseServicePool;
 import com.blogspot.sontx.bottle.system.BottleContext;
 import com.blogspot.sontx.bottle.system.BottleContextWrapper;
+import com.google.firebase.database.FirebaseDatabase;
 
 import lombok.Getter;
 
@@ -37,7 +37,7 @@ public class App extends MultiDexApplication {
     public void onCreate() {
         super.onCreate();
         setupEnvironmentProperties();
-        FirebaseServicePool.getInstance().initialize(this);
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         bottleContextWrapper = new BottleContextWrapper();
     }
 

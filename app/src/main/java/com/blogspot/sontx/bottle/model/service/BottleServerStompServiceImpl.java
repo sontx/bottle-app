@@ -34,6 +34,12 @@ class BottleServerStompServiceImpl extends BottleServerServiceBase implements Bo
     private boolean requiredDisconnect;
     private LifecycleHandler lifecycleHandler;
     private NetworkStateReceiver networkStateReceiver;
+    private List<String> topics = new ArrayList<>();
+
+    @Override
+    public void clearCached() {
+        disconnect();
+    }
 
     BottleServerStompServiceImpl() {
         String endpointUrl = System.getProperty(Constants.BOTTLE_SERVER_STOMP_ENDPOINT_KEY);
@@ -78,6 +84,11 @@ class BottleServerStompServiceImpl extends BottleServerServiceBase implements Bo
     @Override
     public void disconnect() {
         requiredDisconnect = true;
+        synchronized (this) {
+            for (String topic : topics) {
+                client.topic(topic).unsubscribeOn(Schedulers.immediate());
+            }
+        }
         client.disconnect();
         connected = false;
     }
@@ -102,6 +113,9 @@ class BottleServerStompServiceImpl extends BottleServerServiceBase implements Bo
     }
 
     private void doSubscribe(String topic, final SimpleCallback<String> callback) {
+        synchronized (this) {
+            topics.add(topic);
+        }
         client.topic(topic).subscribe(new Action1<StompMessage>() {
             @Override
             public void call(StompMessage stompMessage) {
@@ -113,6 +127,9 @@ class BottleServerStompServiceImpl extends BottleServerServiceBase implements Bo
     @Override
     public void unsubscribe(String topic) {
         client.topic(topic).unsubscribeOn(Schedulers.newThread());
+        synchronized (this) {
+            topics.remove(topic);
+        }
     }
 
     private void lostConnect() {

@@ -7,6 +7,7 @@ import android.os.Bundle;
 
 import com.blogspot.sontx.bottle.R;
 import com.blogspot.sontx.bottle.model.bean.LoginData;
+import com.blogspot.sontx.bottle.model.service.FirebaseServicePool;
 import com.blogspot.sontx.bottle.presenter.LoadingPresenterImpl;
 import com.blogspot.sontx.bottle.presenter.LoginPresenterImpl;
 import com.blogspot.sontx.bottle.presenter.interfaces.LoadingPresenter;
@@ -25,6 +26,8 @@ public class LoadingActivity extends ActivityBase implements LoginView, LoadingV
         super.onCreate(savedInstanceState);
         requestFullscreen();
         setContentView(R.layout.activity_loading);
+
+        FirebaseServicePool.getInstance().initialize(this);
 
         loginPresenter = new LoginPresenterImpl(this);
 

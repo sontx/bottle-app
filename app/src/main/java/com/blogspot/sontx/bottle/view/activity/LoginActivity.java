@@ -8,6 +8,8 @@ import com.blogspot.sontx.bottle.model.bean.LoginData;
 import com.blogspot.sontx.bottle.model.service.SimpleCallback;
 import com.blogspot.sontx.bottle.system.provider.Auth2Provider;
 import com.blogspot.sontx.bottle.system.provider.FacebookAuth2Provider;
+import com.facebook.AccessToken;
+import com.facebook.login.LoginManager;
 import com.facebook.login.widget.LoginButton;
 
 import butterknife.BindView;
@@ -24,6 +26,10 @@ public class LoginActivity extends ActivityBase {
         requestFullscreen();
         setContentView(R.layout.activity_login);
         ButterKnife.bind(this);
+
+        if (AccessToken.getCurrentAccessToken() != null) {
+            LoginManager.getInstance().logOut();
+        }
 
         facebookAuth2Provider = new FacebookAuth2Provider(facebookButton);
         facebookAuth2Provider.setOnAuthCompleted(new SimpleCallback<LoginData>() {
