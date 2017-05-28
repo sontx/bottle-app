@@ -145,7 +145,12 @@ public class ChatActivity extends ActivityBase implements
 
     @Override
     public void addNewMessage(final Message result) {
-        slyceMessagingFragment.addNewMessage(result);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                slyceMessagingFragment.addNewMessage(result);
+            }
+        });
     }
 
     @Override
@@ -154,8 +159,13 @@ public class ChatActivity extends ActivityBase implements
     }
 
     @Override
-    public void updateChatMessage(Message message, boolean refresh) {
-        slyceMessagingFragment.updateMessage(message, refresh);
+    public void updateChatMessage(final Message message, final boolean refresh) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                slyceMessagingFragment.updateMessage(message, refresh);
+            }
+        });
     }
 
     @Override

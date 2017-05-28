@@ -10,8 +10,11 @@ import com.blogspot.sontx.bottle.model.bean.chat.ChatMessage;
 import com.blogspot.sontx.bottle.model.bean.chat.CreateChannelResult;
 import com.blogspot.sontx.bottle.model.dummy.DummyAnimals;
 import com.blogspot.sontx.bottle.model.service.Callback;
+import com.blogspot.sontx.bottle.model.service.FirebaseChatService;
 import com.blogspot.sontx.bottle.model.service.FirebaseServicePool;
+import com.blogspot.sontx.bottle.model.service.SimpleCallback;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerChatService;
+import com.blogspot.sontx.bottle.model.service.interfaces.ChatService;
 import com.blogspot.sontx.bottle.presenter.interfaces.ChannelPresenter;
 import com.blogspot.sontx.bottle.presenter.interfaces.ChatPresenter;
 import com.blogspot.sontx.bottle.system.event.ChatChannelRemovedEvent;
@@ -54,10 +57,25 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
     private Queue<TempMessage> tempMessages = new ArrayDeque<>();
     private volatile boolean canLoadMore = true;
     private String removedChannelId;
+    private final ChatService chatService;
 
     public ChatPresenterImpl(ChatView chatView, String currentUserId) {
         this.chatView = chatView;
         this.currentUserId = currentUserId;
+        chatService = new FirebaseChatService(chatView.getContext());
+        chatService.setOnNewChatMessage(new SimpleCallback<ChatMessage>() {
+            @Override
+            public void onCallback(ChatMessage value) {
+                processNewChatMessage(value);
+            }
+        });
+        chatService.setOnChatMessageChanged(new SimpleCallback<ChatMessage>() {
+            @Override
+            public void onCallback(ChatMessage value) {
+                Message message = convertChatMessage(value);
+                ChatPresenterImpl.this.chatView.updateChatMessage(message, true);
+            }
+        });
     }
 
     @Override
@@ -65,6 +83,8 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
         registerEventBusIfNecessary();
         if (MessagingService.isRunning())
             registerToService();
+        if (channel != null)
+            chatService.registerChannel(channel);
     }
 
     @Override
@@ -77,6 +97,8 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
 
     @Override
     public void unregisterListeners() {
+        if (channel != null)
+            chatService.unregisterChannel(channel.getId());
         EventBus.getDefault().unregister(this);
         unregisterToService();
     }
@@ -172,9 +194,13 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
         chatView.updateChatMessage(message, true);
     }
 
-    @Subscribe
+    //@Subscribe
     public void onNewChatMessageReceivedEvent(ChatMessageReceivedEvent chatMessageReceivedEvent) {
         ChatMessage chatMessage = chatMessageReceivedEvent.getChatMessage();
+        processNewChatMessage(chatMessage);
+    }
+
+    private void processNewChatMessage(ChatMessage chatMessage) {
         if (chatMessage.getChannelId().equalsIgnoreCase(channel.getId())) {
             if (chatMessage.getSenderId().equalsIgnoreCase(currentUserId)) {
                 Message message = convertChatMessage(chatMessage);
@@ -191,7 +217,7 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
         }
     }
 
-    @Subscribe
+    //@Subscribe
     public void onChatMessageChangedEvent(ChatMessageChangedEvent chatMessageChangedEvent) {
         Message message = convertChatMessage(chatMessageChangedEvent.getChatMessage());
         chatView.updateChatMessage(message, true);
@@ -262,6 +288,8 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
                 sendAsync(tempMessage.text, tempMessage.tempId);
             }
         }
+
+        chatService.registerChannel(channel);
     }
 
     private boolean isRemovedChannel() {

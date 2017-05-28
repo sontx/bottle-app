@@ -31,7 +31,7 @@ import java.util.Map;
 
 import lombok.Setter;
 
-class FirebaseChatService extends FirebaseServiceBase implements ChatService {
+public class FirebaseChatService extends FirebaseServiceBase implements ChatService {
     private DatabaseReference messagesRef;
     private DatabaseReference detailsRef;
     private Hashtable<String, DatabaseRefWrapper> registerChannelsRef;
@@ -41,7 +41,7 @@ class FirebaseChatService extends FirebaseServiceBase implements ChatService {
     @Setter
     private SimpleCallback<ChatMessage> onChatMessageChanged;
 
-    FirebaseChatService(Context context) {
+    public FirebaseChatService(Context context) {
         super(context);
         String messagesKey = System.getProperty(Constants.FIREBASE_MESSAGES_KEY);
         messagesRef = FirebaseDatabase.getInstance().getReference(messagesKey);
