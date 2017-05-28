@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.blogspot.sontx.bottle.App;
 import com.blogspot.sontx.bottle.model.bean.BottleUser;
+import com.blogspot.sontx.bottle.model.bean.DeleteResult;
 import com.blogspot.sontx.bottle.model.bean.chat.CreateChannelRequest;
 import com.blogspot.sontx.bottle.model.bean.chat.CreateChannelResult;
 import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerChatService;
@@ -44,6 +45,38 @@ class BottleServerChatServiceImpl extends BottleServerServiceBase implements Bot
 
             @Override
             public void onFailure(Call<CreateChannelResult> call, Throwable t) {
+                callback.onError(t);
+            }
+        });
+    }
+
+    @Override
+    public void deleteChannelAsync(String channelId, final Callback<Void> callback) {
+        if (!App.getInstance().getBottleContext().isLogged()) {
+            callback.onError(new Exception("Unauthenticated"));
+            return;
+        }
+
+        BottleUser bottleUser = App.getInstance().getBottleContext().getCurrentBottleUser();
+
+        ApiChat apiChat = ApiClient.getClient(bottleUser.getToken()).create(ApiChat.class);
+
+        Call<DeleteResult> call = apiChat.deleteChannel(channelId);
+
+        call.enqueue(new retrofit2.Callback<DeleteResult>() {
+            @Override
+            public void onResponse(Call<DeleteResult> call, Response<DeleteResult> response) {
+                if (response.code() == 200) {
+                    Log.d(TAG, "deleted " + response.body());
+                    callback.onSuccess(null);
+                } else {
+                    Log.e(TAG, "deleteChannelAsync: " + response.code() + " " + response.message());
+                    callback.onError(new Exception(response.code() + ""));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<DeleteResult> call, Throwable t) {
                 callback.onError(t);
             }
         });

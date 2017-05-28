@@ -1,10 +1,13 @@
 package com.blogspot.sontx.bottle.view.fragment;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -52,6 +55,7 @@ public class ListChannelFragment extends FragmentBase implements ListChannelView
             RecyclerView recyclerView = (RecyclerView) view;
             recyclerView.setLayoutManager(new LinearLayoutManager(context));
             recyclerView.setAdapter(channelRecyclerViewAdapter);
+            registerForContextMenu(recyclerView);
         }
         return view;
     }
@@ -71,6 +75,35 @@ public class ListChannelFragment extends FragmentBase implements ListChannelView
         super.onDetach();
         listChannelPresenter.unregisterEvents();
         listener = null;
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        final Channel selectedChannel = channelRecyclerViewAdapter.getSelectedChannel();
+        if (selectedChannel != null) {
+            if (item.getItemId() == ChannelRecyclerViewAdapter.ITEM_DELETE_CONVERSATION) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle(item.getTitle());
+                builder.setMessage("Delete conversation with " + selectedChannel.getAnotherGuy().getPublicProfile().getDisplayName());
+                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        listChannelPresenter.deleteChannelAsync(selectedChannel);
+                        channelRecyclerViewAdapter.getValues().remove(selectedChannel);
+                        channelRecyclerViewAdapter.notifyDataSetChanged();
+                        dialog.dismiss();
+                    }
+                });
+                builder.show();
+            }
+        }
+        return super.onContextItemSelected(item);
     }
 
     @Override

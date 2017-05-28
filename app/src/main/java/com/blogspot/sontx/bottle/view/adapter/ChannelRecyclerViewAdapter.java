@@ -27,6 +27,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 public class ChannelRecyclerViewAdapter extends RecyclerView.Adapter<ChannelRecyclerViewAdapter.ViewHolder> {
+    public static final int ITEM_DELETE_CONVERSATION = 0;
 
     @Getter
     @Setter
@@ -36,7 +37,7 @@ public class ChannelRecyclerViewAdapter extends RecyclerView.Adapter<ChannelRecy
 
     @Getter
     @Setter
-    private int position;
+    private Channel selectedChannel;
 
     public ChannelRecyclerViewAdapter(List<Channel> items, OnChannelInteractionListener listener) {
         this.values = items;
@@ -77,7 +78,7 @@ public class ChannelRecyclerViewAdapter extends RecyclerView.Adapter<ChannelRecy
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                setPosition(holder.getAdapterPosition());
+                selectedChannel = holder.item;
                 return false;
             }
         });
@@ -121,7 +122,7 @@ public class ChannelRecyclerViewAdapter extends RecyclerView.Adapter<ChannelRecy
             Channel channel = item;
             if (channel != null) {
                 menu.setHeaderTitle(item.getAnotherGuy().getPublicProfile().getDisplayName());
-                menu.add(Menu.NONE, 0, 0, "Delete");
+                menu.add(Menu.NONE, ITEM_DELETE_CONVERSATION, 0, "Delete conversation");
             }
         }
     }

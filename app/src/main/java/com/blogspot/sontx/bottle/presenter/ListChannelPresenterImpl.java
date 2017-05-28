@@ -10,6 +10,7 @@ import com.blogspot.sontx.bottle.model.bean.chat.ChannelMember;
 import com.blogspot.sontx.bottle.model.dummy.DummyAnimals;
 import com.blogspot.sontx.bottle.model.service.Callback;
 import com.blogspot.sontx.bottle.model.service.FirebaseServicePool;
+import com.blogspot.sontx.bottle.model.service.interfaces.BottleServerChatService;
 import com.blogspot.sontx.bottle.model.service.interfaces.ChannelService;
 import com.blogspot.sontx.bottle.model.service.interfaces.ChatService;
 import com.blogspot.sontx.bottle.model.service.interfaces.PublicProfileService;
@@ -87,6 +88,22 @@ public class ListChannelPresenterImpl extends PresenterBase implements ListChann
     @Override
     public void unregisterEvents() {
         EventBus.getDefault().unregister(this);
+    }
+
+    @Override
+    public void deleteChannelAsync(Channel channel) {
+        BottleServerChatService bottleServerChatService = FirebaseServicePool.getInstance().getBottleServerChatService();
+        bottleServerChatService.deleteChannelAsync(channel.getId(), new Callback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                // do nothing
+            }
+
+            @Override
+            public void onError(Throwable what) {
+                listChannelView.showErrorMessage(what);
+            }
+        });
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
