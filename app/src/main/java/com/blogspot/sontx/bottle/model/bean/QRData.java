@@ -7,6 +7,8 @@ import lombok.Data;
 @Data
 public class QRData implements Serializable {
     private String message;
+    private String channelId;
     private String currentUserId;
     private String anotherGuyId;
+    private boolean read;
 }

@@ -48,8 +48,10 @@ public class MessagingService extends ServiceBase {
         super.onCreate();
 
         chatService = FirebaseServicePool.getInstance().getChatService();
-        chatService.setOnNewChatMessage(new IncommingNewChatMessageHandler());
-        chatService.setOnChatMessageChanged(new IncommingChatMessageChangedHandler());
+        if (chatService != null) {
+            chatService.setOnNewChatMessage(new IncommingNewChatMessageHandler());
+            chatService.setOnChatMessageChanged(new IncommingChatMessageChangedHandler());
+        }
 
         EventBus.getDefault().register(this);
 

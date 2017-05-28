@@ -1,14 +1,18 @@
 package com.blogspot.sontx.bottle.view.activity;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.widget.ImageView;
 
+import com.blogspot.sontx.bottle.Constants;
 import com.blogspot.sontx.bottle.R;
 import com.blogspot.sontx.bottle.model.bean.QRData;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.blogspot.sontx.bottle.model.service.ChildEventAdapter;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.WriterException;
@@ -25,11 +29,15 @@ import butterknife.ButterKnife;
 public class QRCodeActivity extends ActivityBase {
 
     public static final String QR_DATA = "qr-data";
+    public static final String ANOTHER_GUY = "another-guy";
 
     @BindView(R.id.qr_image_view)
     ImageView qrImageView;
 
     private Bitmap bitmap = null;
+    private ChildEventHandler childEventHandler = null;
+    private DatabaseReference qrcodesRef;
+    private DatabaseReference qrcodeRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,21 +46,25 @@ public class QRCodeActivity extends ActivityBase {
         ButterKnife.bind(this);
 
         QRData qrData = (QRData) getIntent().getSerializableExtra(QR_DATA);
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            String json = objectMapper.writeValueAsString(qrData);
-            bitmap = generateQRBitMap(json);
-            qrImageView.setImageBitmap(bitmap);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            showErrorMessage(e);
-        }
+
+        String qrcodesKey = System.getProperty(Constants.FIREBASE_QRCODES_KEY);
+        qrcodesRef = FirebaseDatabase.getInstance().getReference(qrcodesKey);
+        qrcodeRef = qrcodesRef.push();
+        bitmap = generateQRBitMap(qrcodeRef.getKey());
+        qrImageView.setImageBitmap(bitmap);
+
+        qrcodeRef.setValue(qrData);
+
+        qrcodesRef.addChildEventListener(childEventHandler = new ChildEventHandler());
     }
 
     @Override
     protected void onDestroy() {
         if (bitmap != null)
             bitmap.recycle();
+        if (childEventHandler != null)
+            qrcodesRef.removeEventListener(childEventHandler);
+        qrcodeRef.removeValue();
         super.onDestroy();
     }
 
@@ -86,5 +98,17 @@ public class QRCodeActivity extends ActivityBase {
         }
 
         return null;
+    }
+
+    private class ChildEventHandler extends ChildEventAdapter {
+        @Override
+        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+            QRData qrData = dataSnapshot.getValue(QRData.class);
+            if (qrData.isRead()) {
+                Intent intent = getIntent();
+                setResult(RESULT_OK, intent);
+                finish();
+            }
+        }
     }
 }
