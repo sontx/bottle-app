@@ -70,6 +70,12 @@ public class RoomRecyclerViewAdapter extends RecyclerView.Adapter<RoomRecyclerVi
     }
 
     @Override
+    public void onViewRecycled(ViewHolder holder) {
+        holder.root.setOnClickListener(null);
+        super.onViewRecycled(holder);
+    }
+
+    @Override
     public int getItemCount() {
         return values.size();
     }

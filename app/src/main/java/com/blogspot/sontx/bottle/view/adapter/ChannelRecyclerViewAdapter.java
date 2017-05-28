@@ -1,7 +1,9 @@
 package com.blogspot.sontx.bottle.view.adapter;
 
 import android.support.v7.widget.RecyclerView;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -31,6 +33,10 @@ public class ChannelRecyclerViewAdapter extends RecyclerView.Adapter<ChannelRecy
     private List<Channel> values;
     private OnChannelInteractionListener listener;
     private Resource resource;
+
+    @Getter
+    @Setter
+    private int position;
 
     public ChannelRecyclerViewAdapter(List<Channel> items, OnChannelInteractionListener listener) {
         this.values = items;
@@ -68,6 +74,20 @@ public class ChannelRecyclerViewAdapter extends RecyclerView.Adapter<ChannelRecy
                     listener.onListChannelInteraction(holder.item);
             }
         });
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                setPosition(holder.getAdapterPosition());
+                return false;
+            }
+        });
+    }
+
+    @Override
+    public void onViewRecycled(ViewHolder holder) {
+        holder.itemView.setOnLongClickListener(null);
+        holder.root.setOnClickListener(null);
+        super.onViewRecycled(holder);
     }
 
     @Override
@@ -75,7 +95,7 @@ public class ChannelRecyclerViewAdapter extends RecyclerView.Adapter<ChannelRecy
         return values.size();
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder {
+    class ViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener {
         final View root;
         final CircleImageView avatarView;
         final TextView titleView;
@@ -87,12 +107,22 @@ public class ChannelRecyclerViewAdapter extends RecyclerView.Adapter<ChannelRecy
 
         ViewHolder(View view) {
             super(view);
+            view.setOnCreateContextMenuListener(this);
             root = view;
             titleView = ButterKnife.findById(view, R.id.title_view);
             subtitleView = ButterKnife.findById(view, R.id.detail_view);
             timestampView = ButterKnife.findById(view, R.id.timestamp_view);
             avatarView = ButterKnife.findById(view, R.id.avatar_view);
             onlineView = ButterKnife.findById(view, R.id.online_view);
+        }
+
+        @Override
+        public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+            Channel channel = item;
+            if (channel != null) {
+                menu.setHeaderTitle(item.getAnotherGuy().getPublicProfile().getDisplayName());
+                menu.add(Menu.NONE, 0, 0, "Delete");
+            }
         }
     }
 }

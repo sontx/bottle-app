@@ -71,6 +71,13 @@ public final class MessageAdapterHelper {
         });
     }
 
+    public static void unbindMessageToTextViewHolder(TextViewHolder textViewHolder) {
+        textViewHolder.directMessageView.setOnClickListener(null);
+        textViewHolder.voteMessageView.setOnClickListener(null);
+        textViewHolder.moreOptionView.setOnClickListener(null);
+        textViewHolder.deleteView.setOnClickListener(null);
+    }
+
     public static void fireOnDeleteMessageClick(final TextViewHolder textViewHolder, final OnMessageInteractionListener listener) {
         if (textViewHolder.item.getId() < 0) {
             AlertDialog.Builder builder = new AlertDialog.Builder(textViewHolder.itemView.getContext());

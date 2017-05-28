@@ -133,4 +133,12 @@ public class RoomMessageRecyclerViewAdapter extends RecyclerView.Adapter<Recycle
             MessageAdapterHelper.bindMessageToVideoViewHolder((MessageAdapterHelper.VideoViewHolder) holder, roomMessage, resource);
         }
     }
+
+    @Override
+    public void onViewRecycled(RecyclerView.ViewHolder holder) {
+        MessageAdapterHelper.TextViewHolder textViewHolder = (MessageAdapterHelper.TextViewHolder) holder;
+        MessageAdapterHelper.unbindMessageToTextViewHolder(textViewHolder);
+        textViewHolder.root.setOnClickListener(null);
+        super.onViewRecycled(holder);
+    }
 }
