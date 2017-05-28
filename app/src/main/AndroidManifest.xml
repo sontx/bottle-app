@@ -19,7 +19,6 @@
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />
-
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCGqcJ6i_1Cr132TftN4bJ14vJi53n2wHY" />
@@ -47,6 +46,7 @@
             android:theme="@style/FullscreenTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -77,6 +77,11 @@
             android:name=".system.service.MessagingService"
             android:enabled="true" />
 
+        <activity
+            android:name=".view.activity.QRCodeActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/title_activity_qrcode"
+            android:theme="@style/FullscreenTheme"></activity>
     </application>
 
 </manifest>

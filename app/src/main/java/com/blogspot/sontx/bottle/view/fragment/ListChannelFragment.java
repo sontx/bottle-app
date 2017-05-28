@@ -2,6 +2,7 @@ package com.blogspot.sontx.bottle.view.fragment;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
@@ -10,11 +11,14 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 
 import com.blogspot.sontx.bottle.R;
+import com.blogspot.sontx.bottle.model.bean.QRData;
 import com.blogspot.sontx.bottle.model.bean.chat.Channel;
 import com.blogspot.sontx.bottle.presenter.ListChannelPresenterImpl;
 import com.blogspot.sontx.bottle.presenter.interfaces.ListChannelPresenter;
+import com.blogspot.sontx.bottle.view.activity.QRCodeActivity;
 import com.blogspot.sontx.bottle.view.adapter.ChannelRecyclerViewAdapter;
 import com.blogspot.sontx.bottle.view.interfaces.ListChannelView;
 
@@ -81,29 +85,68 @@ public class ListChannelFragment extends FragmentBase implements ListChannelView
     public boolean onContextItemSelected(MenuItem item) {
         final Channel selectedChannel = channelRecyclerViewAdapter.getSelectedChannel();
         if (selectedChannel != null) {
+            String title = item.getTitle().toString();
             if (item.getItemId() == ChannelRecyclerViewAdapter.ITEM_DELETE_CONVERSATION) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle(item.getTitle());
-                builder.setMessage("Delete conversation with " + selectedChannel.getAnotherGuy().getPublicProfile().getDisplayName());
-                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
-                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        listChannelPresenter.deleteChannelAsync(selectedChannel);
-                        channelRecyclerViewAdapter.getValues().remove(selectedChannel);
-                        channelRecyclerViewAdapter.notifyDataSetChanged();
-                        dialog.dismiss();
-                    }
-                });
-                builder.show();
+                promptDeleteChannel(selectedChannel, title);
+            } else if (item.getItemId() == ChannelRecyclerViewAdapter.ITEM_GENERATE_QRCODE) {
+                promptGenerateQRCode(selectedChannel, title);
+            } else if (item.getItemId() == ChannelRecyclerViewAdapter.ITEM_SCAN_QRCODE) {
+
             }
         }
         return super.onContextItemSelected(item);
+    }
+
+    private void promptGenerateQRCode(final Channel selectedChannel, String title) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(title);
+        builder.setMessage("Write a message");
+        final EditText editText = new EditText(getActivity());
+        editText.setHint("Or leave it blank");
+        builder.setView(editText);
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+
+                QRData qrData = new QRData();
+                qrData.setAnotherGuyId(selectedChannel.getAnotherGuy().getId());
+                qrData.setCurrentUserId(selectedChannel.getCurrentUser().getId());
+                qrData.setMessage(editText.getText().toString());
+                Intent intent = new Intent(getActivity(), QRCodeActivity.class);
+                intent.putExtra(QRCodeActivity.QR_DATA, qrData);
+                startActivity(intent);
+            }
+        });
+        builder.show();
+    }
+
+    private void promptDeleteChannel(final Channel selectedChannel, String title) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(title);
+        builder.setMessage("Delete conversation with " + selectedChannel.getAnotherGuy().getPublicProfile().getDisplayName());
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                listChannelPresenter.deleteChannelAsync(selectedChannel);
+                channelRecyclerViewAdapter.getValues().remove(selectedChannel);
+                channelRecyclerViewAdapter.notifyDataSetChanged();
+                dialog.dismiss();
+            }
+        });
+        builder.show();
     }
 
     @Override

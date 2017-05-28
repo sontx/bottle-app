@@ -39,4 +39,8 @@
     <string name="vote">Vote</string>
     <string name="chat">Chat</string>
     <string name="emotion">emotion</string>
+
+    <string name="title_activity_qrcode">QRCodeActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
 </resources>

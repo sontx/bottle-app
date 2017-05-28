@@ -28,6 +28,8 @@ import lombok.Setter;
 
 public class ChannelRecyclerViewAdapter extends RecyclerView.Adapter<ChannelRecyclerViewAdapter.ViewHolder> {
     public static final int ITEM_DELETE_CONVERSATION = 0;
+    public static final int ITEM_GENERATE_QRCODE = 1;
+    public static final int ITEM_SCAN_QRCODE = 2;
 
     @Getter
     @Setter
@@ -123,6 +125,8 @@ public class ChannelRecyclerViewAdapter extends RecyclerView.Adapter<ChannelRecy
             if (channel != null) {
                 menu.setHeaderTitle(item.getAnotherGuy().getPublicProfile().getDisplayName());
                 menu.add(Menu.NONE, ITEM_DELETE_CONVERSATION, 0, "Delete conversation");
+                menu.add(Menu.NONE, ITEM_GENERATE_QRCODE, 0, "Generate QR Code");
+                menu.add(Menu.NONE, ITEM_SCAN_QRCODE, 0, "Scan QR Code");
             }
         }
     }
