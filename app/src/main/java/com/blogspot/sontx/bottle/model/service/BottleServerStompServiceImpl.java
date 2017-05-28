@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -17,6 +19,7 @@ import com.blogspot.sontx.bottle.utils.ThreadUtils;
 import org.java_websocket.WebSocket;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import lombok.Setter;
@@ -34,7 +37,7 @@ class BottleServerStompServiceImpl extends BottleServerServiceBase implements Bo
     private boolean requiredDisconnect;
     private LifecycleHandler lifecycleHandler;
     private NetworkStateReceiver networkStateReceiver;
-    private List<String> topics = new ArrayList<>();
+    private HashMap<String, SimpleCallback<String>> topics = new HashMap<>();
 
     @Override
     public void clearCached() {
@@ -48,9 +51,6 @@ class BottleServerStompServiceImpl extends BottleServerServiceBase implements Bo
 
     @Override
     public void reconnect(@Nullable Callback<Void> callback) {
-        if (connected)
-            return;
-
         requiredDisconnect = false;
 
         if (!App.getInstance().getBottleContext().isLogged()) {
@@ -85,9 +85,10 @@ class BottleServerStompServiceImpl extends BottleServerServiceBase implements Bo
     public void disconnect() {
         requiredDisconnect = true;
         synchronized (this) {
-            for (String topic : topics) {
+            for (String topic : topics.keySet()) {
                 client.topic(topic).unsubscribeOn(Schedulers.immediate());
             }
+            topics.clear();
         }
         client.disconnect();
         connected = false;
@@ -114,7 +115,7 @@ class BottleServerStompServiceImpl extends BottleServerServiceBase implements Bo
 
     private void doSubscribe(String topic, final SimpleCallback<String> callback) {
         synchronized (this) {
-            topics.add(topic);
+            topics.put(topic, callback);
         }
         client.topic(topic).subscribe(new Action1<StompMessage>() {
             @Override
@@ -169,6 +170,13 @@ class BottleServerStompServiceImpl extends BottleServerServiceBase implements Bo
 
     }
 
+    private Handler handler = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(Message msg) {
+            return false;
+        }
+    });
+
     private class LifecycleHandler implements Action1<LifecycleEvent> {
         @Setter
         private Callback<Void> oneshotCallback;
@@ -179,6 +187,16 @@ class BottleServerStompServiceImpl extends BottleServerServiceBase implements Bo
                 case OPENED:
                     if (oneshotCallback != null)
                         oneshotCallback.onSuccess(null);
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            synchronized (BottleServerStompServiceImpl.this) {
+                                for (String topic : topics.keySet()) {
+                                    subscribe(topic, topics.get(topic));
+                                }
+                            }
+                        }
+                    }, 500);
                     break;
 
                 case CLOSED:
