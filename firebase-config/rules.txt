@@ -55,6 +55,10 @@
           }
         }
       }
+    },
+    "qrcodes": {
+      ".read": "auth != null",
+      ".write": "auth != null"
     }
   }
 }
