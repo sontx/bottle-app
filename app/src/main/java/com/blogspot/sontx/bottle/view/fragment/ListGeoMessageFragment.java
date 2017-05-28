@@ -244,8 +244,13 @@ public class ListGeoMessageFragment extends FragmentBase implements
     }
 
     @Override
-    public void removeGeoMessage(int messageId) {
-        markerPool.removeMarkerByMessageId(messageId);
+    public void removeGeoMessage(final int messageId) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                markerPool.removeMarkerByMessageId(messageId);
+            }
+        });
     }
 
     @Override
