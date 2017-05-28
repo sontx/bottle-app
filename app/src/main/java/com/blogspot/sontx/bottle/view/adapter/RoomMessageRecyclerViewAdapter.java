@@ -54,6 +54,11 @@ public class RoomMessageRecyclerViewAdapter extends RecyclerView.Adapter<Recycle
 
     public void addRoomMessage(RoomMessage roomMessage) {
         synchronized (this) {
+            for (RoomMessage roomMessage1 : allRoomMessages) {
+                if (roomMessage.getId() == roomMessage1.getId())
+                    return;
+            }
+
             allRoomMessages.add(0, roomMessage);
             if (roomMessage.getOwner().getId().equals(currentUserId))
                 currentUserMessages.add(0, roomMessage);
