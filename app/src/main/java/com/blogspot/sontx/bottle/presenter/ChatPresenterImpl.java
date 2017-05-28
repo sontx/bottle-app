@@ -119,7 +119,7 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
             @Override
             public void onSuccess(Channel result) {
                 DummyAnimals.mix(result.getAnotherGuy().getPublicProfile());
-                FirebaseServicePool.getInstance().getChannelService().createChannel(channelId);
+                //FirebaseServicePool.getInstance().getChannelService().createChannel(channelId);
                 startChat(result);
             }
 
@@ -321,31 +321,23 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
             message.setId(value.getId());
             message.setState(value.getState());
             message.setDate(value.getTimestamp());
-            message.setSource(value.getSenderId().equalsIgnoreCase(currentUserId) ? MessageSource.LOCAL_USER : MessageSource.EXTERNAL_USER);
             message.setUserId(value.getSenderId());
 
-            PublicProfile senderPublicProfile = getPublicProfileById(value.getSenderId());
-            if (senderPublicProfile != null) {
-                message.setDisplayName(senderPublicProfile.getDisplayName());
-                message.setAvatarUrl(senderPublicProfile.getAvatarUrl());
-
-                return message;
+            PublicProfile senderPublicProfile;
+            if (value.getSenderId().equals(currentUserId)) {
+                message.setSource(MessageSource.LOCAL_USER);
+                senderPublicProfile = channel.getCurrentUser().getPublicProfile();
+            } else {
+                message.setSource(MessageSource.EXTERNAL_USER);
+                senderPublicProfile = channel.getAnotherGuy().getPublicProfile();
             }
+
+            message.setDisplayName(senderPublicProfile.getDisplayName());
+            message.setAvatarUrl(senderPublicProfile.getAvatarUrl());
+
+            return message;
         }
 
-        return null;
-    }
-
-    private PublicProfile getPublicProfileById(String senderId) {
-        if (channel != null) {
-            List<ChannelMember> memberList = channel.getMemberList();
-            if (memberList != null) {
-                for (ChannelMember member : memberList) {
-                    if (member.getId().equalsIgnoreCase(senderId))
-                        return member.getPublicProfile();
-                }
-            }
-        }
         return null;
     }
 

@@ -1,5 +1,6 @@
 package com.blogspot.sontx.bottle.presenter;
 
+import com.blogspot.sontx.bottle.App;
 import com.blogspot.sontx.bottle.model.bean.PublicProfile;
 import com.blogspot.sontx.bottle.model.bean.chat.Channel;
 import com.blogspot.sontx.bottle.model.bean.chat.ChannelDetail;
@@ -48,7 +49,9 @@ public class ChannelPresenterImpl extends PresenterBase implements ChannelPresen
                         @Override
                         public void onSuccess(PublicProfile result) {
                             synchronized (lock) {
-                                DummyAnimals.mix(result);
+                                String currentUserId = App.getInstance().getBottleContext().getCurrentBottleUser().getUid();
+                                if (!result.getId().equals(currentUserId))
+                                    DummyAnimals.mix(result);
                                 channelMember.setPublicProfile(result);
                                 if (channel.isValid())
                                     callback.onSuccess(channel);
