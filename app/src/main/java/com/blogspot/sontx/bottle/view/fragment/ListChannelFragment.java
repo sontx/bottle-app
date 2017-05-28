@@ -9,7 +9,6 @@ import android.os.Vibrator;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,15 +29,14 @@ import com.blogspot.sontx.bottle.system.Resource;
 import com.blogspot.sontx.bottle.view.activity.QRCodeActivity;
 import com.blogspot.sontx.bottle.view.adapter.ChannelRecyclerViewAdapter;
 import com.blogspot.sontx.bottle.view.interfaces.ListChannelView;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.squareup.picasso.Picasso;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -146,55 +144,23 @@ public class ListChannelFragment extends FragmentBase implements ListChannelView
         if (result.getContents() == null)
             return;
 
-        final String qrcodeId = result.getContents();
-
-        qrcodeRef = qrcodesRef.child(qrcodeId);
-        qrcodeRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.d(TAG, dataSnapshot.toString());
-                if (dataSnapshot.getValue() == null) {
-                    Log.d(TAG, "QRData: isn't available");
-                    qrcodeRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            if (dataSnapshot.getValue() != null)
-                                showScanQRResult(dataSnapshot, qrcodeRef);
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
-                    return;
-                }
-                showScanQRResult(dataSnapshot, qrcodeRef);
+        String json = result.getContents();
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            QRData qrData = objectMapper.readValue(json, QRData.class);
+            if (qrData.getChannelId().equals(selectedChannel.getId())) {
+                qrData.setRead(true);
+                qrcodeRef = qrcodesRef.child(qrData.getId());
+                qrcodeRef.setValue(qrData);
+                final PublicProfile anotherGuy = selectedChannel.getAnotherGuy().getPublicProfile();
+                showQRCodeDialog(anotherGuy, qrData);
+            } else {
+                showQRCodeMismatch();
             }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                showErrorMessage(databaseError.toException());
-            }
-        });
-    }
-
-    private void showScanQRResult(DataSnapshot dataSnapshot, final DatabaseReference qrcodeRef) {
-        final QRData qrData = dataSnapshot.getValue(QRData.class);
-
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (qrData.getChannelId().equals(selectedChannel.getId())) {
-                    qrData.setRead(true);
-                    qrcodeRef.setValue(qrData);
-                    final PublicProfile anotherGuy = selectedChannel.getAnotherGuy().getPublicProfile();
-                    showQRCodeDialog(anotherGuy, qrData);
-                } else {
-                    showQRCodeMismatch();
-                }
-            }
-        });
+        } catch (IOException e) {
+            e.printStackTrace();
+            showErrorMessage(e);
+        }
     }
 
     private void showQRCodeMismatch() {

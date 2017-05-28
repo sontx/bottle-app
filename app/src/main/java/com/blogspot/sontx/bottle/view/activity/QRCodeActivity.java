@@ -10,6 +10,8 @@ import com.blogspot.sontx.bottle.Constants;
 import com.blogspot.sontx.bottle.R;
 import com.blogspot.sontx.bottle.model.bean.QRData;
 import com.blogspot.sontx.bottle.model.service.ChildEventAdapter;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -50,12 +52,23 @@ public class QRCodeActivity extends ActivityBase {
         String qrcodesKey = System.getProperty(Constants.FIREBASE_QRCODES_KEY);
         qrcodesRef = FirebaseDatabase.getInstance().getReference(qrcodesKey);
         qrcodeRef = qrcodesRef.push();
-        bitmap = generateQRBitMap(qrcodeRef.getKey());
-        qrImageView.setImageBitmap(bitmap);
+        qrData.setId(qrcodeRef.getKey());
 
-        qrcodeRef.setValue(qrData);
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            String json = objectMapper.writeValueAsString(qrData);
 
-        qrcodesRef.addChildEventListener(childEventHandler = new ChildEventHandler());
+            bitmap = generateQRBitMap(json);
+            qrImageView.setImageBitmap(bitmap);
+
+            qrcodeRef.setValue(qrData);
+
+            qrcodesRef.addChildEventListener(childEventHandler = new ChildEventHandler());
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            showErrorMessage(e);
+            finish();
+        }
     }
 
     @Override

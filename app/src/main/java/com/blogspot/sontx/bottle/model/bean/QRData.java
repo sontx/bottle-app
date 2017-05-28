@@ -6,6 +6,7 @@ import lombok.Data;
 
 @Data
 public class QRData implements Serializable {
+    private String id;
     private String message;
     private String channelId;
     private String currentUserId;
