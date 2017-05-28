@@ -82,7 +82,7 @@ class BottleServerUserSettingServiceImpl extends BottleServerServiceBase impleme
                     currentUserSetting = response.body();
                     callback.onSuccess(userSetting);
                 } else {
-                    Log.e(TAG, "updateProfileAsync: " + response.code() + " " + response.message());
+                    Log.e(TAG, "updateUserSettingAsync: " + response.code() + " " + response.message());
                     callback.onError(new Exception(""));
                 }
             }
