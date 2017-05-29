@@ -19,6 +19,7 @@ import com.blogspot.sontx.bottle.model.bean.chat.Channel;
 import com.blogspot.sontx.bottle.presenter.ChatPresenterImpl;
 import com.blogspot.sontx.bottle.presenter.interfaces.ChatPresenter;
 import com.blogspot.sontx.bottle.system.event.NotifyRegisterMessageEvent;
+import com.blogspot.sontx.bottle.system.event.OpenChannelEvent;
 import com.blogspot.sontx.bottle.view.interfaces.ChatView;
 import com.vanniktech.emoji.EmojiPopup;
 
@@ -39,9 +40,11 @@ public class ChatActivity extends ActivityBase implements
         LoadMoreMessagesListener,
         FontEditText.OnBackPressedListener {
 
-    static final String CHANNEL_KEY = "channel";
+    public static final String CHANNEL_KEY = "channel";
     static final String CHANNEL_ID_KEY = "channel-id";
     static final String ANOTHER_GUY_ID_KEY = "another-guy-id";
+
+    public static volatile Channel currentChannel;
 
     private ChatPresenter chatPresenter;
     private SlyceMessagingFragment slyceMessagingFragment;
@@ -190,6 +193,14 @@ public class ChatActivity extends ActivityBase implements
     @Override
     public void requestLoadMoreMessages() {
         chatPresenter.requestLoadMoreMessages();
+    }
+
+    @Override
+    public void setCurrentChannel(Channel channel) {
+        currentChannel = channel;
+        OpenChannelEvent openChannelEvent = new OpenChannelEvent();
+        openChannelEvent.setChannel(channel);
+        EventBus.getDefault().post(openChannelEvent);
     }
 
     private void showSoftKeyboard() {

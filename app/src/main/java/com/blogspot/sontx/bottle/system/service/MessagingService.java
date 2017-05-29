@@ -1,20 +1,29 @@
 package com.blogspot.sontx.bottle.system.service;
 
 import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 
 import com.blogspot.sontx.bottle.App;
 import com.blogspot.sontx.bottle.R;
+import com.blogspot.sontx.bottle.model.bean.PublicProfile;
+import com.blogspot.sontx.bottle.model.bean.chat.Channel;
+import com.blogspot.sontx.bottle.model.bean.chat.ChannelMember;
 import com.blogspot.sontx.bottle.model.bean.chat.ChatMessage;
 import com.blogspot.sontx.bottle.model.service.Callback;
 import com.blogspot.sontx.bottle.model.service.FirebaseServicePool;
 import com.blogspot.sontx.bottle.model.service.SimpleCallback;
 import com.blogspot.sontx.bottle.model.service.interfaces.ChatService;
 import com.blogspot.sontx.bottle.system.event.ChangeCurrentUserEvent;
+import com.blogspot.sontx.bottle.system.event.ChatChannelChangedEvent;
 import com.blogspot.sontx.bottle.system.event.ChatMessageChangedEvent;
 import com.blogspot.sontx.bottle.system.event.ChatMessageReceivedEvent;
 import com.blogspot.sontx.bottle.system.event.NotifyRegisterMessageEvent;
+import com.blogspot.sontx.bottle.system.event.OpenChannelEvent;
 import com.blogspot.sontx.bottle.system.event.RegisterServiceEvent;
 import com.blogspot.sontx.bottle.system.event.RequestChatMessagesEvent;
 import com.blogspot.sontx.bottle.system.event.ResponseChatMessagesEvent;
@@ -23,14 +32,18 @@ import com.blogspot.sontx.bottle.system.event.SendChatTextMessageEvent;
 import com.blogspot.sontx.bottle.system.event.ServiceState;
 import com.blogspot.sontx.bottle.system.event.ServiceStateChangedEvent;
 import com.blogspot.sontx.bottle.system.event.UpdateChatMessageStateEvent;
+import com.blogspot.sontx.bottle.view.activity.ChatActivity;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
+import java.util.Random;
 
 import lombok.Getter;
 
@@ -42,6 +55,8 @@ public class MessagingService extends ServiceBase {
     private ChatService chatService;
     private Queue<ChatMessage> messageQueue = new LinkedList<>();
     private boolean isRegister = false;
+
+    private final Map<String, Integer> channelMap = new HashMap<>();
 
     @Override
     public void onCreate() {
@@ -90,6 +105,15 @@ public class MessagingService extends ServiceBase {
     /**
      * --------------------------------- begin subscribe methods --------------------------------
      **/
+
+    @Subscribe
+    public void onOpenChannelEvent(OpenChannelEvent openChannelEvent) {
+        synchronized (channelMap) {
+            Integer id = channelMap.get(openChannelEvent.getChannel().getId());
+            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.cancel(id);
+        }
+    }
 
     @Subscribe
     public void onNotifyRegisterMessageEvent(NotifyRegisterMessageEvent notifyRegisterMessageEvent) {
@@ -163,6 +187,57 @@ public class MessagingService extends ServiceBase {
                         Log.e(TAG, what.getMessage());
                     }
                 });
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onChatChannelChangedEvent(ChatChannelChangedEvent chatChannelChangedEvent) {
+        Channel channel = chatChannelChangedEvent.getChannel();
+        if (channel == null)
+            return;
+
+        Channel currentChannel = ChatActivity.currentChannel;
+        if (currentChannel != null && currentChannel.getId().equals(channel.getId()))
+            return;
+
+        ChannelMember anotherGuy = channel.getAnotherGuy();
+        if (anotherGuy == null)
+            return;
+        PublicProfile publicProfile = anotherGuy.getPublicProfile();
+        if (publicProfile == null)
+            return;
+
+/*
+        String avatarUrl = publicProfile.getAvatarUrl();
+        String url = App.getInstance().getBottleContext().getResource().absoluteUrl(avatarUrl);
+*/
+
+        Intent resultIntent = new Intent(this, ChatActivity.class);
+        resultIntent.putExtra(ChatActivity.CHANNEL_KEY, channel);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
+                .setSmallIcon(R.drawable.ic_stat_logo)
+                .setAutoCancel(true)
+                .setContentTitle(publicProfile.getDisplayName())
+                .setContentText(channel.getDetail().getLastMessage());
+
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        stackBuilder.addParentStack(ChatActivity.class);
+        stackBuilder.addNextIntent(resultIntent);
+        PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        builder.setContentIntent(resultPendingIntent);
+
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        Integer id;
+        synchronized (channelMap) {
+            id = channelMap.get(channel.getId());
+            if (id == null) {
+                Random random = new Random(System.currentTimeMillis());
+                id = random.nextInt();
+                channelMap.put(channel.getId(), id);
+            }
+        }
+        notificationManager.notify(id, builder.build());
     }
 
     /**

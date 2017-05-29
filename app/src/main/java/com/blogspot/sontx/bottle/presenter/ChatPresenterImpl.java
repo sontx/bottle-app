@@ -83,8 +83,10 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
         registerEventBusIfNecessary();
         if (MessagingService.isRunning())
             registerToService();
-        if (channel != null)
+        if (channel != null) {
             chatService.registerChannel(channel);
+            chatView.setCurrentChannel(channel);
+        }
     }
 
     @Override
@@ -99,6 +101,7 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
     public void unregisterListeners() {
         if (channel != null)
             chatService.unregisterChannel(channel.getId());
+        chatView.setCurrentChannel(null);
         EventBus.getDefault().unregister(this);
         unregisterToService();
     }
@@ -290,6 +293,8 @@ public class ChatPresenterImpl extends PresenterBase implements ChatPresenter {
         }
 
         chatService.registerChannel(channel);
+
+        chatView.setCurrentChannel(channel);
     }
 
     private boolean isRemovedChannel() {

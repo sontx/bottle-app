@@ -16,4 +16,6 @@ public interface ChatView extends ViewBase {
     void setChatTitle(String displayName);
 
     void closeAfterDeletedChannel(Channel channel);
+
+    void setCurrentChannel(Channel channel);
 }

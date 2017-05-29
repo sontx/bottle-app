@@ -60,7 +60,9 @@
             android:name=".view.activity.HomeActivity"
             android:label="@string/title_activity_home"
             android:theme="@style/FullscreenTheme" />
-        <activity android:name=".view.activity.ChatActivity" />
+        <activity
+            android:name=".view.activity.ChatActivity"
+            android:parentActivityName=".view.activity.HomeActivity" />
         <activity
             android:name=".view.activity.WriteMessageActivity"
             android:label="@string/title_activity_write_message"
@@ -82,7 +84,7 @@
             android:name=".view.activity.QRCodeActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_qrcode"
-            android:theme="@style/FullscreenTheme"></activity>
+            android:theme="@style/FullscreenTheme" />
     </application>
 
 </manifest>
